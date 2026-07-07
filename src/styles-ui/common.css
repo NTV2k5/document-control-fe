@@ -1,0 +1,22 @@
+body {
+  background-position:
+    0 0,
+    30px 30px;
+  background-size: 60px 60px;
+  background-color: #001b44;
+  font-size: 14px;
+}
+
+a[href] {
+  cursor: pointer;
+
+  button {
+    cursor: pointer;
+  }
+}
+
+button[type='submit'],
+button[type='button'] {
+  cursor: pointer;
+  /* test */
+}

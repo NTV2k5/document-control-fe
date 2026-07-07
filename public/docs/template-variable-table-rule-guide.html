@@ -1,0 +1,1516 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Template Variable Table Rule Guide</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #0f172a;
+        --muted: #64748b;
+        --line: #dbe4f0;
+        --soft: #f8fafc;
+        --blue: #0b4aa2;
+        --blue-soft: #eef6ff;
+        --green: #087f5b;
+        --green-soft: #ecfdf5;
+        --amber: #a15c07;
+        --amber-soft: #fffbeb;
+        --red: #b42318;
+        --code: #111827;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: #eef3f8;
+        color: var(--ink);
+        font-family:
+          Inter,
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        line-height: 1.6;
+      }
+
+      .shell {
+        display: grid;
+        grid-template-columns: 280px minmax(0, 1fr);
+        min-height: 100vh;
+      }
+
+      aside {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow: auto;
+        border-right: 1px solid var(--line);
+        background: #fff;
+        padding: 28px 22px;
+      }
+
+      main {
+        padding: 34px;
+      }
+
+      h1,
+      h2,
+      h3,
+      h4 {
+        line-height: 1.25;
+        margin: 0;
+      }
+
+      h1 {
+        font-size: 36px;
+        letter-spacing: 0;
+      }
+
+      h2 {
+        margin-top: 34px;
+        font-size: 24px;
+      }
+
+      h3 {
+        margin-top: 22px;
+        font-size: 18px;
+      }
+
+      p {
+        margin: 8px 0 0;
+      }
+
+      a {
+        color: var(--blue);
+        text-decoration: none;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+
+      .nav-title {
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .nav {
+        margin-top: 16px;
+        display: grid;
+        gap: 8px;
+      }
+
+      .nav a {
+        display: block;
+        border-radius: 8px;
+        padding: 8px 10px;
+        color: #334155;
+        font-size: 14px;
+      }
+
+      .nav a:hover {
+        background: var(--blue-soft);
+        text-decoration: none;
+      }
+
+      .card {
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: #fff;
+        box-shadow: 0 12px 26px rgba(15, 23, 42, 0.06);
+        padding: 24px;
+      }
+
+      .stack {
+        display: grid;
+        gap: 18px;
+      }
+
+      .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      .hint {
+        border: 1px solid #b9d7ff;
+        border-left: 4px solid #2563eb;
+        border-radius: 10px;
+        background: var(--blue-soft);
+        padding: 14px 16px;
+      }
+
+      .ok {
+        border: 1px solid #a7f3d0;
+        border-left: 4px solid var(--green);
+        border-radius: 10px;
+        background: var(--green-soft);
+        padding: 14px 16px;
+      }
+
+      .warn {
+        border: 1px solid #fde68a;
+        border-left: 4px solid var(--amber);
+        border-radius: 10px;
+        background: var(--amber-soft);
+        padding: 14px 16px;
+      }
+
+      .danger {
+        border: 1px solid #fecaca;
+        border-left: 4px solid var(--red);
+        border-radius: 10px;
+        background: #fff1f2;
+        padding: 14px 16px;
+      }
+
+      .label {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        background: #eef2ff;
+        color: #3730a3;
+        padding: 3px 10px;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      code {
+        border-radius: 6px;
+        background: #eef2f7;
+        padding: 2px 6px;
+        color: #172554;
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+        font-size: 0.92em;
+      }
+
+      pre {
+        margin: 12px 0 0;
+        overflow: auto;
+        border-radius: 10px;
+        background: var(--code);
+        color: #e5e7eb;
+        padding: 16px;
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+        font-size: 13px;
+        line-height: 1.55;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 12px;
+        background: #fff;
+      }
+
+      th,
+      td {
+        border: 1px solid var(--line);
+        padding: 10px 12px;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background: #f1f5f9;
+        font-weight: 800;
+      }
+
+      .preview th,
+      .preview td {
+        text-align: center;
+      }
+
+      .preview .left {
+        text-align: left;
+      }
+
+      .preview .section-row td {
+        background: #fff8dc;
+        font-weight: 800;
+      }
+
+      .muted {
+        color: var(--muted);
+      }
+
+      .path {
+        display: block;
+        margin-top: 6px;
+        color: #475569;
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+        font-size: 13px;
+      }
+
+      .step {
+        display: grid;
+        grid-template-columns: 36px minmax(0, 1fr);
+        gap: 12px;
+        align-items: start;
+      }
+
+      .num {
+        display: grid;
+        place-items: center;
+        width: 30px;
+        height: 30px;
+        border-radius: 999px;
+        background: #dbeafe;
+        color: #1d4ed8;
+        font-weight: 800;
+      }
+
+      @media (max-width: 980px) {
+        .shell {
+          display: block;
+        }
+
+        aside {
+          position: static;
+          height: auto;
+        }
+
+        main {
+          padding: 18px;
+        }
+
+        .grid-2 {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <aside>
+        <div class="nav-title">Table Rule Guide</div>
+        <nav class="nav">
+          <a href="#purpose">Mục đích</a>
+          <a href="#mental-model">Cách hiểu nhanh</a>
+          <a href="#file-shape">Cấu trúc file JSON</a>
+          <a href="#rule-repeat-blocks">Rule: repeat_blocks</a>
+          <a href="#rule-dynamic-column-group">Rule: dynamic_column_group</a>
+          <a href="#rule-dynamic-matrix">Rule: dynamic_matrix</a>
+          <a href="#rule-comparison-columns">Rule: comparison_columns</a>
+          <a href="#rule-configured-blocks">Rule: configured_blocks</a>
+          <a href="#behavior">Behavior: manual/computed fields</a>
+          <a href="#document-template-variables">Document templates</a>
+          <a href="#snapshot-live-config">Snapshot/live config</a>
+          <a href="#deploy-checks">Deploy checks</a>
+          <a href="#add-new">Tạo biến bảng mới</a>
+          <a href="#checklist">Checklist chống lỗi render</a>
+        </nav>
+      </aside>
+
+      <main>
+        <section id="purpose" class="card">
+          <span class="label">Developer docs</span>
+          <h1>Template Variable Table Rule Guide</h1>
+          <p class="muted">
+            Docs này giải thích từng rule cấu hình biến bảng, JSON cần viết gì,
+            user sẽ thấy gì khi insert, và bảng render ra dạng nào.
+          </p>
+          <p class="path">docs/template-variable-table-rule-guide.html</p>
+          <div class="hint" style="margin-top: 18px">
+            <strong>Nguyên tắc:</strong> user thường không chỉnh JSON. Dev cấu
+            hình JSON trong biến. UI đọc JSON để sinh form hỏi thêm và render
+            table đúng trong template document.
+          </div>
+        </section>
+
+        <section id="mental-model" class="card" style="margin-top: 22px">
+          <h2>Cách hiểu nhanh</h2>
+          <div class="grid-2">
+            <div class="step">
+              <div class="num">1</div>
+              <div>
+                <strong><code>controls</code></strong>
+                <p>
+                  User sẽ thấy câu hỏi gì khi insert biến bảng, ví dụ nhập số
+                  học kỳ hoặc danh sách trường.
+                </p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="num">2</div>
+              <div>
+                <strong><code>required</code></strong>
+                <p>Key nào bắt buộc có dữ liệu trước khi render bảng.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="num">3</div>
+              <div>
+                <strong><code>render_rule</code></strong>
+                <p>
+                  Rule engine sẽ biến table template gốc thành table cuối cùng
+                  như thế nào.
+                </p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="num">4</div>
+              <div>
+                <strong><code>structure</code></strong>
+                <p>
+                  Header, block, row template và cell config thật dùng để sinh
+                  HTML trong editor.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="file-shape" class="card" style="margin-top: 22px">
+          <h2>Cấu trúc file JSON</h2>
+          <p>File nằm trong backend để source-control như Frappe:</p>
+          <p class="path">
+            document-management-be/src/modules/templates/template-variables/template-variable-definitions/table-template/*.json
+          </p>
+          <pre><code>{
+  "doctype": "Template Variable Definition",
+  "key": "tableTemplate.teaching_plan",
+  "label": "Bảng kế hoạch giảng dạy",
+  "variable_type": "TABLE_VARIABLE",
+  "input_type": "Table",
+  "ui_config": {
+    "table_template": {
+      "id": "teaching_plan",
+      "name": "Bảng kế hoạch giảng dạy",
+      "context_schema": {
+        "controls": [],
+        "required": [],
+        "render_rule": { "type": "manual" }
+      },
+      "structure": {
+        "behavior": {},
+        "headers": [],
+        "blocks": []
+      }
+    }
+  }
+}</code></pre>
+        </section>
+
+        <section id="rule-repeat-blocks" class="card" style="margin-top: 22px">
+          <h2>Rule: <code>repeat_blocks</code></h2>
+          <p>
+            Dùng khi user nhập một con số, hệ thống lặp một hoặc nhiều block mẫu
+            theo số đó.
+          </p>
+          <div class="ok">
+            Case đang dùng: <code>{{tableTemplate.teaching_plan}}</code>. User
+            nhập số học kỳ, hệ thống sinh <code>Học kỳ 1</code>,
+            <code>Học kỳ 2</code>, <code>Học kỳ 3</code>...
+          </div>
+
+          <h3>JSON tối thiểu</h3>
+          <pre><code>{
+  "context_schema": {
+    "controls": [
+      {
+        "type": "number",
+        "key": "semesterCount",
+        "label": "Số học kỳ cần sinh",
+        "placeholder": "Ví dụ: 2",
+        "min": 1,
+        "max": 20
+      }
+    ],
+    "required": ["semesterCount"],
+    "render_rule": {
+      "type": "repeat_blocks",
+      "count_key": "semesterCount",
+      "source_block_ids": ["semester_1_summary", "semester_1_courses"],
+      "source_index": 1,
+      "index_start": 1,
+      "replacements": [
+        { "from": "semester_1", "to": "semester_{{index}}" },
+        { "from": "Học kỳ 1", "to": "Học kỳ {{index}}" }
+      ]
+    }
+  }
+}</code></pre>
+
+          <h3>User nhập</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Câu hỏi</th>
+                <th>Giá trị</th>
+                <th>Kết quả</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Số học kỳ cần sinh</td>
+                <td><code>3</code></td>
+                <td>Sinh 3 cặp block: summary + courses</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Preview render</h3>
+          <table class="preview">
+            <thead>
+              <tr>
+                <th>STT</th>
+                <th>Mã học phần</th>
+                <th>Tên học phần</th>
+                <th>Số TC</th>
+                <th>LT</th>
+                <th>TH</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="section-row">
+                <td colspan="3" class="left">Học kỳ 1</td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+              </tr>
+              <tr>
+                <td>1</td>
+                <td></td>
+                <td class="left"></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr class="section-row">
+                <td colspan="3" class="left">Học kỳ 2</td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+              </tr>
+              <tr class="section-row">
+                <td colspan="3" class="left">Học kỳ 3</td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section
+          id="rule-dynamic-column-group"
+          class="card"
+          style="margin-top: 22px"
+        >
+          <h2>Rule: <code>dynamic_column_group</code></h2>
+          <p>Dùng khi user nhập số cột con cần sinh trong một group header.</p>
+          <div class="ok">
+            Case đang dùng:
+            <code>{{tableTemplate.course_plo_contribution_matrix}}</code>. User
+            nhập số PLO, bảng sinh cột <code>plo_1</code>, <code>plo_2</code>...
+          </div>
+
+          <pre><code>{
+  "context_schema": {
+    "controls": [
+      {
+        "type": "number",
+        "key": "ploColumnCount",
+        "label": "Số cột PLO",
+        "placeholder": "Ví dụ: 8"
+      }
+    ],
+    "required": ["ploColumnCount"],
+    "render_rule": {
+      "type": "dynamic_column_group",
+      "count_key": "ploColumnCount",
+      "fixed_column_keys": ["stt", "courseCode", "courseName"],
+      "plo_parent_key": "ploGroup",
+      "plo_column_prefix": "plo_",
+      "plo_placeholder_key": "plo_placeholder",
+      "course_code_key": "courseCode",
+      "course_name_key": "courseName",
+      "course_code_table_field": "courses.code",
+      "course_name_table_field": "courses.name"
+    }
+  }
+}</code></pre>
+
+          <h3>
+            Bản đồ nối <code>render_rule</code> vào <code>structure</code>
+          </h3>
+          <p>
+            Các key trong rule không tự sinh độc lập. Nó phải trỏ đúng vào key
+            thật đang có trong <code>structure.headers</code>,
+            <code>structure.blocks[].rowTemplate</code> và cell data.
+          </p>
+          <div class="hint" style="margin-top: 14px">
+            <strong>Dịch sang UI thiết kế biến bảng:</strong> trong canvas, mỗi
+            cột hoặc nhóm header đều có một <em>mã kỹ thuật</em>. Rule chỉ dùng
+            các mã đó để biết phải giữ cột nào, nhân bản cột nào, và gắn cột mới
+            vào nhóm nào.
+          </div>
+
+          <h3>Cách config trên UI</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Trong UI</th>
+                <th>Giá trị cần đặt</th>
+                <th>Nó nối vào rule nào</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Câu hỏi user sẽ thấy</td>
+                <td>
+                  Tên: <code>Số cột PLO</code><br />
+                  Mã lưu dữ liệu: <code>ploColumnCount</code>
+                </td>
+                <td><code>count_key = ploColumnCount</code></td>
+              </tr>
+              <tr>
+                <td>Cột cố định trong canvas</td>
+                <td>
+                  <code>stt</code>, <code>courseCode</code>,
+                  <code>courseName</code>
+                </td>
+                <td><code>fixed_column_keys</code></td>
+              </tr>
+              <tr>
+                <td>Nhóm header cha</td>
+                <td>
+                  Tên: <code>Chuẩn đầu ra PLO</code><br />
+                  Mã nhóm: <code>ploGroup</code>
+                </td>
+                <td><code>plo_parent_key = ploGroup</code></td>
+              </tr>
+              <tr>
+                <td>Cột con mẫu nằm trong nhóm PLO</td>
+                <td>
+                  Tên: <code>PLO</code><br />
+                  Mã cột: <code>plo_placeholder</code><br />
+                  Nhóm cha: <code>ploGroup</code>
+                </td>
+                <td><code>plo_placeholder_key = plo_placeholder</code></td>
+              </tr>
+              <tr>
+                <td>Prefix cột sinh ra</td>
+                <td><code>plo_</code></td>
+                <td>
+                  User nhập <code>4</code> thì sinh <code>plo_1</code>,
+                  <code>plo_2</code>, <code>plo_3</code>, <code>plo_4</code>
+                </td>
+              </tr>
+              <tr>
+                <td>Cell chọn học phần</td>
+                <td>
+                  Mã cột: <code>courseName</code><br />
+                  Nguồn dữ liệu: <code>courses.name</code>
+                </td>
+                <td>
+                  <code>course_name_key</code> và
+                  <code>course_name_table_field</code>
+                </td>
+              </tr>
+              <tr>
+                <td>Cell mã học phần tự fill</td>
+                <td>
+                  Mã cột: <code>courseCode</code><br />
+                  Nguồn dữ liệu: <code>courses.code</code>
+                </td>
+                <td>
+                  <code>course_code_key</code> và
+                  <code>course_code_table_field</code>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="ok" style="margin-top: 14px">
+            <strong>Cách đọc nhanh:</strong> nếu trong UI đổi
+            <code>Mã nhóm</code> hoặc <code>Mã cột</code>, rule cũng phải đổi
+            theo đúng mã mới. Label hiển thị có thể đổi tự do, nhưng key kỹ
+            thuật phải khớp.
+          </div>
+
+          <h3>Nhiều group động: <code>group_configs</code></h3>
+          <p>
+            Một số bảng không chỉ có một nhóm PLO mà có nhiều nhóm header động.
+            Ví dụ <code>{{tableTemplate.plo_matrix}}</code> có 3 nhóm:
+            <code>knowledge</code>, <code>skills</code> và
+            <code>competencies</code>. Khi đó dùng
+            <code>render_rule.group_configs</code> thay vì chỉ dùng một cặp
+            <code>plo_parent_key</code>/<code>plo_column_prefix</code>.
+          </p>
+          <pre><code>{
+  "render_rule": {
+    "type": "dynamic_column_group",
+    "fixed_column_keys": ["stt", "courseName"],
+    "group_configs": [
+      {
+        "parent_key": "knowledge",
+        "parent_label": "Kiến thức",
+        "column_prefix": "plo_k",
+        "count_key": "knowledgePloCount",
+        "label_prefix": "PLO",
+        "label_start": 1,
+        "group_width": 33,
+        "default_count": 4
+      },
+      {
+        "parent_key": "skills",
+        "parent_label": "Kỹ năng",
+        "column_prefix": "plo_s",
+        "count_key": "skillsPloCount",
+        "label_prefix": "PLO",
+        "label_start": 5,
+        "group_width": 33,
+        "default_count": 4
+      },
+      {
+        "parent_key": "competencies",
+        "parent_label": "Mức tự chủ và trách nhiệm",
+        "column_prefix": "plo_c",
+        "count_key": "competenciesPloCount",
+        "label_prefix": "PLO",
+        "label_start": 9,
+        "group_width": 34,
+        "default_count": 4
+      }
+    ]
+  }
+}</code></pre>
+
+          <div class="warn" style="margin-top: 14px">
+            <strong>Fallback cũng phải sạch:</strong> dù FE có normalizer, phần
+            <code>structure.headers</code> trong JSON vẫn là fallback runtime.
+            Nếu <code>default_count</code> là <code>4/4/4</code> thì headers
+            tĩnh cũng chỉ nên có <code>plo_k1..4</code>,
+            <code>plo_s1..4</code>, <code>plo_c1..4</code>. Không để sót
+            headers cũ kiểu <code>11/11/12</code>, vì deploy hoặc snapshot cũ
+            có thể render thẳng fallback và gây trùng cột.
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Key trong rule</th>
+                <th>Phải match với cấu trúc nào</th>
+                <th>Ý nghĩa khi render</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>count_key</code></td>
+                <td><code>context_schema.controls[].key</code></td>
+                <td>Ô input user nhập số cột cần sinh.</td>
+              </tr>
+              <tr>
+                <td><code>fixed_column_keys</code></td>
+                <td><code>structure.headers[].key</code></td>
+                <td>Những cột giữ nguyên, không sinh động.</td>
+              </tr>
+              <tr>
+                <td><code>plo_parent_key</code></td>
+                <td>
+                  Header group có <code>key = ploGroup</code> và
+                  <code>is_parent_header = true</code>
+                </td>
+                <td>Group header cha sẽ được set lại <code>colspan</code>.</td>
+              </tr>
+              <tr>
+                <td><code>plo_column_prefix</code></td>
+                <td>Không cần có sẵn đủ cột. Prefix dùng để tạo key mới.</td>
+                <td>Sinh <code>plo_1</code>, <code>plo_2</code>, ...</td>
+              </tr>
+              <tr>
+                <td><code>plo_placeholder_key</code></td>
+                <td>
+                  Header con mẫu có <code>key = plo_placeholder</code> và
+                  <code>parent = ploGroup</code>
+                </td>
+                <td>Cột mẫu bị thay bằng các cột <code>plo_N</code>.</td>
+              </tr>
+              <tr>
+                <td><code>course_code_key</code></td>
+                <td>
+                  Header/cell có key <code>courseCode</code> trong
+                  <code>headers</code>, <code>rowTemplate</code>,
+                  <code>rows</code>
+                </td>
+                <td>
+                  Cột mã học phần, thường read-only sau khi chọn tên học phần.
+                </td>
+              </tr>
+              <tr>
+                <td><code>course_name_key</code></td>
+                <td>
+                  Header/cell có key <code>courseName</code> trong
+                  <code>headers</code>, <code>rowTemplate</code>,
+                  <code>rows</code>
+                </td>
+                <td>Cột user chọn học phần, dùng làm trigger fetch dữ liệu.</td>
+              </tr>
+              <tr>
+                <td><code>course_code_table_field</code></td>
+                <td><code>rowTemplate.courseCode.table_field</code></td>
+                <td>Nguồn DB để fill mã học phần.</td>
+              </tr>
+              <tr>
+                <td><code>course_name_table_field</code></td>
+                <td><code>rowTemplate.courseName.table_field</code></td>
+                <td>Nguồn DB để dropdown/tìm học phần.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="warn" style="margin-top: 14px">
+            <strong>Điểm dễ sai:</strong> nếu đổi key header trong canvas, ví dụ
+            đổi <code>courseName</code> thành <code>subjectName</code>, thì phải
+            đổi luôn <code>course_name_key</code> và cell trong
+            <code>rowTemplate</code>. Nếu không, rule vẫn chạy nhưng bảng sinh
+            ra sẽ mất dữ liệu hoặc không fetch được.
+          </div>
+
+          <h3>Header tối thiểu phải có</h3>
+          <pre><code>{
+  "headers": [
+    {
+      "label": "STT",
+      "key": "stt",
+      "rowspan": 2
+    },
+    {
+      "label": "Mã học phần",
+      "key": "courseCode",
+      "rowspan": 2
+    },
+    {
+      "label": "Tên học phần",
+      "key": "courseName",
+      "rowspan": 2
+    },
+    {
+      "label": "Chuẩn đầu ra PLO",
+      "key": "ploGroup",
+      "is_parent_header": true,
+      "colspan": 1
+    },
+    {
+      "label": "PLO",
+      "key": "plo_placeholder",
+      "parent": "ploGroup"
+    }
+  ]
+}</code></pre>
+
+          <h3>Row template tối thiểu phải có</h3>
+          <pre><code>{
+  "rowTemplate": {
+    "stt": {
+      "value": "",
+      "is_read_only": false
+    },
+    "courseCode": {
+      "value": "",
+      "table_field": "courses.code",
+      "is_fetching": true,
+      "is_read_only": true
+    },
+    "courseName": {
+      "value": "",
+      "table_field": "courses.name",
+      "is_fetching": true,
+      "is_read_only": false
+    },
+    "plo_placeholder": {
+      "value": "",
+      "is_read_only": false
+    }
+  },
+  "row_fetchConfig": {
+    "triggerField": "courseName",
+    "primaryTable": "courses",
+    "joinTable": "courses",
+    "fieldsToFetch": [
+      { "key": "courseCode", "table": "courses", "field": "code" },
+      { "key": "courseName", "table": "courses", "field": "name" }
+    ]
+  }
+}</code></pre>
+
+          <h3>Trước và sau khi render</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Trạng thái</th>
+                <th>Header group</th>
+                <th>Header con</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>JSON gốc</td>
+                <td><code>ploGroup.colspan = 1</code></td>
+                <td><code>plo_placeholder</code></td>
+              </tr>
+              <tr>
+                <td>User nhập <code>4</code></td>
+                <td><code>ploGroup.colspan = 4</code></td>
+                <td>
+                  <code>plo_1</code>, <code>plo_2</code>, <code>plo_3</code>,
+                  <code>plo_4</code>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Preview render nếu user nhập <code>4</code></h3>
+          <table class="preview">
+            <thead>
+              <tr>
+                <th rowspan="2">STT</th>
+                <th rowspan="2">Mã học phần</th>
+                <th rowspan="2">Tên học phần</th>
+                <th colspan="4">Chuẩn đầu ra PLO</th>
+              </tr>
+              <tr>
+                <th>1</th>
+                <th>2</th>
+                <th>3</th>
+                <th>4</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>COURSE01</td>
+                <td class="left">Tên học phần</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="rule-dynamic-matrix" class="card" style="margin-top: 22px">
+          <h2>Rule: <code>dynamic_matrix</code></h2>
+          <p>
+            Dùng khi user nhập số hàng và số cột. Hệ thống sinh matrix từ một
+            block mẫu.
+          </p>
+          <div class="ok">
+            Case đang dùng:
+            <code>{{tableTemplate.syllabus_clo_plo_matrix}}</code>. User nhập số
+            CLO và PLO.
+          </div>
+
+          <pre><code>{
+  "context_schema": {
+    "controls": [
+      {
+        "type": "number_pair",
+        "label": "Kích thước ma trận CLO-PLO",
+        "controls": [
+          { "type": "number", "key": "cloCount", "label": "Số CLO" },
+          { "type": "number", "key": "ploCount", "label": "Số PLO" }
+        ]
+      }
+    ],
+    "required": ["cloCount", "ploCount"],
+    "render_rule": {
+      "type": "dynamic_matrix",
+      "row_count_key": "cloCount",
+      "column_count_key": "ploCount",
+      "block_id": "block_syllabus_clo_plo_matrix",
+      "clo_column_key": "cloCode",
+      "plo_parent_key": "ploGroup",
+      "plo_column_prefix": "plo_",
+      "row_id_prefix": "row_clo_"
+    }
+  }
+}</code></pre>
+
+          <h3>
+            Preview render nếu user nhập CLO = <code>3</code>, PLO =
+            <code>4</code>
+          </h3>
+          <table class="preview">
+            <thead>
+              <tr>
+                <th rowspan="2">CLO</th>
+                <th colspan="4">PLO</th>
+              </tr>
+              <tr>
+                <th>1</th>
+                <th>2</th>
+                <th>3</th>
+                <th>4</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>CLO1</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>CLO2</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>CLO3</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section
+          id="rule-comparison-columns"
+          class="card"
+          style="margin-top: 22px"
+        >
+          <h2>Rule: <code>comparison_columns</code></h2>
+          <p>
+            Dùng khi user nhập hai danh sách text, hệ thống sinh hai nhóm cột
+            theo danh sách đó.
+          </p>
+          <div class="ok">
+            Case đang dùng: <code>objective_comparison_matrix</code>,
+            <code>plo_comparison_matrix</code>,
+            <code>appendix_curriculum_comparison_matrix</code>.
+          </div>
+
+          <pre><code>{
+  "context_schema": {
+    "controls": [
+      {
+        "type": "school_list_pair",
+        "domestic_key": "domesticComparisonSchools",
+        "foreign_key": "foreignComparisonSchools",
+        "label": "Danh sách trường so sánh",
+        "domestic_label": "Trường trong nước",
+        "foreign_label": "Trường nước ngoài"
+      }
+    ],
+    "required": ["domesticComparisonSchools", "foreignComparisonSchools"],
+    "render_rule": {
+      "type": "comparison_columns",
+      "domestic_key": "domesticComparisonSchools",
+      "foreign_key": "foreignComparisonSchools",
+      "domestic_parent_key": "domesticGroup",
+      "foreign_parent_key": "foreignGroup",
+      "main_content_key": "mainObjective",
+      "max_columns_per_group": 20
+    }
+  }
+}</code></pre>
+
+          <h3>User nhập</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Trường trong nước</th>
+                <th>Trường nước ngoài</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>ĐH A, ĐH B</td>
+                <td>Oxford, NUS, Monash</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Preview render</h3>
+          <table class="preview">
+            <thead>
+              <tr>
+                <th rowspan="2">Danh mục</th>
+                <th rowspan="2">Nội dung chính</th>
+                <th colspan="2">CTĐT trong nước</th>
+                <th colspan="3">CTĐT nước ngoài</th>
+                <th rowspan="2">Tỷ lệ</th>
+              </tr>
+              <tr>
+                <th>ĐH A</th>
+                <th>ĐH B</th>
+                <th>Oxford</th>
+                <th>NUS</th>
+                <th>Monash</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Kiến thức</td>
+                <td class="left">PO1...</td>
+                <td>x</td>
+                <td></td>
+                <td>x</td>
+                <td>x</td>
+                <td></td>
+                <td>60%</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section
+          id="rule-configured-blocks"
+          class="card"
+          style="margin-top: 22px"
+        >
+          <h2>Rule: <code>configured_blocks</code></h2>
+          <p>
+            Dùng khi bảng có cấu trúc cố định theo nhiều block, nhưng block nào
+            là title, summary, courses được config trong JSON.
+          </p>
+          <div class="ok">
+            Case đang dùng:
+            <code>{{tableTemplate.curriculum_framework_fixed}}</code>. Dòng
+            summary tự cộng số TC, LT, TH từ các block môn học bên dưới.
+          </div>
+
+          <pre><code>{
+  "render_rule": {
+    "type": "configured_blocks",
+    "field_map": {
+      "stt": "stt",
+      "course_code": "courseCode",
+      "course_name": "courseName",
+      "credits": "credits",
+      "lecture": "lecture",
+      "practice": "practice"
+    },
+    "block_configs": [
+      { "kind": "title", "id": "framework_title", "label": "Khung chương trình đào tạo" },
+      {
+        "kind": "summary",
+        "id": "sum_1_1",
+        "label": "1.1. Lý luận chính trị",
+        "source_course_block_ids": ["rows_1_1"]
+      },
+      { "kind": "courses", "id": "rows_1_1", "default_required_type": "BB" }
+    ],
+    "title_merge_colspan": 8,
+    "summary_merge_colspan": 3
+  }
+}</code></pre>
+
+          <h3>Preview render</h3>
+          <table class="preview">
+            <thead>
+              <tr>
+                <th>STT</th>
+                <th>Mã học phần</th>
+                <th>Tên học phần</th>
+                <th>Số TC</th>
+                <th>LT</th>
+                <th>TH</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="section-row">
+                <td colspan="6" class="left">Khung chương trình đào tạo</td>
+              </tr>
+              <tr class="section-row">
+                <td colspan="3" class="left">1.1. Lý luận chính trị</td>
+                <td>4</td>
+                <td>4</td>
+                <td>0</td>
+              </tr>
+              <tr>
+                <td>1</td>
+                <td>00112001</td>
+                <td class="left">Tên học phần</td>
+                <td>2</td>
+                <td>2</td>
+                <td>0</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="behavior" class="card" style="margin-top: 22px">
+          <h2>Behavior: manual và computed field</h2>
+          <p>
+            <code>structure.behavior</code> điều khiển cell nào user được nhập
+            tay và cell nào tự tính.
+          </p>
+          <pre><code>{
+  "structure": {
+    "behavior": {
+      "manual_fields": ["credits", "theoryHours", "practiceHours", "integratedHours"],
+      "editable_read_only_fields": ["totalCredit"],
+      "computed_fields": [
+        {
+          "target_field": "totalHours",
+          "source_fields": ["theoryHours", "practiceHours", "integratedHours"],
+          "type": "sum"
+        }
+      ]
+    }
+  }
+}</code></pre>
+          <table>
+            <thead>
+              <tr>
+                <th>Key</th>
+                <th>Dùng để làm gì</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>manual_fields</code></td>
+                <td>
+                  Không auto dropdown theo <code>table_field</code>, cho user
+                  nhập trực tiếp.
+                </td>
+              </tr>
+              <tr>
+                <td><code>editable_read_only_fields</code></td>
+                <td>Cell đang read-only trong fixture nhưng UI vẫn cho sửa.</td>
+              </tr>
+              <tr>
+                <td><code>computed_fields</code></td>
+                <td>
+                  Cell tự tính từ field khác, ví dụ tổng LT + TH + tích hợp.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section
+          id="document-template-variables"
+          class="card"
+          style="margin-top: 22px"
+        >
+          <h2>Document template variables</h2>
+          <p>
+            Biến <code>documentTemplate.*</code> render một block HTML có cấu
+            trúc sẵn. Nhóm này dùng cho các đoạn như thông tin chung học phần,
+            mô tả học phần, mục tiêu, tài liệu tham khảo, yêu cầu sinh viên.
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th>Loại key</th>
+                <th>Ví dụ</th>
+                <th>Cách dùng</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Key mới dạng namespace</td>
+                <td>
+                  <code>documentTemplate.syllabus.general_info</code><br />
+                  <code>documentTemplate.syllabus.course_description</code>
+                </td>
+                <td>
+                  Mỗi key là một section riêng. Dùng bộ này khi file template
+                  muốn tự sắp thứ tự các mục và tránh render trùng nội dung.
+                </td>
+              </tr>
+              <tr>
+                <td>Key legacy dạng flat</td>
+                <td><code>documentTemplate.syllabus_general_info</code></td>
+                <td>
+                  Có thể là block lớn đã chứa nhiều mục con. Không trộn cùng
+                  các section tách nhỏ nếu nội dung bị lặp.
+                </td>
+              </tr>
+              <tr>
+                <td>Header dùng một lần</td>
+                <td><code>documentTemplate.national_header_no_border</code></td>
+                <td>
+                  Chỉ đặt ở đầu file. Nếu đặt thêm ở cuối file, preview sẽ render
+                  thêm header dư phía dưới.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="warn" style="margin-top: 14px">
+            <strong>Case dễ bị trùng:</strong>
+            <code>documentTemplate.syllabus_general_info</code> cũ có thể đã
+            chứa mục <code>2. Mô tả học phần</code>. Nếu template cũng chèn
+            thêm <code>documentTemplate.syllabus.course_description</code> thì
+            preview sẽ thấy hai mục mô tả học phần. Cách đúng là dùng
+            <code>documentTemplate.syllabus.general_info</code> cho mục thông
+            tin chung, rồi chèn riêng
+            <code>documentTemplate.syllabus.course_description</code>.
+          </div>
+          <div class="hint" style="margin-top: 14px">
+            <strong>Khi copy biến từ file cũ:</strong> rà lại key hiện tại trong
+            JSON definitions trước khi paste. Nếu thấy key cũ không render hoặc
+            render thừa section, thay bằng key mới trong cùng nhóm
+            <code>documentTemplate.syllabus.*</code>.
+          </div>
+        </section>
+
+        <section
+          id="snapshot-live-config"
+          class="card"
+          style="margin-top: 22px"
+        >
+          <h2>Snapshot/live config</h2>
+          <p>
+            Template variable có hai nguồn cấu hình cần phân biệt rõ: JSON
+            definition hiện tại và snapshot đã lưu trong template/document.
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th>Nguồn</th>
+                <th>Dùng khi nào</th>
+                <th>Lưu ý</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  JSON definition trong
+                  <code>document-management-be/src/modules/templates/template-variables/template-variable-definitions</code>
+                </td>
+                <td>Biến mới, reset biến, hoặc chế độ live config.</td>
+                <td>Đây là canonical config cho UI và render engine.</td>
+              </tr>
+              <tr>
+                <td>
+                  Snapshot trong <code>template.variables</code> hoặc
+                  <code>document.data</code>
+                </td>
+                <td>
+                  Template/document đã lưu trước đó, đặc biệt bản đã publish.
+                </td>
+                <td>
+                  Snapshot bảo toàn dữ liệu cũ. Sửa JSON không tự phá các bản
+                  đã lưu nếu đang ở chế độ snapshot.
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Setting <code>TEMPLATE_VARIABLE_RENDER_SETTINGS</code>
+                </td>
+                <td>
+                  Chọn render theo snapshot hay dùng live config cho draft.
+                </td>
+                <td>
+                  Dùng live config để draft bắt cấu hình mới; published nên giữ
+                  snapshot để tránh đổi layout ngoài ý muốn.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="hint" style="margin-top: 14px">
+            <strong>Khi sửa JSON mà UI vẫn render kiểu cũ:</strong> kiểm tra
+            biến đang dùng snapshot hay live config. Nếu cần lấy config mới cho
+            một template/document cụ thể, reset/chọn lại biến hoặc bật live
+            config cho draft rồi lưu lại.
+          </div>
+        </section>
+
+        <section id="deploy-checks" class="card" style="margin-top: 22px">
+          <h2>Deploy checks</h2>
+          <p>
+            Khi local đúng nhưng deploy render khác, kiểm tra theo thứ tự dưới
+            đây trước khi debug UI.
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th>Check</th>
+                <th>Lệnh/API gợi ý</th>
+                <th>Kỳ vọng</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>BE đã build lại JSON definition</td>
+                <td><code>cd document-management-be && yarn build</code></td>
+                <td>
+                  File JSON trong <code>dist/src/.../template-variable-definitions</code>
+                  giống source.
+                </td>
+              </tr>
+              <tr>
+                <td>API deploy trả đúng config mới</td>
+                <td>
+                  <code>GET /api/v1/templates/template-variables/template-tables-plo-matrix</code>
+                </td>
+                <td>
+                  <code>context_schema.render_rule.type</code> là
+                  <code>dynamic_column_group</code> và fallback headers của
+                  <code>plo_matrix</code> là <code>4/4/4</code>.
+                </td>
+              </tr>
+              <tr>
+                <td>FE deploy đã có normalizer mới</td>
+                <td><code>cd document-manager && yarn build</code></td>
+                <td>
+                  UI hiển thị panel nhập <code>Số PLO kiến thức</code>,
+                  <code>Số PLO kỹ năng</code>,
+                  <code>Số PLO tự chủ/trách nhiệm</code>.
+                </td>
+              </tr>
+              <tr>
+                <td>Data đang xem không giữ snapshot cũ</td>
+                <td>
+                  Kiểm tra <code>template.variables.template_structures</code>
+                  hoặc <code>document.data.template_structures</code>.
+                </td>
+                <td>
+                  Nếu snapshot còn headers cũ, reset/chọn lại biến hoặc bật
+                  live config cho draft.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="ok" style="margin-top: 14px">
+            <strong>Case <code>plo_matrix</code>:</strong> local đúng nhưng
+            deploy bung 11/12 cột thường là do deploy đang đọc fallback cũ hoặc
+            snapshot cũ. Sửa fallback JSON về đúng default count và build lại
+            BE/FE trước, sau đó xử lý snapshot nếu template/document đã lưu từ
+            trước.
+          </div>
+        </section>
+
+        <section id="add-new" class="card" style="margin-top: 22px">
+          <h2>Tạo biến bảng mới</h2>
+          <div class="stack">
+            <div class="step">
+              <div class="num">1</div>
+              <div>
+                <strong>Tạo file JSON</strong>
+                <p class="path">
+                  document-management-be/src/modules/templates/template-variables/template-variable-definitions/table-template/my-table.json
+                </p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="num">2</div>
+              <div>
+                <strong>Đặt key biến</strong>
+                <p>
+                  <code>tableTemplate.my_table</code>. Key này là token insert
+                  vào document.
+                </p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="num">3</div>
+              <div>
+                <strong>Chọn rule</strong>
+                <p>Không cần thêm code nếu rule thuộc 5 loại trong docs này.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="num">4</div>
+              <div>
+                <strong
+                  >Config <code>headers</code> và <code>blocks</code></strong
+                >
+                <p>
+                  Header key phải khớp với cell key trong rows, rowTemplate,
+                  subsection.
+                </p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="num">5</div>
+              <div>
+                <strong>Test trong template editor</strong>
+                <p>
+                  Insert variable, nhập câu hỏi, save, kiểm tra live preview và
+                  export Word/PDF.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="checklist" class="card" style="margin-top: 22px">
+          <h2>Checklist chống lỗi render</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Check</th>
+                <th>Lý do</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <code>controls[].key</code> khớp <code>required[]</code>
+                </td>
+                <td>
+                  Nếu lệch key, insert sẽ báo thiếu config dù user đã nhập.
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <code>render_rule.count_key</code> khớp control number key
+                </td>
+                <td>Rule không đọc được số để sinh block/cột.</td>
+              </tr>
+              <tr>
+                <td>
+                  <code>source_block_ids</code> tồn tại trong
+                  <code>structure.blocks</code>
+                </td>
+                <td><code>repeat_blocks</code> không tìm được block mẫu.</td>
+              </tr>
+              <tr>
+                <td>Header parent/child khớp key</td>
+                <td>
+                  Nếu <code>parent</code> sai, bảng bị lệch header hoặc mất
+                  colspan.
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <code>table_field</code> đúng dạng <code>table.field</code>
+                </td>
+                <td>Dropdown và auto fetch row data mới lấy đúng nguồn.</td>
+              </tr>
+              <tr>
+                <td>
+                  Cell read-only cần sửa thì thêm vào
+                  <code>editable_read_only_fields</code>
+                </td>
+                <td>Tránh case user không nhập được số hoặc STT.</td>
+              </tr>
+              <tr>
+                <td>Field tự tính thì config <code>computed_fields</code></td>
+                <td>Không hardcode logic tính tổng trong component.</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="danger" style="margin-top: 16px">
+            <strong>Khi nào mới cần code mới?</strong> Chỉ khi behavior không
+            thể biểu diễn bằng 5 rule hiện tại. Khi đó thêm rule type generic
+            mới vào rule engine, không viết theo tên biến cụ thể.
+          </div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,16 @@
+.git
+.github
+.vscode
+.tanstack
+node_modules
+dist
+coverage
+*.log
+*.tsbuildinfo
+.env.local
+.env.*.local
+README.md
+ANALYSIS_TABLE_MATRIX.md
+AUTO_FILL_FEATURE.md
+QUICK_START_AUTO_FILL.md
+REFACTORING.md

@@ -1,0 +1,75 @@
+/* @tailwind utilities; */
+
+.container {
+  @apply mx-auto w-full max-w-[1224px] px-4 relative z-[1];
+
+  @include breakpoint(medium) {
+    padding: 0 40px;
+  }
+
+  @include breakpoint(large) {
+    padding: 0 12px;
+  }
+
+  &.container--narrow {
+    max-width: 790px;
+  }
+}
+
+.row {
+  @apply flex flex-wrap;
+}
+
+.col {
+  @apply px-4 flex-grow;
+}
+
+@layer components {
+  .col-1 {
+    @apply w-1/12;
+  }
+
+  .col-2 {
+    @apply w-2/12;
+  }
+
+  .col-3 {
+    @apply w-3/12;
+  }
+
+  .col-4 {
+    @apply w-4/12;
+  }
+
+  .col-5 {
+    @apply w-5/12;
+  }
+
+  .col-6 {
+    @apply w-6/12;
+  }
+
+  .col-7 {
+    @apply w-7/12;
+  }
+
+  .col-8 {
+    @apply w-8/12;
+  }
+
+  .col-9 {
+    @apply w-9/12;
+  }
+
+  .col-10 {
+    @apply w-10/12;
+  }
+
+  .col-11 {
+    @apply w-11/12;
+  }
+
+  .col-12 {
+    @apply w-full;
+  }
+}
