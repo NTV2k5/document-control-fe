@@ -4,6 +4,8 @@ import {
   Clock3,
   Files,
   Home,
+  LayoutGrid,
+  List,
   Loader2,
   MoreHorizontal,
   PlusCircle,
@@ -11,6 +13,8 @@ import {
   Send,
   Trash2,
 } from 'lucide-react';
+import { DocumentGridView } from './document-grid-view.component';
+import { DocumentSidePanel } from './document-side-panel.component';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { ApprovalStatusBadge, Toast, type ToastProps } from '../../components';
@@ -275,6 +279,7 @@ const getColumns = (
   onPublish: (row: TDocumentRow) => Promise<void>,
   onUnpublish: (row: TDocumentRow) => Promise<void>,
   onDelete: (row: TDocumentRow) => Promise<void>,
+  onSelectDocument: (row: TDocumentRow) => void,
 ): TDocumentColumn[] => {
   return [
     {
@@ -306,7 +311,7 @@ const getColumns = (
           <div className="min-w-0 whitespace-normal">
             <button
               type="button"
-              onClick={() => navigate({ to: `/documents/${row.original.id}` })}
+              onClick={() => onSelectDocument(row.original)}
               className="break-words text-left text-sm font-semibold leading-5 text-[#174A86] transition hover:text-blue-700 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-200">
               {row.original.title}
             </button>
@@ -599,6 +604,9 @@ export const DocumentsSection: React.FC<IDocumentsSectionProps> = () => {
   const isAdmin = isAdminProfile(profile) || isRootProfile(profile);
   const canCreateDocument = hasPermission(profile, 'document.create');
   const canOpenTemplateDetail = canAccessTemplates(profile);
+
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
+  const [selectedDocument, setSelectedDocument] = useState<IDocument | null>(null);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ALL' | DocumentStatus>('ALL');
@@ -994,6 +1002,7 @@ export const DocumentsSection: React.FC<IDocumentsSectionProps> = () => {
         handlePublish,
         handleUnpublish,
         handleDelete,
+        setSelectedDocument,
       ),
     [
       handleApprove,
@@ -1032,6 +1041,24 @@ export const DocumentsSection: React.FC<IDocumentsSectionProps> = () => {
         </div>
 
         <div className="flex items-center gap-2">
+          <div className="flex items-center rounded-xl border border-slate-200 bg-white p-1">
+            <button
+              type="button"
+              onClick={() => setViewMode('list')}
+              className={`flex items-center justify-center rounded-lg p-1.5 transition-colors ${
+                viewMode === 'list' ? 'bg-slate-100 text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'
+              }`}>
+              <List className="size-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode('grid')}
+              className={`flex items-center justify-center rounded-lg p-1.5 transition-colors ${
+                viewMode === 'grid' ? 'bg-slate-100 text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'
+              }`}>
+              <LayoutGrid className="size-4" />
+            </button>
+          </div>
           <Button
             size="sm"
             className="h-10 rounded-xl bg-emerald-600 px-4 hover:bg-emerald-700"
@@ -1266,17 +1293,23 @@ export const DocumentsSection: React.FC<IDocumentsSectionProps> = () => {
         )}
 
         <div className="px-6 py-5">
-          <DataTable
-            fixedHeader
-            enableFreezeColumns
-            columns={columns}
-            data={documents}
-            loading={isLoading}
-            pagination={pagination}
-            onPaginationChange={(updater) => setPagination((prev) => updater(prev))}
-          />
+          {viewMode === 'list' ? (
+            <DataTable
+              fixedHeader
+              enableFreezeColumns
+              columns={columns}
+              data={documents}
+              loading={isLoading}
+              pagination={pagination}
+              onPaginationChange={(updater) => setPagination((prev) => updater(prev))}
+            />
+          ) : (
+            <DocumentGridView documents={documents} onSelectDocument={setSelectedDocument} />
+          )}
         </div>
       </div>
+
+      <DocumentSidePanel document={selectedDocument} onClose={() => setSelectedDocument(null)} />
 
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       <DocumentInputAgentWidget />
