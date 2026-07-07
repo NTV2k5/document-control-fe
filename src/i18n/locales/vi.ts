@@ -68,6 +68,13 @@ export const vi = {
   tableDesigner: {
     dragDropHint: 'Kéo thả cột hoặc block để đổi thứ tự.',
   },
+  header: {
+    searchPlaceholder: 'Tìm tài liệu học thuật, bài nghiên cứu, bảng điểm...',
+    filter: 'Lọc',
+    voiceSearch: 'Tìm kiếm giọng nói',
+    search: 'Tìm kiếm',
+    notifications: 'Thông báo',
+  },
   auth: {
     login: {
       title: 'Đăng nhập',

@@ -68,6 +68,13 @@ export const en = {
   tableDesigner: {
     dragDropHint: 'Drag columns or blocks to reorder them.',
   },
+  header: {
+    searchPlaceholder: 'Search academic documents, research papers, transcripts...',
+    filter: 'Filter',
+    voiceSearch: 'Voice search',
+    search: 'Search',
+    notifications: 'Notifications',
+  },
   auth: {
     login: {
       title: 'Sign in',
