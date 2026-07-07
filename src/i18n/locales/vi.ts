@@ -48,6 +48,13 @@ export const vi = {
     collapse: 'Thu gọn',
     changePassword: 'Đổi mật khẩu',
     logout: 'Đăng xuất',
+    universityHubs: 'Hubs Trường',
+    myHubs: 'Hubs của tôi',
+    tickets: 'Phiếu yêu cầu',
+    management: 'Quản lý',
+    sharing: 'Đang chia sẻ',
+    shared: 'Được chia sẻ',
+    recycleBin: 'Thùng rác',
   },
   mentionAutocomplete: {
     recordFormat: {

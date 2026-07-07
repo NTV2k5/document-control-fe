@@ -13,7 +13,7 @@ export const MainLayout = ({ children, routes }: IMainLayoutProps) => {
         <Sidebar routes={routes} isCollapsed={isSidebarCollapsed} onCollapsedChange={setIsSidebarCollapsed} />
         <main
           className={`flex-1 overflow-x-hidden bg-slate-100 transition-[margin] duration-300 ease-in-out ${
-            isSidebarCollapsed ? 'ml-20' : 'ml-80'
+            isSidebarCollapsed ? 'ml-20' : 'ml-64'
           }`}>
           {children}
         </main>

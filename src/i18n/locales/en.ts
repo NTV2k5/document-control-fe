@@ -48,6 +48,13 @@ export const en = {
     collapse: 'Collapse',
     changePassword: 'Change password',
     logout: 'Log out',
+    universityHubs: 'University Hubs',
+    myHubs: 'My Hubs',
+    tickets: 'Tickets',
+    management: 'Management',
+    sharing: 'Sharing',
+    shared: 'Shared',
+    recycleBin: 'Recycle Bin',
   },
   mentionAutocomplete: {
     recordFormat: {

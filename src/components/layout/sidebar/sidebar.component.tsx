@@ -10,9 +10,15 @@ import {
   ClipboardPenLine,
   FileText,
   Files,
+  FolderOpen,
+  FolderShared,
   History,
   Home,
+  LogOut,
+  Network,
   Settings,
+  Ticket,
+  Trash2,
   Users,
 } from 'lucide-react';
 import {
@@ -30,6 +36,7 @@ import {
   canManageUsers,
   isRootProfile,
   profileStore,
+  useAuth,
 } from 'reactjs-platform/utilities';
 import { useTranslation } from '../../../i18n';
 
@@ -87,8 +94,14 @@ const pickAgentSidebarSettings = (settings: TAgentSidebarSettings): TAgentSideba
   use_global_llm_config: settings.use_global_llm_config,
 });
 
+// Mock storage data – replace with real API when available
+const STORAGE_USED_GB = 4.2;
+const STORAGE_TOTAL_GB = 10;
+const STORAGE_PERCENT = Math.round((STORAGE_USED_GB / STORAGE_TOTAL_GB) * 100);
+
 export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProps) => {
   const { t } = useTranslation();
+  const { logout } = useAuth();
   // Subscribe to profile store so sidebar re-renders when profile loads
   const profile = profileStore((s) => s.profile);
   const isAdmin = canManageUsers(profile);
@@ -104,6 +117,13 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
   );
   const agentSettings: TAgentSidebarSettings =
     canReadAgentSettings && agentSidebarSettings ? agentSidebarSettings : DEFAULT_AGENT_SIDEBAR_SETTINGS;
+
+  const displayName =
+    [profile?.first_name, profile?.last_name].filter(Boolean).join(' ').trim() || profile?.username || '';
+  const primaryScopeAssignment =
+    profile?.scope_assignments?.find((assignment) => assignment.is_primary) ?? profile?.scope_assignments?.[0];
+  const roleLabel = primaryScopeAssignment?.role.role_name || primaryScopeAssignment?.role.role_key || '';
+  const isValidImage = (url: string) => /\.(?:jpeg|jpg|gif|png|webp)$/i.test(url);
 
   useEffect(() => {
     if (!canReadAgentSettings) {
@@ -173,7 +193,7 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
       key: 'templates',
       label: t('navigation.templates'),
       href: '/templates',
-      icon: <FileText className="size-6" />,
+      icon: <FileText className="size-5" />,
       match: (path) => path === '/templates' || (path.startsWith('/templates/') && !path.startsWith('/templates/new')),
     },
   ];
@@ -183,16 +203,9 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
       key: 'template-variables',
       label: t('navigation.templateVariables'),
       href: '/template-variables',
-      icon: <Braces className="size-6" />,
+      icon: <Braces className="size-5" />,
       match: (path) => path === '/template-variables' || path.startsWith('/template-variables/'),
     },
-    // {
-    //   key: 'template-variable-docs',
-    //   label: t('navigation.templateVariableDocs'),
-    //   href: '/template-variable-docs',
-    //   icon: <BookOpen className="size-6" />,
-    //   match: (path) => path === '/template-variable-docs' || path.startsWith('/template-variable-docs/'),
-    // },
   ];
 
   const documentRoutes: IRouteConfig[] = [
@@ -200,7 +213,7 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
       key: 'documents',
       label: t('navigation.documents'),
       href: '/documents',
-      icon: <Files className="size-6" />,
+      icon: <Files className="size-5" />,
       match: (path) => path === '/documents' || path.startsWith('/documents/'),
     },
   ];
@@ -210,7 +223,7 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
       key: 'dashboard',
       label: t('navigation.dashboard'),
       href: '/dashboard',
-      icon: <BarChart3 className="size-6" />,
+      icon: <BarChart3 className="size-5" />,
       match: (path) => path === '/dashboard' || path.startsWith('/dashboard/'),
     },
   ];
@@ -219,7 +232,7 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
     key: 'agent-settings',
     label: t('navigation.agentSettings'),
     href: '/settings',
-    icon: <Settings className="size-6" />,
+    icon: <Settings className="size-5" />,
     match: (path) =>
       path === '/settings' || path.startsWith('/settings/') || path === '/openai' || path.startsWith('/openai/'),
   };
@@ -228,7 +241,7 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
     key: 'admin',
     label: t('navigation.admin'),
     href: '/admin',
-    icon: <Users className="size-6" />,
+    icon: <Users className="size-5" />,
     match: (path) => path === '/admin' || path.startsWith('/admin/'),
   };
 
@@ -236,7 +249,7 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
     key: 'template-agent',
     label: t('navigation.templateAgent'),
     href: '/template-agent',
-    icon: <Bot className="size-6" />,
+    icon: <Bot className="size-5" />,
     match: (path) => path === '/template-agent' || path.startsWith('/template-agent/'),
   };
 
@@ -244,7 +257,7 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
     key: 'document-input-agent',
     label: t('navigation.documentInputAgent'),
     href: '/document-input-agent',
-    icon: <ClipboardPenLine className="size-6" />,
+    icon: <ClipboardPenLine className="size-5" />,
     match: (path) => path === '/document-input-agent' || path.startsWith('/document-input-agent/'),
   };
 
@@ -252,8 +265,57 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
     key: 'document-input-agent-history',
     label: t('navigation.documentInputAgentHistory'),
     href: '/document-input-agent-history',
-    icon: <History className="size-6" />,
+    icon: <History className="size-5" />,
     match: (path) => path === '/document-input-agent-history' || path.startsWith('/document-input-agent-history/'),
+  };
+
+  // New Figma nav items (UI placeholder – not yet wired to real routes)
+  const universityHubsRoute: IRouteConfig = {
+    key: 'university-hubs',
+    label: t('navigation.universityHubs'),
+    href: '/home',
+    icon: <Network className="size-5" />,
+    match: () => false,
+  };
+
+  const myHubsRoute: IRouteConfig = {
+    key: 'my-hubs',
+    label: t('navigation.myHubs'),
+    href: '/home',
+    icon: <FolderOpen className="size-5" />,
+    match: () => false,
+  };
+
+  const ticketsRoute: IRouteConfig = {
+    key: 'tickets',
+    label: t('navigation.tickets'),
+    href: '/home',
+    icon: <Ticket className="size-5" />,
+    match: () => false,
+  };
+
+  const sharingRoute: IRouteConfig = {
+    key: 'sharing',
+    label: t('navigation.sharing'),
+    href: '/home',
+    icon: <FolderShared className="size-5" />,
+    match: () => false,
+  };
+
+  const sharedRoute: IRouteConfig = {
+    key: 'shared',
+    label: t('navigation.shared'),
+    href: '/home',
+    icon: <Files className="size-5" />,
+    match: () => false,
+  };
+
+  const recycleBinRoute: IRouteConfig = {
+    key: 'recycle-bin',
+    label: t('navigation.recycleBin'),
+    href: '/home',
+    icon: <Trash2 className="size-5" />,
+    match: () => false,
   };
 
   const templateAgentRoutes =
@@ -267,12 +329,12 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
     hasRootAccess && isDocumentInputAgentEnabled ? [documentInputAgentHistoryRoute] : [];
   const agentSettingsRoutes = hasRootAccess ? [agentSettingsRoute] : [];
 
-  const baseRoutes: IRouteConfig[] = [
+  const primaryRoutes: IRouteConfig[] = [
     {
       key: 'home',
       label: t('navigation.home'),
       href: '/home',
-      icon: <Home className="size-6" />,
+      icon: <Home className="size-5" />,
       match: (path) => path === '/home' || path.startsWith('/home/'),
     },
     ...(hasDashboardAccess ? dashboardRoutes : []),
@@ -282,36 +344,27 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
     ...(!isAdmin ? agentSettingsRoutes : []),
     ...(hasDocumentAccess ? documentRoutes : []),
     ...documentInputAgentRoutes,
+    universityHubsRoute,
+    myHubsRoute,
+    ticketsRoute,
   ];
 
-  const defaultRoutes: IRouteConfig[] = isAdmin
-    ? [...baseRoutes, ...documentInputAgentHistoryRoutes, adminRoute, ...agentSettingsRoutes]
-    : baseRoutes;
+  const managementRoutes: IRouteConfig[] = [
+    sharingRoute,
+    sharedRoute,
+    recycleBinRoute,
+    ...(isAdmin ? [...documentInputAgentHistoryRoutes, adminRoute, ...agentSettingsRoutes] : []),
+  ];
 
   const shouldWaitForProfile = !routes && !profile;
-  const routeList = shouldWaitForProfile ? [] : (routes ?? defaultRoutes);
+  const routeList = shouldWaitForProfile ? [] : (routes ?? primaryRoutes);
   const { pathname } = useLocation();
 
   return (
     <aside
-      className={`fixed bottom-0 left-0 top-16 z-30 flex flex-col border-r border-slate-200 bg-white/95 shadow-[0_10px_30px_rgba(15,23,42,0.06)] backdrop-blur transition-all duration-300 ease-in-out ${
-        isCollapsed ? 'w-20' : 'w-80'
+      className={`fixed bottom-0 left-0 top-16 z-30 flex flex-col border-r border-slate-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.06)] transition-all duration-300 ease-in-out ${
+        isCollapsed ? 'w-20' : 'w-64'
       }`}>
-      {/* <div
-        className={`border-b border-slate-100 px-4 py-4 transition-all duration-300 ${
-          isCollapsed ? 'flex justify-center' : ''
-        }`}>
-        {isCollapsed ? (
-          <div className="flex size-11 items-center justify-center rounded-2xl bg-[#0B2559] text-white shadow-sm">
-            <ShieldCheck className="size-5" />
-          </div>
-        ) : (
-          <div className="flex items-center gap-3">
-            <div className="flex size-11 items-center justify-center rounded-2xl bg-[#0B2559] text-white shadow-sm">
-              <ShieldCheck className="size-5" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-slate-900">{t('language.label')}</p>
               <p className="truncate text-xs text-slate-500">{t('app.title')}</p>
             </div>
           </div>
