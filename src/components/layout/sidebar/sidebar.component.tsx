@@ -238,7 +238,7 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
 
   const sharingRoute: IRouteConfig = {
     key: 'sharing',
-    label: t('navigation.sharing'),
+    label: 'My Sharing',
     href: '/dashboard/sharing',
     icon: <Share2 className="size-5" />,
     match: (path) => path.startsWith('/dashboard/sharing'),
@@ -246,7 +246,7 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
 
   const sharedRoute: IRouteConfig = {
     key: 'shared',
-    label: t('navigation.shared'),
+    label: 'Shared with me',
     href: '/dashboard/shared',
     icon: <Users className="size-5" />,
     match: (path) => path.startsWith('/dashboard/shared'),
@@ -254,7 +254,7 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
 
   const recycleBinRoute: IRouteConfig = {
     key: 'recycle-bin',
-    label: t('navigation.recycleBin'),
+    label: 'Recycle Bin',
     href: '/dashboard/recycle-bin',
     icon: <Trash2 className="size-5" />,
     match: (path) => path.startsWith('/dashboard/recycle-bin'),
@@ -325,7 +325,7 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
     ...(isAdmin ? [...documentInputAgentHistoryRoutes, adminRoute, ...agentSettingsRoutes] : []),
     {
       key: 'settings',
-      label: t('navigation.settings'),
+      label: 'Settings',
       href: '/settings',
       icon: <Settings className="size-5" />,
       match: (path) => path.startsWith('/settings'),
