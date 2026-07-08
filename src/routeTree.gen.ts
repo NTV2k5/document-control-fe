@@ -10,11 +10,11 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignInRouteImport } from './routes/sign-in'
-import { Route as HomeRouteImport } from './routes/home'
 import { Route as DocxExportPreviewRouteImport } from './routes/docx-export-preview'
 import { Route as ChangePasswordRouteImport } from './routes/change-password'
 import { Route as SidebarRouteImport } from './routes/_sidebar'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SidebarHomeRouteImport } from './routes/_sidebar/home'
 import { Route as SidebarTemplatesIndexRouteImport } from './routes/_sidebar/templates/index'
 import { Route as SidebarTemplateVariablesIndexRouteImport } from './routes/_sidebar/template-variables/index'
 import { Route as SidebarTemplateVariableDocsIndexRouteImport } from './routes/_sidebar/template-variable-docs/index'
@@ -51,11 +51,6 @@ const SignInRoute = SignInRouteImport.update({
   path: '/sign-in',
   getParentRoute: () => rootRouteImport,
 } as any)
-const HomeRoute = HomeRouteImport.update({
-  id: '/home',
-  path: '/home',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const DocxExportPreviewRoute = DocxExportPreviewRouteImport.update({
   id: '/docx-export-preview',
   path: '/docx-export-preview',
@@ -74,6 +69,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const SidebarHomeRoute = SidebarHomeRouteImport.update({
+  id: '/home',
+  path: '/home',
+  getParentRoute: () => SidebarRoute,
 } as any)
 const SidebarTemplatesIndexRoute = SidebarTemplatesIndexRouteImport.update({
   id: '/templates/',
@@ -250,8 +250,8 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/change-password': typeof ChangePasswordRoute
   '/docx-export-preview': typeof DocxExportPreviewRoute
-  '/home': typeof HomeRoute
   '/sign-in': typeof SignInRoute
+  '/home': typeof SidebarHomeRoute
   '/document-input-agent-history/$userId': typeof SidebarDocumentInputAgentHistoryUserIdRoute
   '/documents/$id': typeof SidebarDocumentsIdRouteWithChildren
   '/documents/new': typeof SidebarDocumentsNewRoute
@@ -287,8 +287,8 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/change-password': typeof ChangePasswordRoute
   '/docx-export-preview': typeof DocxExportPreviewRoute
-  '/home': typeof HomeRoute
   '/sign-in': typeof SignInRoute
+  '/home': typeof SidebarHomeRoute
   '/document-input-agent-history/$userId': typeof SidebarDocumentInputAgentHistoryUserIdRoute
   '/documents/$id': typeof SidebarDocumentsIdRouteWithChildren
   '/documents/new': typeof SidebarDocumentsNewRoute
@@ -326,8 +326,8 @@ export interface FileRoutesById {
   '/_sidebar': typeof SidebarRouteWithChildren
   '/change-password': typeof ChangePasswordRoute
   '/docx-export-preview': typeof DocxExportPreviewRoute
-  '/home': typeof HomeRoute
   '/sign-in': typeof SignInRoute
+  '/_sidebar/home': typeof SidebarHomeRoute
   '/_sidebar/document-input-agent-history/$userId': typeof SidebarDocumentInputAgentHistoryUserIdRoute
   '/_sidebar/documents/$id': typeof SidebarDocumentsIdRouteWithChildren
   '/_sidebar/documents/new': typeof SidebarDocumentsNewRoute
@@ -365,8 +365,8 @@ export interface FileRouteTypes {
     | '/'
     | '/change-password'
     | '/docx-export-preview'
-    | '/home'
     | '/sign-in'
+    | '/home'
     | '/document-input-agent-history/$userId'
     | '/documents/$id'
     | '/documents/new'
@@ -402,8 +402,8 @@ export interface FileRouteTypes {
     | '/'
     | '/change-password'
     | '/docx-export-preview'
-    | '/home'
     | '/sign-in'
+    | '/home'
     | '/document-input-agent-history/$userId'
     | '/documents/$id'
     | '/documents/new'
@@ -440,8 +440,8 @@ export interface FileRouteTypes {
     | '/_sidebar'
     | '/change-password'
     | '/docx-export-preview'
-    | '/home'
     | '/sign-in'
+    | '/_sidebar/home'
     | '/_sidebar/document-input-agent-history/$userId'
     | '/_sidebar/documents/$id'
     | '/_sidebar/documents/new'
@@ -479,7 +479,6 @@ export interface RootRouteChildren {
   SidebarRoute: typeof SidebarRouteWithChildren
   ChangePasswordRoute: typeof ChangePasswordRoute
   DocxExportPreviewRoute: typeof DocxExportPreviewRoute
-  HomeRoute: typeof HomeRoute
   SignInRoute: typeof SignInRoute
 }
 
@@ -490,13 +489,6 @@ declare module '@tanstack/react-router' {
       path: '/sign-in'
       fullPath: '/sign-in'
       preLoaderRoute: typeof SignInRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/home': {
-      id: '/home'
-      path: '/home'
-      fullPath: '/home'
-      preLoaderRoute: typeof HomeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/docx-export-preview': {
@@ -526,6 +518,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_sidebar/home': {
+      id: '/_sidebar/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof SidebarHomeRouteImport
+      parentRoute: typeof SidebarRoute
     }
     '/_sidebar/templates/': {
       id: '/_sidebar/templates/'
@@ -774,6 +773,7 @@ const SidebarTemplatesNewRouteWithChildren =
   SidebarTemplatesNewRoute._addFileChildren(SidebarTemplatesNewRouteChildren)
 
 interface SidebarRouteChildren {
+  SidebarHomeRoute: typeof SidebarHomeRoute
   SidebarDocumentInputAgentHistoryUserIdRoute: typeof SidebarDocumentInputAgentHistoryUserIdRoute
   SidebarDocumentsIdRoute: typeof SidebarDocumentsIdRouteWithChildren
   SidebarDocumentsNewRoute: typeof SidebarDocumentsNewRoute
@@ -804,6 +804,7 @@ interface SidebarRouteChildren {
 }
 
 const SidebarRouteChildren: SidebarRouteChildren = {
+  SidebarHomeRoute: SidebarHomeRoute,
   SidebarDocumentInputAgentHistoryUserIdRoute:
     SidebarDocumentInputAgentHistoryUserIdRoute,
   SidebarDocumentsIdRoute: SidebarDocumentsIdRouteWithChildren,
@@ -847,7 +848,6 @@ const rootRouteChildren: RootRouteChildren = {
   SidebarRoute: SidebarRouteWithChildren,
   ChangePasswordRoute: ChangePasswordRoute,
   DocxExportPreviewRoute: DocxExportPreviewRoute,
-  HomeRoute: HomeRoute,
   SignInRoute: SignInRoute,
 }
 export const routeTree = rootRouteImport
