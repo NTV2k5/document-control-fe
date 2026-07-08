@@ -13,7 +13,7 @@ export function OverviewBanner({ trendingData }: OverviewBannerProps) {
     <div>
       {/* Page title row */}
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-3xl font-extrabold text-slate-900">Overview</h2>
+        <h2 className="text-2xl font-bold text-slate-900">Overview</h2>
         <div className="flex -space-x-2">
           {[1, 2].map((i) => (
             <img
@@ -47,10 +47,10 @@ export function OverviewBanner({ trendingData }: OverviewBannerProps) {
           {/* Content */}
           <div className="relative z-10 flex w-full flex-col-reverse items-center justify-between gap-6 p-8 md:flex-row">
             {/* Text + buttons glass card */}
-            <div className="w-full rounded-2xl border border-white/15 bg-white/10 p-6 backdrop-blur-md md:max-w-md">
-              <h1 className="mb-3 text-2xl leading-tight font-extrabold text-white md:text-3xl whitespace-nowrap">
+            <div className="w-full rounded-2xl border border-white/15 bg-white/10 p-6 backdrop-blur-md md:max-w-sm">
+              <h1 className="mb-3 text-xl leading-tight font-extrabold text-white md:text-2xl">
                 GDU Portal <br />
-                <span className="text-cyan-400">Document Control</span>
+                <span className="text-cyan-400 whitespace-nowrap">Document Control</span>
               </h1>
               <p className="mb-4 text-sm leading-relaxed font-medium text-slate-200">
                 Experience a centralized, transparent, and AI-driven ecosystem for university-wide
