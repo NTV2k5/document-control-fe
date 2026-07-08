@@ -1,4 +1,4 @@
-import { Eye, MoreVertical } from 'lucide-react';
+import { Eye, MoreVertical, BadgeCheck } from 'lucide-react';
 import { type IDocument } from 'api';
 import { formatDate } from '../../lib';
 
@@ -11,46 +11,24 @@ interface IDocumentGridViewProps {
 
 const getFileIconContainer = (type?: string) => {
   const typeLower = type?.toLowerCase() || '';
+  let colorClass = 'text-blue-600';
   
-  if (typeLower === 'pdf') {
-    return (
-      <div className="flex size-20 shrink-0 flex-col items-center justify-center rounded-2xl border border-red-100 bg-red-50 text-red-500">
-        <svg className="size-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-        </svg>
-        <span className="mt-1 rounded bg-red-500 px-1 py-0.2 text-[8px] font-black text-white uppercase tracking-wider">PDF</span>
-      </div>
-    );
+  if (typeLower === 'image_form' || typeLower === 'pdf') {
+    colorClass = 'text-red-500';
+  } else if (typeLower === 'spreadsheet' || typeLower === 'excel') {
+    colorClass = 'text-emerald-500';
+  } else if (typeLower === 'rich_text' || typeLower === 'word') {
+    colorClass = 'text-emerald-500'; // Make Excel-like or document-like sheets icon green as in mockup image 2
   }
-  
-  if (typeLower === 'excel' || typeLower === 'spreadsheet') {
-    return (
-      <div className="flex size-20 shrink-0 flex-col items-center justify-center rounded-2xl border border-emerald-100 bg-emerald-50 text-emerald-600">
-        <svg className="size-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-        </svg>
-        <span className="mt-1 rounded bg-emerald-600 px-1 py-0.2 text-[8px] font-black text-white uppercase tracking-wider">XLS</span>
-      </div>
-    );
-  }
-  
-  if (typeLower === 'word' || typeLower === 'rich_text') {
-    return (
-      <div className="flex size-20 shrink-0 flex-col items-center justify-center rounded-2xl border border-blue-100 bg-blue-50 text-blue-600">
-        <svg className="size-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-        </svg>
-        <span className="mt-1 rounded bg-blue-600 px-1 py-0.2 text-[8px] font-black text-white uppercase tracking-wider">DOC</span>
-      </div>
-    );
-  }
-  
+
+  // Set the icon color to emerald green for sheets as shown in Figma image 2
+  const iconColor = typeLower === 'spreadsheet' || typeLower === 'excel' ? 'text-emerald-500' : colorClass;
+
   return (
-    <div className="flex size-20 shrink-0 flex-col items-center justify-center rounded-2xl border border-slate-100 bg-slate-50 text-slate-500">
-      <svg className="size-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+    <div className="flex size-24 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-white">
+      <svg className={`size-12 ${iconColor}`} viewBox="0 0 24 24" fill="currentColor">
+        <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm0-4H8V8h8v2zm-3-5V3.5L18.5 9H13z" />
       </svg>
-      <span className="mt-1 rounded bg-slate-500 px-1 py-0.2 text-[8px] font-black text-white uppercase tracking-wider">TXT</span>
     </div>
   );
 };
@@ -98,20 +76,18 @@ export const DocumentGridView = ({ documents, selectedDocument, onSelectDocument
               {/* Right Column: Text and Metas */}
               <div className="flex-1 min-w-0 pr-4">
                 {/* Title */}
-                <h3 className="line-clamp-2 text-sm font-bold text-[#1B2559] leading-snug mb-2 pr-2" title={doc.title}>
+                <h3 className="line-clamp-2 text-sm font-bold text-[#1b2559] leading-snug mb-2 pr-2" title={doc.title}>
                   {doc.title}
                 </h3>
                 
                 {/* Status & Recipients */}
                 <div className="flex flex-wrap items-center gap-3 justify-between mb-2">
-                  <span className="flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-[9px] font-bold text-blue-600 border border-blue-100/50">
-                    <svg className="size-2.5 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
+                  <span className="flex items-center gap-1 rounded-full bg-[#eef2ff] px-2.5 py-0.5 text-[10px] font-bold text-[#2563eb] border border-blue-100">
+                    <BadgeCheck className="size-4 text-[#2563eb] fill-white" />
                     {doc.status === 'APPROVED' ? 'APPROVED' : doc.status}
                   </span>
 
-                  <div className="flex items-center gap-1.5 text-[9px] font-bold text-slate-400 uppercase">
+                  <div className="flex items-center gap-1.5 text-[10px] font-bold text-[#a3aed0] uppercase">
                     <span>RECIPIENTS:</span>
                     <div className="flex -space-x-1.5 ml-0.5">
                       <img src={`https://i.pravatar.cc/100?u=u${idx}a`} alt="avatar" className="size-5 rounded-full ring-2 ring-white bg-slate-200" />
@@ -123,25 +99,26 @@ export const DocumentGridView = ({ documents, selectedDocument, onSelectDocument
                   </div>
                 </div>
 
-                {/* Creator Metadata */}
-                <div className="text-[11px] text-slate-400 space-y-0.5">
-                  <div>
-                    Created by: <span className="font-bold text-blue-600">{doc.created_by || 'Sarah Chen'}</span>
-                  </div>
-                  <div>
-                    Created on: {formatDate(doc.created_at)}
-                  </div>
+                {/* Creator Metadata (Created by and Created on inline, bold) */}
+                <div className="flex flex-wrap gap-x-4 text-[11px] text-[#a3aed0] font-bold mt-3">
+                  <span>
+                    Created by: <span className="font-extrabold text-[#2b3674]">{doc.created_by || 'Sarah Chen'}</span>
+                  </span>
+                  <span>
+                    Created on:{' '}
+                    <span className="font-extrabold text-[#2b3674]">{formatDate(doc.created_at)}</span>
+                  </span>
                 </div>
               </div>
             </div>
 
             {/* Footer Row: Divider + Tag & Views */}
-            <div className="flex w-full items-center justify-between mt-4 pt-3 border-t border-slate-50">
-              <span className="text-[10px] font-extrabold text-blue-500 uppercase tracking-wide">
-                #{doc.template?.template_type || 'ACADEMIC'}
+            <div className="flex w-full items-center justify-between mt-4 pt-3 border-t border-slate-100">
+              <span className="flex items-center gap-1 text-[11px] font-bold text-[#2563eb] uppercase tracking-wide">
+                # #{doc.template?.template_type || 'ACADEMIC'}
               </span>
-              <div className="flex items-center gap-1 text-[10px] text-slate-400 font-medium">
-                <Eye className="size-3.5" /> 12 views
+              <div className="flex items-center gap-1 text-[11px] text-[#a3aed0] font-bold">
+                <Eye className="size-4" /> 12 views
               </div>
             </div>
 
