@@ -257,7 +257,7 @@ const ReportCardGrid = ({ cards }: { cards: TReportCard[] }) => (
         <div className={`mb-3 flex size-10 items-center justify-center rounded-lg border-t-4 ${card.accentClassName}`}>
           {card.icon}
         </div>
-        <div className="text-3xl font-bold leading-none text-slate-900">{card.value}</div>
+        <div className="text-2xl font-bold leading-none text-slate-900">{card.value}</div>
         <div className="mt-2 text-sm font-semibold text-slate-700">{card.label}</div>
         <div className="mt-1 text-xs text-slate-400">{card.description}</div>
       </div>
@@ -1027,7 +1027,7 @@ export const DocumentsSection: React.FC<IDocumentsSectionProps> = () => {
     <div className="space-y-6 p-6">
       {/* ── Title & Export ── */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-[#1B2559]">Published Documents</h1>
+        <h1 className="text-3xl font-bold text-[#1B2559]">Published Documents</h1>
         <Button
           size="sm"
           className="h-10 rounded-xl bg-blue-600 px-6 font-bold hover:bg-blue-700">

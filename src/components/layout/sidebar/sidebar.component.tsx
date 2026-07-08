@@ -344,14 +344,14 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
       {/* Logo Area */}
       <div className="flex h-16 items-center justify-between border-b border-slate-100 px-4">
         {!isCollapsed && (
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             {/* Landmark icon */}
-            <div className="flex size-9 items-center justify-center rounded-full bg-blue-600 text-white shadow-[0_4px_12px_rgba(37,99,235,0.35)]">
+            <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-blue-600 text-white shadow-[0_4px_12px_rgba(37,99,235,0.35)]">
               <Landmark className="size-5" />
             </div>
             <div className="flex flex-col leading-tight">
               <span className="text-[14px] font-bold text-slate-800 whitespace-nowrap">Document Control</span>
-              <span className="text-[10px] font-bold tracking-widest text-blue-600 uppercase">ADMIN</span>
+              <span className="text-[9px] font-bold tracking-widest text-blue-600 uppercase">ADMIN</span>
             </div>
           </div>
         )}

@@ -14,7 +14,7 @@ export const SidebarItem = ({ icon, label, href, is_active, isCollapsed }: ISide
       <div
         className={cn(
           'flex items-center transition-all duration-200',
-          isCollapsed ? 'size-12 justify-center rounded-full' : 'w-full min-w-0 gap-2.5 px-3 py-2 rounded-full',
+          isCollapsed ? 'size-12 justify-center rounded-full' : 'w-full min-w-0 gap-3 px-3 py-2.5 rounded-full',
           is_active
             ? 'bg-blue-600 text-white shadow-[0_8px_16px_rgba(37,99,235,0.25)]'
             : 'border-transparent text-slate-500 hover:bg-slate-50 hover:text-slate-900',
