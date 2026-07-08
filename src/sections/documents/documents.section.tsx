@@ -75,7 +75,7 @@ const MOCK_DOCUMENTS: DocumentRow[] = Array.from({ length: 24 }, (_, index) => {
   const isFinancial = index >= 12 && index < 20;
   
   let title = `MH-Admin_Enrollment_Form_Final_${2025 - index}`;
-  let artifact_type: 'pdf' | 'excel' | 'word' = 'pdf';
+  let artifact_type: IDocument['artifact_type'] = 'image_form';
   let template_type = 'ACADEMIC';
   let created_by = 'Sarah Chen';
   let status: DocumentStatus = 'APPROVED';
@@ -83,27 +83,27 @@ const MOCK_DOCUMENTS: DocumentRow[] = Array.from({ length: 24 }, (_, index) => {
   if (isAcademic) {
     if (index % 2 === 0) {
       title = `MH-Admin_Enrollment_Form_Final_${2025 - index}`;
-      artifact_type = 'pdf';
+      artifact_type = 'image_form';
     } else {
       title = `Project_Internal_Assessment_Spreadsheet_V${index + 1}`;
-      artifact_type = 'excel';
+      artifact_type = 'spreadsheet';
     }
     template_type = 'ACADEMIC';
     created_by = 'Sarah Chen';
     status = 'APPROVED';
   } else if (isFinancial) {
     title = `Quarterly_Financial_Statement_Q${(index % 4) + 1}_2025`;
-    artifact_type = 'excel';
+    artifact_type = 'spreadsheet';
     template_type = 'FINANCIAL';
     created_by = 'David Wilson';
     status = 'APPROVED';
   } else {
     // 4 Pending/Word documents
     title = `Research_Proposal_Final_Draft_V${index - 19}`;
-    artifact_type = 'word';
+    artifact_type = 'rich_text';
     template_type = 'ACADEMIC'; // Classify under Academic for tab compatibility or keep general
     created_by = 'David Wilson';
-    status = 'PENDING';
+    status = 'SUBMITTED';
   }
 
   return {
@@ -530,13 +530,6 @@ export const DocumentsSection: React.FC<IDocumentsSectionProps> = () => {
     return displayDocs.slice(start, end);
   }, [displayDocs, documents.length, pagination.page, pageSize]);
 
-  // Default to selecting the first document in the list if none is selected
-  useEffect(() => {
-    const list = documents.length > 0 ? documents : MOCK_DOCUMENTS;
-    if (list.length > 0 && !selectedDocument) {
-      setSelectedDocument(list[0]);
-    }
-  }, [documents, selectedDocument]);
 
   const handleDelete = useCallback(
     async (row: DocumentRow) => {
@@ -822,6 +815,7 @@ export const DocumentsSection: React.FC<IDocumentsSectionProps> = () => {
                 documents={paginatedDocs}
                 selectedDocument={selectedDocument}
                 onSelectDocument={setSelectedDocument}
+                hasSelection={!!selectedDocument}
               />
             )}
 
@@ -890,14 +884,16 @@ export const DocumentsSection: React.FC<IDocumentsSectionProps> = () => {
           </div>
         </div>
 
-        {/* Right side-panel: always rendered on desktop side-by-side */}
-        <div className="hidden xl:block">
-          <DocumentSidePanel
-            document={selectedDocument}
-            onClose={() => setSelectedDocument(null)}
-            inline={true}
-          />
-        </div>
+        {/* Right Side: Embedded Side Panel (Desktop inline variant) */}
+        {selectedDocument && (
+          <div className="hidden xl:block">
+            <DocumentSidePanel
+              document={selectedDocument}
+              onClose={() => setSelectedDocument(null)}
+              inline={true}
+            />
+          </div>
+        )}
       </div>
 
       {/* Drawer variant for mobile/tablet */}
