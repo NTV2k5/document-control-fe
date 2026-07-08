@@ -119,22 +119,22 @@ export const TicketTable = ({
       <div className="overflow-x-auto">
         <table className="w-full min-w-[1400px] text-sm">
           <thead>
-            <tr className="border-b border-slate-100 bg-slate-50/60">
+            <tr className="border-b border-slate-100 bg-slate-50/60 whitespace-nowrap">
               <th className="w-10 px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">STT</th>
-              <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Mã</th>
-              <th className="min-w-[160px] px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Nội dung</th>
+              <th className="min-w-[90px] px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Mã</th>
+              <th className="min-w-[200px] px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Nội dung</th>
               <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Sinh viên</th>
-              <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Loại</th>
+              <th className="min-w-[150px] px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Loại</th>
               <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Người tạo ticket</th>
               <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Ngày yêu cầu</th>
-              <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Nguồn</th>
+              <th className="min-w-[110px] px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Nguồn</th>
               <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Mã phiếu</th>
               <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Hình thức</th>
-              <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Phí</th>
+              <th className="min-w-[110px] px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Phí</th>
               <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Người phụ trách</th>
               <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Người hỗ trợ</th>
               <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Deadline</th>
-              <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Trạng thái</th>
+              <th className="min-w-[125px] px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Trạng thái</th>
               <th className="min-w-[120px] px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">SLA</th>
             </tr>
           </thead>
@@ -149,7 +149,7 @@ export const TicketTable = ({
                 <td className="px-3 py-3 text-slate-500">{start + idx + 1}</td>
 
                 {/* 2. Mã */}
-                <td className="px-3 py-3">
+                <td className="px-3 py-3 whitespace-nowrap">
                   <span className="font-semibold text-blue-600">{ticket.code}</span>
                 </td>
 
@@ -160,12 +160,12 @@ export const TicketTable = ({
 
                 {/* 4. Sinh viên */}
                 <td className="px-3 py-3">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 whitespace-nowrap">
                     <div className={`flex size-7 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white ${avatarColor(ticket.student.name)}`}>
                       {initials(ticket.student.name)}
                     </div>
-                    <div className="min-w-0">
-                      <div className="truncate text-xs font-medium text-slate-800">{ticket.student.name}</div>
+                    <div>
+                      <div className="text-xs font-medium text-slate-800">{ticket.student.name}</div>
                       <div className="text-[10px] text-slate-400">{ticket.student.mssv}</div>
                     </div>
                   </div>
@@ -173,7 +173,7 @@ export const TicketTable = ({
 
                 {/* 5. Loại */}
                 <td className="px-3 py-3">
-                  <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold ${typeBadgeClass(ticket.type)}`}>
+                  <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold whitespace-nowrap ${typeBadgeClass(ticket.type)}`}>
                     <span className={`mr-1 size-1.5 rounded-full ${
                       ticket.type === ETicketType.CUNG_CAP_THONG_TIN ? 'bg-blue-500' : 'bg-indigo-700'
                     }`} />
@@ -183,12 +183,12 @@ export const TicketTable = ({
 
                 {/* 6. Người tạo ticket */}
                 <td className="px-3 py-3">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 whitespace-nowrap">
                     <div className={`flex size-6 shrink-0 items-center justify-center rounded-full text-[9px] font-bold text-white ${avatarColor(ticket.creator.name)}`}>
                       {initials(ticket.creator.name)}
                     </div>
-                    <div className="min-w-0">
-                      <div className="truncate text-xs text-slate-700">{ticket.creator.name}</div>
+                    <div>
+                      <div className="text-xs text-slate-700">{ticket.creator.name}</div>
                       <div className="text-[10px] text-slate-400">{ticket.creator.role}</div>
                     </div>
                   </div>
@@ -203,7 +203,7 @@ export const TicketTable = ({
                 <td className="px-3 py-3" onClick={(e) => e.stopPropagation()}>
                   <button
                     onClick={() => onSourceClick(ticket)}
-                    className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold transition-colors hover:opacity-80 ${sourceBadgeClass(ticket.source)}`}
+                    className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold whitespace-nowrap transition-colors hover:opacity-80 ${sourceBadgeClass(ticket.source)}`}
                   >
                     <span className={`mr-1 size-1.5 rounded-full ${
                       ticket.source === ETicketSource.AI_CHATBOT ? 'bg-purple-600' : 'bg-slate-500'
@@ -233,18 +233,18 @@ export const TicketTable = ({
 
                 {/* 11. Có thu phí */}
                 <td className="px-3 py-3">
-                  <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold ${feeBadgeClass(ticket.paymentStatus)}`}>
+                  <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold whitespace-nowrap ${feeBadgeClass(ticket.paymentStatus)}`}>
                     {feeLabel(ticket.paymentStatus)}
                   </span>
                 </td>
 
                 {/* 12. Người phụ trách */}
                 <td className="px-3 py-3">
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5 whitespace-nowrap">
                     <div className={`flex size-6 shrink-0 items-center justify-center rounded-full text-[9px] font-bold text-white ${avatarColor(ticket.assignee.name)}`}>
                       {initials(ticket.assignee.name)}
                     </div>
-                    <span className="truncate text-xs text-slate-700">{ticket.assignee.name}</span>
+                    <span className="text-xs text-slate-700">{ticket.assignee.name}</span>
                   </div>
                 </td>
 
@@ -279,7 +279,7 @@ export const TicketTable = ({
 
                 {/* 15. Trạng thái */}
                 <td className="px-3 py-3">
-                  <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold ${statusBadgeClass(ticket.status)}`}>
+                  <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold whitespace-nowrap ${statusBadgeClass(ticket.status)}`}>
                     {statusLabel(ticket.status)}
                   </span>
                 </td>
