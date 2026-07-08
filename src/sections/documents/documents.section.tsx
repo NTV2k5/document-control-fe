@@ -120,13 +120,13 @@ const MOCK_DOCUMENTS: DocumentRow[] = Array.from({ length: 24 }, (_, index) => {
     template: {
       id: `mock-template-${index + 1}`,
       name: `Template ${index + 1}`,
-      version: '1.0',
+      version: 1,
       status: 'APPROVED',
       template_type,
       artifact_type,
       visibility: 'PUBLIC',
       organization_unit_id: 'mock-unit',
-      source_file_name: `template_${index + 1}.${artifact_type === 'excel' ? 'xlsx' : artifact_type === 'pdf' ? 'pdf' : 'docx'}`,
+      source_file_name: `template_${index + 1}.${artifact_type === 'spreadsheet' ? 'xlsx' : artifact_type === 'image_form' ? 'pdf' : 'docx'}`,
       template_metadata: null,
     },
     permissions: {
@@ -728,9 +728,9 @@ export const DocumentsSection: React.FC<IDocumentsSectionProps> = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" onClick={() => setSelectedDocument(null)}>
       {/* ── Title & Export ── */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between" onClick={(e) => e.stopPropagation()}>
         <h1 className="text-3xl font-bold text-slate-900">Published Documents</h1>
         <Button
           size="sm"
@@ -741,7 +741,7 @@ export const DocumentsSection: React.FC<IDocumentsSectionProps> = () => {
       </div>
 
       {/* ── Tabs & View Toggle ── */}
-      <div className="flex items-center justify-between border-b border-slate-200">
+      <div className="flex items-center justify-between border-b border-slate-200" onClick={(e) => e.stopPropagation()}>
         <div className="flex gap-8">
           <button
             onClick={() => handleTabClick('ALL')}
@@ -800,27 +800,31 @@ export const DocumentsSection: React.FC<IDocumentsSectionProps> = () => {
         <div className="flex-1 min-w-0 w-full space-y-6">
           <div className="rounded-[28px] border border-slate-100 bg-white p-6 shadow-sm">
             {viewMode === 'list' ? (
-              <DataTable
-                fixedHeader
-                enableFreezeColumns
-                columns={columns}
-                data={paginatedDocs}
-                loading={isLoading}
-                pagination={pagination}
-                hidePagination={true}
-                onPaginationChange={(updater) => setPagination((prev) => updater(prev))}
-              />
+              <div onClick={(e) => e.stopPropagation()}>
+                <DataTable
+                  fixedHeader
+                  enableFreezeColumns
+                  columns={columns}
+                  data={paginatedDocs}
+                  loading={isLoading}
+                  pagination={pagination}
+                  hidePagination={true}
+                  onPaginationChange={(updater) => setPagination((prev) => updater(prev))}
+                />
+              </div>
             ) : (
-              <DocumentGridView
-                documents={paginatedDocs}
-                selectedDocument={selectedDocument}
-                onSelectDocument={setSelectedDocument}
-                hasSelection={!!selectedDocument}
-              />
+              <div onClick={(e) => e.stopPropagation()}>
+                <DocumentGridView
+                  documents={paginatedDocs}
+                  selectedDocument={selectedDocument}
+                  onSelectDocument={setSelectedDocument}
+                  hasSelection={!!selectedDocument}
+                />
+              </div>
             )}
 
             {/* Custom Figma-style Pagination Bar */}
-            <div className="flex flex-wrap items-center justify-between gap-4 border-t border-slate-50 pt-5 mt-6">
+            <div className="flex flex-wrap items-center justify-between gap-4 border-t border-slate-50 pt-5 mt-6" onClick={(e) => e.stopPropagation()}>
               <div className="text-xs font-semibold text-slate-400">
                 Displaying {totalEntries > 0 ? (pagination.page - 1) * pageSize + 1 : 0} -{' '}
                 {Math.min(pagination.page * pageSize, totalEntries)} of {totalEntries} entries
