@@ -238,7 +238,7 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
 
   const sharingRoute: IRouteConfig = {
     key: 'sharing',
-    label: 'My Sharing',
+    label: 'Sharing',
     href: '/dashboard/sharing',
     icon: <Share2 className="size-5" />,
     match: (path) => path.startsWith('/dashboard/sharing'),
@@ -246,7 +246,7 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
 
   const sharedRoute: IRouteConfig = {
     key: 'shared',
-    label: 'Shared with me',
+    label: 'Shared',
     href: '/dashboard/shared',
     icon: <Users className="size-5" />,
     match: (path) => path.startsWith('/dashboard/shared'),
