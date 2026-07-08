@@ -27,8 +27,8 @@ export const MainLayout = ({ children, routes }: IMainLayoutProps) => {
             {children}
           </div>
         </main>
+        <ChatbotButton />
       </div>
-      <ChatbotButton />
     </div>
   );
 };

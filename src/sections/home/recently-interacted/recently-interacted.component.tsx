@@ -48,7 +48,7 @@ export function RecentlyInteracted({ docs }: RecentlyInteractedProps) {
     <div>
       {/* Header row */}
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="flex items-center gap-2 text-lg font-bold text-slate-900">
+        <h3 className="flex items-center gap-2 text-xl font-bold text-slate-900">
           <History className="h-5 w-5 text-blue-600" strokeWidth={2.5} />
           Recently Interacted
         </h3>
@@ -108,19 +108,17 @@ export function RecentlyInteracted({ docs }: RecentlyInteractedProps) {
                 </p>
                 <div className="flex items-center justify-between border-t border-slate-100 pt-3">
                   <p className="text-[11px] font-semibold text-slate-400">Edited {doc.edited}</p>
-                  {/* Overlapping user avatars */}
-                  <div className="flex -space-x-2">
-                    <img
-                      src={`https://i.pravatar.cc/100?u=user-${doc.id}`}
-                      alt="User Avatar"
-                      className="size-5 rounded-full border border-white object-cover shadow-sm"
-                    />
-                    <img
-                      src={`https://i.pravatar.cc/100?u=user-${doc.id + 10}`}
-                      alt="User Avatar"
-                      className="size-5 rounded-full border border-white object-cover shadow-sm"
-                    />
-                  </div>
+                  {/* User avatars */}
+                  <div className="flex -space-x-1.5">
+                    {[1, 2, 3].map((i) => (
+                      <img
+                        key={i}
+                        src={`https://i.pravatar.cc/150?u=${doc.id}${i}`}
+                        alt={`User ${i}`}
+                        className="h-5 w-5 rounded-full border-[1.5px] border-white object-cover shadow-sm"
+                      />
+                    ))}
+                  </div>>
                 </div>
               </div>
             </div>

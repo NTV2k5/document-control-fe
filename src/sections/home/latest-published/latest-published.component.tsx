@@ -38,7 +38,7 @@ export function LatestPublished({ docs }: LatestPublishedProps) {
   return (
     <div>
       <div className="mb-6 flex items-center justify-between px-1">
-        <h3 className="text-lg font-bold text-slate-900">Latest Published</h3>
+        <h3 className="text-xl font-bold text-slate-900">Latest Published</h3>
         <button className="text-sm font-bold text-blue-600 hover:underline">
           View All Documents
         </button>

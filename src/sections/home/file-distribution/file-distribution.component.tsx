@@ -48,7 +48,7 @@ export function FileDistribution({ data }: FileDistributionProps) {
       <CardContent className="p-8">
         <div className="mb-8 flex items-start justify-between">
           <div>
-            <h3 className="text-lg font-bold text-slate-900">File Distribution</h3>
+            <h3 className="text-xl font-bold text-slate-900">File Distribution</h3>
             <p className="mt-1 text-sm text-muted-foreground">Split by file type</p>
           </div>
           <div className="h-16 w-16 shrink-0 flex items-center justify-center">
