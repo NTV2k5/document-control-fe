@@ -43,7 +43,7 @@ export function QuickAccess() {
 
   return (
     <div>
-      <h3 className="mb-4 text-lg font-bold text-slate-900">Quick Access</h3>
+      <h3 className="mb-4 text-xl font-bold text-slate-900">Quick Access</h3>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {QUICK_ACCESS_ITEMS.map((item) => (
           <button

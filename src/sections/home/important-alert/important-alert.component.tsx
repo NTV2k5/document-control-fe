@@ -5,7 +5,7 @@ export function ImportantAlert() {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between px-1">
-        <h3 className="flex items-center gap-2 text-lg font-extrabold text-slate-900">
+        <h3 className="flex items-center gap-2 text-xl font-extrabold text-slate-900">
           <span className="text-red-500">!</span> Important - Unread
         </h3>
         <Badge

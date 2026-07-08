@@ -11,7 +11,7 @@ export function EngagementAnalytics({ data }: EngagementAnalyticsProps) {
       <CardContent className="p-8">
         <div className="mb-8 flex items-start justify-between">
           <div>
-            <h3 className="text-lg font-bold text-slate-900">Engagement Analytics</h3>
+            <h3 className="text-xl font-bold text-slate-900">Engagement Analytics</h3>
             <p className="mt-1 text-sm text-muted-foreground">File views last week</p>
           </div>
           <div className="text-right">
