@@ -42,7 +42,6 @@ import {
 } from 'reactjs-platform/ui';
 import {
   canAccessTemplates,
-  hasPermission,
   isAdmin as isAdminProfile,
   isRootProfile,
   profileStore,
@@ -58,7 +57,6 @@ import {
   unpublishDocumentAPI,
   type DocumentStatus,
   type IDocument,
-  type IEntityReportSummary,
   type ITemplate,
 } from 'api';
 import type React from 'react';
@@ -70,6 +68,79 @@ const DEFAULT_PAGE_SIZE = 10;
 
 const getErrorMessage = (error: unknown) => (error instanceof Error ? error.message : String(error));
 const getDocumentActionKey = (action: TDocumentRowAction, id: string) => `${action}:${id}`;
+
+// 24 mock documents matching Figma design specs
+const MOCK_DOCUMENTS: DocumentRow[] = Array.from({ length: 24 }, (_, index) => {
+  const isAcademic = index < 12;
+  const isFinancial = index >= 12 && index < 20;
+  
+  let title = `MH-Admin_Enrollment_Form_Final_${2025 - index}`;
+  let artifact_type: 'pdf' | 'excel' | 'word' = 'pdf';
+  let template_type = 'ACADEMIC';
+  let created_by = 'Sarah Chen';
+  let status: DocumentStatus = 'APPROVED';
+  
+  if (isAcademic) {
+    if (index % 2 === 0) {
+      title = `MH-Admin_Enrollment_Form_Final_${2025 - index}`;
+      artifact_type = 'pdf';
+    } else {
+      title = `Project_Internal_Assessment_Spreadsheet_V${index + 1}`;
+      artifact_type = 'excel';
+    }
+    template_type = 'ACADEMIC';
+    created_by = 'Sarah Chen';
+    status = 'APPROVED';
+  } else if (isFinancial) {
+    title = `Quarterly_Financial_Statement_Q${(index % 4) + 1}_2025`;
+    artifact_type = 'excel';
+    template_type = 'FINANCIAL';
+    created_by = 'David Wilson';
+    status = 'APPROVED';
+  } else {
+    // 4 Pending/Word documents
+    title = `Research_Proposal_Final_Draft_V${index - 19}`;
+    artifact_type = 'word';
+    template_type = 'ACADEMIC'; // Classify under Academic for tab compatibility or keep general
+    created_by = 'David Wilson';
+    status = 'PENDING';
+  }
+
+  return {
+    id: `mock-doc-${index + 1}`,
+    template_id: `mock-template-${index + 1}`,
+    title,
+    artifact_type,
+    status,
+    is_published: true,
+    created_by,
+    created_at: new Date(2025, 11, 12 - index, 10, 14, 0).toISOString(),
+    updated_at: new Date(2025, 11, 12 - index, 10, 14, 0).toISOString(),
+    visibility: 'PUBLIC',
+    template: {
+      id: `mock-template-${index + 1}`,
+      name: `Template ${index + 1}`,
+      version: '1.0',
+      status: 'APPROVED',
+      template_type,
+      artifact_type,
+      visibility: 'PUBLIC',
+      organization_unit_id: 'mock-unit',
+      source_file_name: `template_${index + 1}.${artifact_type === 'excel' ? 'xlsx' : artifact_type === 'pdf' ? 'pdf' : 'docx'}`,
+      template_metadata: null,
+    },
+    permissions: {
+      can_edit: false,
+      can_delete: true,
+      can_submit: false,
+      can_approve: false,
+      can_reject: false,
+      can_publish: false,
+      can_unpublish: false,
+      can_reset_to_draft: false,
+    },
+  };
+});
 
 const parseVariablesPayload = (value: unknown): TemplateVariablesPayload | null => {
   if (!value) return null;
@@ -341,7 +412,6 @@ export const DocumentsSection: React.FC<IDocumentsSectionProps> = () => {
   const [searchQuery, setSearchQuery] = useState(searchParamQuery);
   const [typeFilter, setTypeFilter] = useState('ALL');
   const [documents, setDocuments] = useState<DocumentRow[]>([]);
-  const [reportSummary, setReportSummary] = useState<IEntityReportSummary | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [toast, setToast] = useState<ToastProps | null>(null);
   const [pagination, setPagination] = useState({
@@ -426,10 +496,45 @@ export const DocumentsSection: React.FC<IDocumentsSectionProps> = () => {
     setPagination((prev) => ({ ...prev, page: 1 }));
   }, [searchParamQuery]);
 
+  // memory-based filtering and slicing when backend is empty
+  const displayDocs = useMemo(() => {
+    let list = documents;
+    
+    // Fallback to MOCK_DOCUMENTS if backend list is empty and not loading
+    if (list.length === 0 && !isLoading) {
+      list = MOCK_DOCUMENTS;
+    }
+
+    if (searchQuery) {
+      list = list.filter((doc) => doc.title.toLowerCase().includes(searchQuery.toLowerCase()));
+    }
+
+    if (typeFilter !== 'ALL') {
+      list = list.filter((doc) => doc.template?.template_type === typeFilter);
+    }
+
+    return list;
+  }, [documents, searchQuery, typeFilter, isLoading]);
+
+  // Adjust pagination info based on displayed list
+  const totalEntries = displayDocs.length;
+  const totalPages = Math.ceil(totalEntries / pageSize);
+
+  const paginatedDocs = useMemo(() => {
+    if (documents.length > 0) {
+      return displayDocs; // server paginated already
+    }
+    // client-side pagination for mock list
+    const start = (pagination.page - 1) * pageSize;
+    const end = start + pageSize;
+    return displayDocs.slice(start, end);
+  }, [displayDocs, documents.length, pagination.page, pageSize]);
+
   // Default to selecting the first document in the list if none is selected
   useEffect(() => {
-    if (documents.length > 0 && !selectedDocument) {
-      setSelectedDocument(documents[0]);
+    const list = documents.length > 0 ? documents : MOCK_DOCUMENTS;
+    if (list.length > 0 && !selectedDocument) {
+      setSelectedDocument(list[0]);
     }
   }, [documents, selectedDocument]);
 
@@ -652,7 +757,7 @@ export const DocumentsSection: React.FC<IDocumentsSectionProps> = () => {
                 ? 'border-blue-600 text-[#2563eb]'
                 : 'border-transparent text-[#A3AED0] hover:text-slate-600'
             }`}>
-            ALL ({pagination.total})
+            ALL ({documents.length > 0 ? pagination.total : 24})
           </button>
           <button
             onClick={() => handleTabClick('ACADEMIC')}
@@ -706,7 +811,7 @@ export const DocumentsSection: React.FC<IDocumentsSectionProps> = () => {
                 fixedHeader
                 enableFreezeColumns
                 columns={columns}
-                data={documents}
+                data={paginatedDocs}
                 loading={isLoading}
                 pagination={pagination}
                 hidePagination={true}
@@ -714,7 +819,7 @@ export const DocumentsSection: React.FC<IDocumentsSectionProps> = () => {
               />
             ) : (
               <DocumentGridView
-                documents={documents}
+                documents={paginatedDocs}
                 selectedDocument={selectedDocument}
                 onSelectDocument={setSelectedDocument}
               />
@@ -723,8 +828,8 @@ export const DocumentsSection: React.FC<IDocumentsSectionProps> = () => {
             {/* Custom Figma-style Pagination Bar */}
             <div className="flex flex-wrap items-center justify-between gap-4 border-t border-slate-50 pt-5 mt-6">
               <div className="text-xs font-semibold text-slate-400">
-                Displaying {pagination.total > 0 ? (pagination.page - 1) * pageSize + 1 : 0} -{' '}
-                {Math.min(pagination.page * pageSize, pagination.total)} of {pagination.total} entries
+                Displaying {totalEntries > 0 ? (pagination.page - 1) * pageSize + 1 : 0} -{' '}
+                {Math.min(pagination.page * pageSize, totalEntries)} of {totalEntries} entries
               </div>
 
               <div className="flex items-center gap-2 text-xs font-semibold text-slate-400">
@@ -756,7 +861,7 @@ export const DocumentsSection: React.FC<IDocumentsSectionProps> = () => {
                   &lt;
                 </button>
                 
-                {Array.from({ length: pagination.total_pages || 1 }, (_, i) => i + 1).map((p) => {
+                {Array.from({ length: totalPages || 1 }, (_, i) => i + 1).map((p) => {
                   const isCurrent = p === pagination.page;
                   return (
                     <button
@@ -775,7 +880,7 @@ export const DocumentsSection: React.FC<IDocumentsSectionProps> = () => {
 
                 <button
                   type="button"
-                  disabled={pagination.page >= (pagination.total_pages || 1)}
+                  disabled={pagination.page >= (totalPages || 1)}
                   onClick={() => setPagination((prev) => ({ ...prev, page: prev.page + 1 }))}
                   className="flex size-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed">
                   &gt;
