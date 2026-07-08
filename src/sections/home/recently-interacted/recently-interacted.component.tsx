@@ -118,7 +118,7 @@ export function RecentlyInteracted({ docs }: RecentlyInteractedProps) {
                         className="h-5 w-5 rounded-full border-[1.5px] border-white object-cover shadow-sm"
                       />
                     ))}
-                  </div>>
+                  </div>
                 </div>
               </div>
             </div>
