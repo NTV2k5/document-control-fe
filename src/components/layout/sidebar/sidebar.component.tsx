@@ -108,7 +108,7 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
   const { t } = useTranslation();
   const { logout } = useAuth();
   const navigate = useNavigate();
-  const profile = profileStore.use();
+  const profile = profileStore((state) => state.profile);
 
   const displayName = profile
     ? [profile.first_name, profile.last_name].filter(Boolean).join(' ') || profile.email
