@@ -45,12 +45,12 @@ export function OverviewBanner({ trendingData }: OverviewBannerProps) {
           <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/70 to-transparent" />
 
           {/* Content */}
-          <div className="relative z-10 flex w-full flex-col-reverse items-center justify-between gap-6 p-8 md:flex-row">
+          <div className="relative z-10 flex w-full flex-col-reverse items-center justify-between gap-6 p-4 sm:p-8 md:flex-row">
             {/* Text + buttons glass card */}
-            <div className="w-full rounded-2xl border border-white/15 bg-white/10 p-6 backdrop-blur-md md:max-w-[480px]">
+            <div className="w-full rounded-2xl border border-white/15 bg-white/10 p-4 sm:p-6 backdrop-blur-md md:max-w-[480px]">
               <h1 className="mb-3 text-2xl leading-tight font-extrabold text-white md:text-3xl">
                 GDU Portal <br />
-                <span className="text-cyan-400 whitespace-nowrap">Document Control</span>
+                <span className="text-cyan-400 sm:whitespace-nowrap">Document Control</span>
               </h1>
               <p className="mb-4 text-sm leading-relaxed font-medium text-slate-200">
                 Experience a centralized, transparent, and AI-driven ecosystem for university-wide

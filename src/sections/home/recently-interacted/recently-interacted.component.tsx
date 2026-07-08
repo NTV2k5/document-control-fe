@@ -26,6 +26,7 @@ const getDocTypeStyle = (type: string) => {
     PDF: { bg: 'bg-red-50', text: 'text-red-500', label: 'PDF' },
     IMAGE: { bg: 'bg-green-50', text: 'text-green-600', label: 'IMAGE' },
     VIDEO: { bg: 'bg-purple-50', text: 'text-purple-600', label: 'VIDEO' },
+    TXT: { bg: 'bg-slate-100', text: 'text-slate-600', label: 'TXT' },
   };
   return styles[type] ?? { bg: 'bg-slate-50', text: 'text-slate-500', label: type };
 };
@@ -37,6 +38,7 @@ const getDocIcon = (type: string, className: string) => {
     PDF: <File className={className} />,
     IMAGE: <ImageIcon className={className} />,
     VIDEO: <Video className={className} />,
+    TXT: <FileText className={className} />,
   };
   return iconMap[type] ?? <File className={className} />;
 };

@@ -61,6 +61,13 @@ export const recentlyInteracted = [
     type: 'VIDEO',
     edited: '2 hours ago',
   },
+  {
+    id: 6,
+    title: 'Ethical Research Guidelines v4',
+    description: 'Mandatory compliance document for all student researchers...',
+    type: 'TXT',
+    edited: '2 hours ago',
+  },
 ];
 
 export const dataBarMock = [
