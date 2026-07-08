@@ -6,6 +6,7 @@ interface IDocumentGridViewProps {
   documents: IDocument[];
   selectedDocument: IDocument | null;
   onSelectDocument: (doc: IDocument) => void;
+  hasSelection?: boolean;
 }
 
 const getFileIconContainer = (type?: string) => {
@@ -54,7 +55,7 @@ const getFileIconContainer = (type?: string) => {
   );
 };
 
-export const DocumentGridView = ({ documents, selectedDocument, onSelectDocument }: IDocumentGridViewProps) => {
+export const DocumentGridView = ({ documents, selectedDocument, onSelectDocument, hasSelection = false }: IDocumentGridViewProps) => {
   if (!documents || documents.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 py-20 text-slate-500">
@@ -67,7 +68,11 @@ export const DocumentGridView = ({ documents, selectedDocument, onSelectDocument
   }
 
   return (
-    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
+    <div className={`grid gap-6 ${
+      hasSelection
+        ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2'
+        : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
+    }`}>
       {documents.map((doc, idx) => {
         const isActive = selectedDocument?.id === doc.id;
         return (
