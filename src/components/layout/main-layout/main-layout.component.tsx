@@ -2,6 +2,7 @@ import type { IMainLayoutProps } from '../layout.type';
 import { useState } from 'react';
 import { Header } from '../header';
 import { Sidebar } from '../sidebar';
+import { ChatbotButton } from '../chatbot-button';
 
 export const MainLayout = ({ children, routes }: IMainLayoutProps) => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -27,6 +28,7 @@ export const MainLayout = ({ children, routes }: IMainLayoutProps) => {
           </div>
         </main>
       </div>
+      <ChatbotButton />
     </div>
   );
 };

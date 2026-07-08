@@ -108,15 +108,19 @@ export function RecentlyInteracted({ docs }: RecentlyInteractedProps) {
                 </p>
                 <div className="flex items-center justify-between border-t border-slate-100 pt-3">
                   <p className="text-[11px] font-semibold text-slate-400">Edited {doc.edited}</p>
-                  {/* Toggle — visual only for now */}
-                  <button
-                    type="button"
-                    onClick={(e) => e.stopPropagation()}
-                    className="flex h-5 w-9 items-center rounded-full bg-slate-200 px-0.5 transition-colors hover:bg-slate-300"
-                    aria-label="Toggle bookmark"
-                  >
-                    <div className="h-4 w-4 rounded-full bg-white shadow-sm" />
-                  </button>
+                  {/* Overlapping user avatars */}
+                  <div className="flex -space-x-2">
+                    <img
+                      src={`https://i.pravatar.cc/100?u=user-${doc.id}`}
+                      alt="User Avatar"
+                      className="size-5 rounded-full border border-white object-cover shadow-sm"
+                    />
+                    <img
+                      src={`https://i.pravatar.cc/100?u=user-${doc.id + 10}`}
+                      alt="User Avatar"
+                      className="size-5 rounded-full border border-white object-cover shadow-sm"
+                    />
+                  </div>
                 </div>
               </div>
             </div>

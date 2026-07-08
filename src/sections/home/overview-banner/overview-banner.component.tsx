@@ -47,7 +47,7 @@ export function OverviewBanner({ trendingData }: OverviewBannerProps) {
           {/* Content */}
           <div className="relative z-10 flex w-full flex-col-reverse items-center justify-between gap-6 p-8 md:flex-row">
             {/* Text + buttons glass card */}
-            <div className="w-full rounded-2xl border border-white/15 bg-white/10 p-6 backdrop-blur-md md:max-w-sm">
+            <div className="w-full rounded-2xl border border-white/15 bg-white/10 p-6 backdrop-blur-md md:max-w-md">
               <h1 className="mb-3 text-2xl leading-tight font-extrabold text-white md:text-3xl">
                 GDU Portal <br />
                 <span className="text-cyan-400">Document Control</span>

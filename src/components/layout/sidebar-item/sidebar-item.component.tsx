@@ -29,7 +29,7 @@ export const SidebarItem = ({ icon, label, href, is_active, isCollapsed }: ISide
           )}>
           {icon}
         </div>
-        {!isCollapsed ? <span className="min-w-0 flex-1 truncate whitespace-nowrap font-bold text-[14px]">{label}</span> : null}
+        {!isCollapsed ? <span className="min-w-0 flex-1 truncate whitespace-nowrap font-bold text-[13px]">{label}</span> : null}
       </div>
     </Link>
   );

@@ -1024,10 +1024,10 @@ export const DocumentsSection: React.FC<IDocumentsSectionProps> = () => {
   );
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6">
       {/* ── Title & Export ── */}
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-[#1B2559]">Published Documents</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Published Documents</h1>
         <Button
           size="sm"
           className="h-10 rounded-xl bg-blue-600 px-6 font-bold hover:bg-blue-700">
