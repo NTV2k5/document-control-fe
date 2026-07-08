@@ -15,3 +15,4 @@ export * from './template-agent';
 export * from './document-input-agent';
 export * from './document-input-agent-history';
 export * from './variables-workspace';
+export * from './tickets';

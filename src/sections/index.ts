@@ -10,3 +10,4 @@ export * from './document-input-agent';
 export * from './document-input-agent-history';
 export * from './notifications';
 export * from './openai-settings';
+export * from './tickets';
