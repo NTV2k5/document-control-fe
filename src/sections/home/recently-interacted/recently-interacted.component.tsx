@@ -72,14 +72,14 @@ export function RecentlyInteracted({ docs }: RecentlyInteractedProps) {
               role="button"
               tabIndex={0}
               onKeyDown={(e) => e.key === 'Enter' && navigate({ to: '/documents' })}
-              className="group relative w-[190px] min-w-[190px] shrink-0 cursor-pointer overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
+              className="group relative w-[250px] min-w-[190px] shrink-0 cursor-pointer overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
             >
               {/* Colored top area with badge + icon inside */}
               <div className={`relative ${style.bg} px-4 pt-3 pb-5`}>
                 <div className="flex items-start justify-between">
                   {/* Type badge */}
                   <span
-                    className={`rounded-md bg-white px-2 py-0.5 text-[9px] font-black tracking-widest shadow-sm ${style.text}`}
+                    className="rounded-md bg-white px-2 py-0.5 text-[9px] font-black tracking-widest shadow-sm text-slate-800"
                   >
                     {style.label}
                   </span>
