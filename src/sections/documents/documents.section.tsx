@@ -191,10 +191,10 @@ const getColumns = (
     {
       id: 'creator',
       header: 'CREATOR',
-      cell: ({ row, index }) => (
+      cell: ({ row }) => (
         <div className="flex items-center gap-2">
           <img
-            src={`https://i.pravatar.cc/100?u=u${index}b`}
+            src={`https://i.pravatar.cc/100?u=u${row.index}b`}
             alt="avatar"
             className="size-7 rounded-full bg-slate-200"
           />
