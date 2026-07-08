@@ -1,112 +1,87 @@
-# GDU Document Control - Hướng dẫn dự án & Quy chuẩn thiết kế (FE)
+# CLAUDE.md - Project Context, Guidelines & History
 
-Tài liệu này ghi nhận toàn bộ ngữ cảnh dự án, các thay đổi giao diện chính đã thực hiện để bám sát Figma, cùng các quy tắc phát triển, cấu trúc thư mục, quy chuẩn code bắt buộc phải tuân thủ khi phát triển Frontend cho dự án `document-control` (ReactJS).
-
----
-
-## 📌 Tổng quan dự án & Ngữ cảnh (Context)
-Dự án được chuyển đổi từ một phiên bản chạy NextJS sang dự án chạy ReactJS hoàn chỉnh.
-- **Trang Overview (Tổng quan)** và các trang con khác cần bám sát thiết kế Figma **giống 100%**.
-- Giao diện sử dụng hệ màu hiện đại, tối ưu hóa kích thước hiển thị để tránh tình trạng bị cắt khuất nội dung, hỗ trợ hiển thị tốt trên các thiết bị.
+This file documents the key guidelines, strict rules, styling tokens, implementation details, and history of adjustments made in the GDU Document Control Front-End React application.
 
 ---
 
-## 🛠️ Quy chuẩn code & Quy tắc phát triển (Từ AGENTS.md)
-
-### 1. Nguyên tắc cốt lõi
-- **Suy nghĩ trước khi code**: Hiểu rõ yêu cầu trước khi chỉnh sửa. Ưu tiên giải pháp sạch sẽ và có tính kiến trúc tốt thay vì chỉ vá lỗi triệu chứng.
-- **Đơn giản là trên hết**: Tránh tạo các lớp trừu tượng, wrapper hoặc helper không cần thiết.
-- **Chỉnh sửa chính xác (Surgical Changes)**: Chỉ thay đổi code liên quan trực tiếp đến kết quả mong muốn. Không trộn lẫn dọn dẹp code không liên quan.
-- **Xác thực trước khi hoàn thành**: Luôn chạy kiểm tra trước khi báo cáo hoàn thành:
-  ```bash
-  yarn typecheck     # hoặc tsc --noEmit
-  yarn lint:eslint   # lint code
-  ```
-
-### 2. Cấu trúc thư mục dự án
-- `src/routes`: Chỉ chứa khai báo các tuyến đường (route). Giữ các file này thật mỏng.
-- `src/pages`: Chứa page-level UI hoặc page wrapper.
-- `src/sections`: Chứa các phần UI lớn cỡ màn hình (screen-sized business UI sections).
-- `src/components`: Chứa các component có thể tái sử dụng.
-- `src/api`: Chứa các module gọi API.
-- `src/lib`: Chứa các hàm hỗ trợ chung, logic editor, tiện ích cụ thể của app.
-- `src/models`: Định nghĩa các model/type dùng chung.
-- `src/stores`: Quản lý trạng thái (state/store).
-- `reactjs-platform/ui` & `reactjs-platform/utilities`: Thư viện dùng chung từ nền tảng.
-
-### 3. Quy chuẩn đặt tên Folders & Files
-- Sử dụng chữ thường ngăn cách bằng dấu gạch ngang (kebab-case) cho toàn bộ folder và tên file.
-- Không đặt tên file dạng camelCase hay trộn lẫn nhiều phong cách trong cùng một module.
-- Các hậu tố bắt buộc:
-  - `*.page.tsx`: Component trang
-  - `*.section.tsx`: Component phần lớn
-  - `*.component.tsx`: Component tái sử dụng
-  - `*.store.ts`: Store trạng thái
-  - `*.type.ts`: Types/interfaces của module
-  - `*.api.ts`: Module gọi API
-  - `index.ts`: Chỉ chứa xuất khẩu (barrel exports). Không được viết xuất khẩu bị lỗi kiểu `export * from '.'`.
-
-### 4. Quy tắc Export & Import
-- **Không sử dụng `export default`** cho trang hoặc phần giao diện (page/section). Luôn luôn dùng **Named Export**.
-- Sử dụng import tương đối thông thường bên trong `src`. Không sử dụng `@/...` imports.
-- Chỉ dùng các alias được cấu hình sẵn như `api`, `reactjs-platform/ui`, `reactjs-platform/utilities`.
-- Ưu tiên nén import qua các file barrel hiện có.
-
-### 5. Đặt tên Types/Interfaces
-- Sử dụng tiền tố viết hoa để phân biệt:
-  - `I`: cho Interfaces (ví dụ: `IUserProfile`)
-  - `T`: cho Type Aliases (ví dụ: `TPartner`)
-  - `E`: cho Enums (ví dụ: `EDocumentStatus`)
+## 🛠️ Commands & Verification
+Always run verification tools before finalizing any modifications:
+- **Prettier formatting**: `./scripts/with-project-node.sh prettier --write <paths>`
+- **ESLint linting**: `./scripts/with-project-node.sh eslint . --fix` or `yarn lint:eslint`
+- **TypeScript verification**: `yarn typecheck` (runs `tsc --noEmit` through the project wrapper)
+- **Local dev server**: `yarn dev` or `./scripts/with-project-node.sh vite dev --port 5002`
 
 ---
 
-## 🎨 Quy chuẩn Thiết kế bắt buộc & Các phần đã hoàn thành
-
-### 1. Sidebar (Thanh điều hướng bên trái)
-- **Kích thước**: Rộng `w-64` (256px) khi mở rộng và `w-[72px]` khi thu gọn.
-- **Logo**: 
-  - Sử dụng icon `Landmark` màu xanh làm chủ đạo đặt trong vòng tròn đổ bóng blur nhẹ (`shadow-[0_4px_12px_rgba(37,99,235,0.35)]`).
-  - Dòng chữ **"Document Control"** và badge **"ADMIN"** phải hiển thị ngang hàng, không bị rớt dòng nhờ thuộc tính `whitespace-nowrap` trên một cỡ chữ phù hợp (`text-[14px]`).
-- **Menu Items**:
-  - Icons và nhãn tương ứng: Overview (`LayoutDashboard`), Published Documents (`FileText`), University Hubs (`Network`), My Hubs (`FolderGit2`), Tickets (`Ticket`).
-  - Font size của các mục đạt `text-[12.5px] font-bold` để đảm bảo nhãn dài như **"Published Documents"** được hiển thị đầy đủ không bị cắt hoặc có dấu `...`.
-  - Padding trong expanded mode thu hẹp thành `px-3 py-2.5 gap-3` để tạo khoảng trống cho văn bản.
-  - Trạng thái kích hoạt (Active State): Sử dụng nền xanh đậm (`bg-blue-600`), chữ trắng, bo tròn đầy đủ (`rounded-full`) và có hiệu ứng bóng đổ mờ (`shadow-[0_8px_16px_rgba(37,99,235,0.25)]`).
-
-### 2. Header (Thanh đầu trang)
-- **Thanh tìm kiếm (Search Bar)**: Chiều ngang giãn rộng tự do (`flex-1 max-w-none`) để cân xứng với danh sách hashtag trending nằm phía dưới.
-- **Hashtag Trending**: Nằm cố định ngay dưới thanh tìm kiếm trong Header, không bị cuộn đi khi lăn chuột.
-- **Chuyển đổi ngôn ngữ**: Interactive Language Toggle trực quan và mượt mà.
-
-### 3. Banner Overview & Glassmorphic Card
-- Cụm chữ chính trong banner:
-  - `GDU Portal` (Dòng 1)
-  - `Document Control` (Dòng 2 - màu cyan với class `whitespace-nowrap`)
-- Khung kính mờ (Glassmorphic Card) bao quanh chữ có kích thước giới hạn tối đa `md:max-w-[480px]` để chứa trọn vẹn văn bản không bị tràn/đè qua viền card.
-
-### 4. Recently Interacted Cards
-- **Kích thước**: Chiều rộng thu gọn thành `w-[190px] min-w-[190px]` giúp hiển thị hàng ngang gọn gàng.
-- **Badge loại file**: Đặt ở góc trên bên trái, văn bản bên trong (WORD, EXCEL, PDF...) viết hoa và có màu đen/xám đậm (`text-slate-800`).
-- **Icon file**: Đặt bên trong vùng nền màu nhạt của card, nằm ngay dưới badge loại file. Icon được thiết kế trong một khung vuông màu trắng bo góc có đổ bóng mượt.
-- **Avatars**: Chứa nhóm ảnh đại diện của người dùng tương tác (`https://i.pravatar.cc/...`) xếp chồng nhẹ lên nhau ở góc dưới bên phải.
-
-### 5. AI Chatbot Widget
-- Cấu hình một nút nổi chatbot AI (`fixed bottom-6 right-6 z-50`) hình vuông bo góc vừa phải (`rounded-2xl`) màu xanh đậm (`bg-blue-600`) chứa icon robot (`Bot`), hiển thị ở mọi trang thông qua `MainLayout`.
-
-### 6. Đồng nhất kích thước tiêu đề chính
-- Tiêu đề trang **Overview** và tiêu đề trang **Published Documents** phải có cùng một kích thước và màu sắc đồng bộ: `text-3xl font-bold text-slate-900`.
-- Các bảng thống kê (Report Stat Cards) trong trang Published Documents sử dụng cỡ chữ số liệu `text-2xl` để cân bằng với Overview.
+## 🏗️ Folder Structure & Naming Conventions
+Follow the conventions in [AGENTS.md](./AGENTS.md) strictly:
+- Use lowercase kebab-case for folder names and filenames (no camelCase filenames).
+- Suffix rules:
+  - `*.page.tsx`: Page components (wrapper shells in `src/pages`)
+  - `*.section.tsx`: Large business screen sections (lives in `src/sections`)
+  - `*.component.tsx`: Reusable UI elements (lives in `src/components`)
+  - `*.store.ts`: Zustand stores (lives in `src/stores`)
+  - `*.api.ts`: API integrations (lives in `src/api`)
+  - `*.type.ts`: Type definitions specific to the module
+- Barrel exports (`index.ts`) must only export named files: `export * from './file.page';` (avoid recursive `export * from '.'`).
+- Named exports only; **DO NOT use default exports** for pages or sections.
+- Relative imports should be compressed via stable barrels where available. Avoid `@/...` imports inside `src`.
 
 ---
 
-## 🚀 Quy trình Git Workflow bắt buộc
-Mọi thay đổi, tính năng mới hoặc sửa lỗi đều phải tuân thủ nghiêm ngặt quy trình làm việc sau:
-1. Tạo một nhánh mới từ `main` với tên mô tả rõ ràng (ví dụ: `feat/ui-figma-alignment-v7`, `fix/sidebar-profile-store`).
-2. Thực hiện các chỉnh sửa cục bộ, chạy kiểm tra kiểu dữ liệu (`yarn typecheck`).
-3. Commit mã nguồn với thông điệp rõ ràng theo chuẩn Conventional Commits.
-4. Merge nhánh tính năng vào nhánh `main` sử dụng cờ `--no-ff` để giữ vết lịch sử commit rõ ràng:
-   ```bash
-   git checkout main
-   git merge <ten-nhanh-rieng> --no-ff -m "merge: <mo-ta-merge>"
-   ```
-5. Đảm bảo chạy lại kiểm tra tổng thể trên nhánh `main` trước khi đẩy lên remote repository.
+## 🎨 Figma-Mandated Design System & Tokens
+All pages must follow this visual identity to match Figma designs 100%:
+
+### 1. Color Palette & Effects
+- **Primary Accent Blue**: `bg-blue-600` (`#2563eb`), hover state `hover:bg-blue-700`.
+- **Glow Shadow Effect**: Custom shadows for active states or highlighted components, e.g., `shadow-[0_8px_16px_rgba(37,99,235,0.25)]`.
+- **Light Accents (Colored Cards top area)**:
+  - Word: `bg-blue-50` with icon `text-blue-600`
+  - Excel: `bg-emerald-50` with icon `text-emerald-600`
+  - PDF: `bg-red-50` with icon `text-red-500`
+  - Image: `bg-green-50` with icon `text-green-600`
+  - Video: `bg-purple-50` with icon `text-purple-600`
+
+### 2. Page & Layout Spacing
+- **Main Container Spacing**: Content inside `MainLayout` must have lateral spacing and not touch the screen edges. Main padding container: `mx-auto max-w-screen-2xl px-6 py-6`.
+- **Chatbot AI Button**: A floating AI assistant button must be present in the bottom-right corner of all pages (`fixed bottom-6 right-6 z-50 h-14 w-14 rounded-2xl bg-blue-600 text-white shadow-xl shadow-blue-600/30`).
+
+---
+
+## 📐 Component Guidelines & Implementations
+
+### 1. Sidebar (`src/components/layout/sidebar`)
+- **Logo Area**:
+  - Icon: Circular background containing `Landmark` icon with shadow glow (`bg-blue-600 text-white shadow-[0_4px_12px_rgba(37,99,235,0.35)]`).
+  - Text: `"Document Control"` on **one single line** (`whitespace-nowrap`, `text-[14px] font-bold`) and a small `"ADMIN"` sub-badge (`text-[9px] font-bold text-blue-600 uppercase`).
+  - Width: Expanded is `w-64` (256px), collapsed is `w-[72px]`.
+- **Navigation Items (`SidebarItem`)**:
+  - Typography: Size reduced to `text-[12.5px]` to prevent wrapping or truncation for `"Published Documents"`.
+  - Spacing: Compact layout (`gap-3 px-3 py-2.5 rounded-full`).
+  - Active State: Curved background with primary blue and glow shadow (`bg-blue-600 text-white shadow-[0_8px_16px_rgba(37,99,235,0.25)]`).
+
+### 2. Header (`src/components/layout/header`)
+- **Search Bar**: Expanded using `flex-1 max-w-none` to match the exact width of the trending tag list below.
+- **Hashtag Row**: Positioned directly beneath the search bar, styled with `#` prefixes. Must be fixed so it does not scroll with page content.
+
+### 3. Overview Banner (`src/sections/home/overview-banner`)
+- **Glassmorphic Card**: Semi-transparent information panel (`border border-white/15 bg-white/10 p-6 backdrop-blur-md`).
+- **Card Sizing**: Max-width set to `md:max-w-[480px]` to completely encapsulate text content without right-edge overflow.
+- **Text wrap**: `"GDU Portal"` is placed on line 1, and `"Document Control"` is on line 2 (using `whitespace-nowrap` on its span to ensure they stay together).
+
+### 4. Recently Interacted (`src/sections/home/recently-interacted`)
+- **Card Sizing**: Narrower width for a compact grid row (`w-[250px] min-w-[190px]`).
+- **File Badge**: Sits at the top-left of the colored card area. Must have **black text** (`text-slate-800`) on a white background.
+- **Card Icon**: Housed in a white square shadow container inside the colored top area, positioned below the file badge.
+- **Avatar Stack**: Located in the bottom-right footer of the card body (`flex -space-x-1.5`).
+
+---
+
+## 📈 Recent UI Adjustments & History
+The following adjustments were successfully made to align the codebase 100% with the Figma mockup:
+1. **Sidebar Logo Alignment**: Changed Shield logo to Landmark logo, circular container, shadow blur, and forced title on a single line.
+2. **Sidebar Text Fitting**: Decreased sidebar item padding, gap, and font size (`text-[12.5px]`) so "Published Documents" displays fully.
+3. **Banner Glassmorphic Overflow Fix**: Expanded glass container width to `480px` and applied selective `whitespace-nowrap` on `"Document Control"` only to prevent cyan text overflowing the border.
+4. **AI Assistant Button**: Added floating square-shaped `ChatbotButton` with moderately rounded corners to `MainLayout`.
+5. **Overview Heading Sizes**: Standardized page titles. Overview title and Published Documents title are both set to exactly `text-3xl font-bold text-slate-900` for consistent header scaling.
+6. **Recently Interacted Redesign**: Resized card dimensions to be narrower. Positioned colored file icons inside the top colored card area below the black-text file badge. Changed file badges from colored text to black/slate-800 text.
