@@ -8,30 +8,28 @@ export const SidebarItem = ({ icon, label, href, is_active, isCollapsed }: ISide
     <Link
       to={href as any}
       className={cn(
-        'group flex items-center px-1 py-1.5 text-base transition-colors duration-200',
+        'group flex items-center px-2 py-1 text-base transition-colors duration-200',
         isCollapsed ? 'justify-center' : 'justify-start',
       )}>
       <div
         className={cn(
-          'flex items-center rounded-2xl border transition-all duration-200',
-          isCollapsed ? 'size-12 justify-center rounded-xl' : 'w-full min-w-0 gap-4 px-4 py-3',
+          'flex items-center transition-all duration-200',
+          isCollapsed ? 'size-12 justify-center rounded-full' : 'w-full min-w-0 gap-4 px-4 py-2.5 rounded-full',
           is_active
-            ? 'border-[#0B2559] bg-[#0B2559] text-white shadow-[0_10px_20px_rgba(11,37,89,0.18)]'
-            : 'border-transparent text-slate-500 hover:border-slate-200 hover:bg-slate-50 hover:text-slate-900',
+            ? 'bg-blue-600 text-white shadow-[0_8px_16px_rgba(37,99,235,0.25)]'
+            : 'border-transparent text-slate-500 hover:bg-slate-50 hover:text-slate-900',
         )}>
         <div
           className={cn(
-            'flex shrink-0 items-center justify-center rounded-xl transition-colors duration-200',
-            isCollapsed ? 'size-10' : 'size-10',
+            'flex shrink-0 items-center justify-center transition-colors duration-200',
+            isCollapsed ? 'size-9 rounded-full' : 'size-5',
             is_active
-              ? isCollapsed
-                ? 'bg-transparent text-white'
-                : 'bg-white/14 text-white'
-              : 'bg-slate-100 text-slate-600 group-hover:bg-white',
+              ? 'text-white'
+              : 'text-slate-500 group-hover:text-slate-800',
           )}>
           {icon}
         </div>
-        {!isCollapsed ? <span className="min-w-0 flex-1 truncate whitespace-nowrap font-semibold">{label}</span> : null}
+        {!isCollapsed ? <span className="min-w-0 flex-1 truncate whitespace-nowrap font-bold text-[14px]">{label}</span> : null}
       </div>
     </Link>
   );

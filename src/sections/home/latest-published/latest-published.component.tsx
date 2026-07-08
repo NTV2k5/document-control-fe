@@ -17,12 +17,12 @@ type LatestPublishedProps = {
 export function LatestPublished({ docs }: LatestPublishedProps) {
   const getBadgeClasses = (type: string) => {
     if (type === 'REGULATION') {
-      return 'bg-blue-100 text-blue-600 hover:bg-blue-100';
+      return 'bg-blue-100 text-blue-600 hover:bg-blue-100 shadow-[0_2px_8px_rgba(37,99,235,0.25)]';
     }
     if (type === 'POLICY') {
-      return 'bg-cyan-100 text-cyan-600 hover:bg-cyan-100';
+      return 'bg-cyan-100 text-cyan-600 hover:bg-cyan-100 shadow-[0_2px_8px_rgba(6,182,212,0.25)]';
     }
-    return 'bg-green-100 text-green-600 hover:bg-green-100';
+    return 'bg-green-100 text-green-600 hover:bg-green-100 shadow-[0_2px_8px_rgba(34,197,94,0.25)]';
   };
 
   const getIcon = (type: string) => {

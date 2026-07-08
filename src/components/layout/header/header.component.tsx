@@ -39,7 +39,7 @@ export const Header = () => {
         {/* Search bar pill */}
         <form
           onSubmit={handleSearch}
-          className="flex h-11 flex-1 max-w-2xl items-center gap-2 rounded-full border border-slate-200 bg-white pl-4 pr-1.5 transition-colors focus-within:border-blue-400 focus-within:shadow-sm">
+          className="flex h-11 flex-1 items-center gap-2 rounded-full border border-slate-200 bg-white pl-4 pr-1.5 transition-colors focus-within:border-blue-400 focus-within:shadow-sm">
           <Search className="size-4 text-slate-400 shrink-0" aria-hidden="true" />
           <input
             ref={inputRef}
