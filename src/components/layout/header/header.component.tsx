@@ -1,5 +1,5 @@
 import { useNavigate } from '@tanstack/react-router';
-import { Bell, Filter, Mic, Search } from 'lucide-react';
+import { Bell, Filter, Mic, Search, Menu } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useTranslation } from '../../../i18n';
 
@@ -12,7 +12,12 @@ const TRENDING_TAGS = [
   '#DigitalHumanities',
 ];
 
-export const Header = () => {
+interface IHeaderProps {
+  isSidebarCollapsed?: boolean;
+  onSidebarCollapsedChange?: (collapsed: boolean) => void;
+}
+
+export const Header = ({ isSidebarCollapsed, onSidebarCollapsedChange }: IHeaderProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
@@ -36,6 +41,15 @@ export const Header = () => {
     <header className="sticky top-0 z-40 w-full bg-[#F4F7FE] shadow-[0_1px_0_rgba(0,0,0,0.06)]">
       {/* Top row: Search + Actions */}
       <div className="flex h-16 items-center justify-between gap-4 px-6">
+        {onSidebarCollapsedChange && (
+          <button
+            type="button"
+            onClick={() => onSidebarCollapsedChange(!isSidebarCollapsed)}
+            className="flex size-9 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 lg:hidden shrink-0 border border-slate-200 bg-white"
+          >
+            <Menu className="size-5" />
+          </button>
+        )}
         {/* Search bar pill */}
         <form
           onSubmit={handleSearch}
