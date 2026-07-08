@@ -350,7 +350,7 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
               <Landmark className="size-5" />
             </div>
             <div className="flex flex-col leading-tight">
-              <span className="text-[15px] font-bold text-slate-800">Document Control</span>
+              <span className="text-[14px] font-bold text-slate-800 whitespace-nowrap">Document Control</span>
               <span className="text-[10px] font-bold tracking-widest text-blue-600 uppercase">ADMIN</span>
             </div>
           </div>
