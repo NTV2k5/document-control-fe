@@ -2,6 +2,7 @@ import { useNavigate } from '@tanstack/react-router';
 import {
   CheckCircle2,
   Clock3,
+  Download,
   Files,
   Home,
   LayoutGrid,
@@ -1024,50 +1025,50 @@ export const DocumentsSection: React.FC<IDocumentsSectionProps> = () => {
 
   return (
     <div className="space-y-6 p-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <div className="mb-2 flex items-center gap-1.5 text-sm">
-            <span className="flex items-center gap-1 text-amber-600">
-              <Home className="size-3.5" />
-              <span className="font-medium">{t('documentsPage.breadcrumbRoot')}</span>
-            </span>
-            <span className="text-gray-400">›</span>
-            <span className="text-gray-500">{t('documentsPage.breadcrumbCurrent')}</span>
-          </div>
-          <div className="text-3xl font-bold text-[#0B2559]">{t('documentsPage.title')}</div>
-          <p className="mt-1 text-sm text-slate-500">
-            {isAdmin ? t('documentsPage.adminDescription') : t('documentsPage.userDescription')}
-          </p>
+      {/* ── Title & Export ── */}
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold text-[#1B2559]">Published Documents</h1>
+        <Button
+          size="sm"
+          className="h-10 rounded-xl bg-blue-600 px-6 font-bold hover:bg-blue-700">
+          <Download className="mr-2 size-4" />
+          Export Excel
+        </Button>
+      </div>
+
+      {/* ── Tabs & View Toggle ── */}
+      <div className="flex items-center justify-between border-b border-slate-200">
+        <div className="flex gap-8">
+          <button className="border-b-2 border-blue-600 pb-3 text-sm font-bold text-blue-600">
+            ALL (24)
+          </button>
+          <button className="border-b-2 border-transparent pb-3 text-sm font-bold text-[#A3AED0] hover:text-slate-600">
+            ACADEMIC DOCS (12)
+          </button>
+          <button className="border-b-2 border-transparent pb-3 text-sm font-bold text-[#A3AED0] hover:text-slate-600">
+            FINANCIAL (8)
+          </button>
         </div>
 
-        <div className="flex items-center gap-2">
-          <div className="flex items-center rounded-xl border border-slate-200 bg-white p-1">
-            <button
-              type="button"
-              onClick={() => setViewMode('list')}
-              className={`flex items-center justify-center rounded-lg p-1.5 transition-colors ${
-                viewMode === 'list' ? 'bg-slate-100 text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'
-              }`}>
-              <List className="size-4" />
-            </button>
+        <div className="flex items-center gap-2 pb-2">
+          <div className="flex items-center rounded-xl bg-white p-1">
             <button
               type="button"
               onClick={() => setViewMode('grid')}
-              className={`flex items-center justify-center rounded-lg p-1.5 transition-colors ${
-                viewMode === 'grid' ? 'bg-slate-100 text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'
+              className={`flex size-8 items-center justify-center rounded-lg transition-colors ${
+                viewMode === 'grid' ? 'bg-blue-50 text-blue-600' : 'text-slate-400 hover:text-slate-600'
               }`}>
               <LayoutGrid className="size-4" />
             </button>
+            <button
+              type="button"
+              onClick={() => setViewMode('list')}
+              className={`flex size-8 items-center justify-center rounded-lg transition-colors ${
+                viewMode === 'list' ? 'bg-blue-50 text-blue-600' : 'text-slate-400 hover:text-slate-600'
+              }`}>
+              <List className="size-4" />
+            </button>
           </div>
-          <Button
-            size="sm"
-            className="h-10 rounded-xl bg-emerald-600 px-4 hover:bg-emerald-700"
-            onClick={() => navigate({ to: '/documents/new' })}
-            disabled={!canCreateDocument}
-            title={canCreateDocument ? undefined : t('documentsPage.noCreatePermission')}>
-            <PlusCircle className="size-4" />
-            {t('documentsPage.actions.create')}
-          </Button>
         </div>
       </div>
 

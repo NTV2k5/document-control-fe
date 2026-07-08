@@ -1,5 +1,5 @@
 import type { IRouteConfig, ISidebarProps } from '../layout.type';
-import { useLocation } from '@tanstack/react-router';
+import { useLocation, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import {
   ArrowLeftToLine,
@@ -10,13 +10,18 @@ import {
   ClipboardPenLine,
   FileText,
   Files,
+  FolderGit2,
   FolderOpen,
-  FolderShared,
+  FolderOutput,
+  Folders,
   History,
   Home,
+  LayoutDashboard,
   LogOut,
   Network,
   Settings,
+  Share2,
+  Shield,
   Ticket,
   Trash2,
   Users,
@@ -102,48 +107,40 @@ const STORAGE_PERCENT = Math.round((STORAGE_USED_GB / STORAGE_TOTAL_GB) * 100);
 export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProps) => {
   const { t } = useTranslation();
   const { logout } = useAuth();
-  // Subscribe to profile store so sidebar re-renders when profile loads
-  const profile = profileStore((s) => s.profile);
-  const isAdmin = canManageUsers(profile);
-  const hasDashboardAccess = canAccessDashboard(profile);
-  const hasTemplateAccess = canAccessTemplates(profile);
-  const hasDocumentAccess = canAccessDocuments(profile);
-  const hasTechRootAccess = canAccessTechRoot(profile);
-  const hasRootAccess = isRootProfile(profile);
-  const canUseDocumentInputAgent = isAdmin || hasDocumentAccess || hasTemplateAccess;
-  const canReadAgentSettings = hasTechRootAccess || canUseDocumentInputAgent;
+  const navigate = useNavigate();
+  const profile = profileStore.use();
+
+  const displayName = profile
+    ? [profile.first_name, profile.last_name].filter(Boolean).join(' ') || profile.email
+    : null;
+
+  const isAdmin = profile ? isRootProfile(profile) : false;
+  const canReadAgentSettings = profile ? isRootProfile(profile) : false;
+
+  const roleLabel = profile
+    ? isAdmin
+      ? t('navigation.admin')
+      : t('navigation.viewer')
+    : null;
+
   const [agentSidebarSettings, setAgentSidebarSettings] = useState<TAgentSidebarSettings | null>(
     readAgentSidebarSettingsCache,
   );
-  const agentSettings: TAgentSidebarSettings =
-    canReadAgentSettings && agentSidebarSettings ? agentSidebarSettings : DEFAULT_AGENT_SIDEBAR_SETTINGS;
-
-  const displayName =
-    [profile?.first_name, profile?.last_name].filter(Boolean).join(' ').trim() || profile?.username || '';
-  const primaryScopeAssignment =
-    profile?.scope_assignments?.find((assignment) => assignment.is_primary) ?? profile?.scope_assignments?.[0];
-  const roleLabel = primaryScopeAssignment?.role.role_name || primaryScopeAssignment?.role.role_key || '';
-  const isValidImage = (url: string) => /\.(?:jpeg|jpg|gif|png|webp)$/i.test(url);
 
   useEffect(() => {
-    if (!canReadAgentSettings) {
-      return;
-    }
+    if (!canReadAgentSettings) return;
 
     let cancelled = false;
+
     getDocumentInputAgentSettingsAPI()
       .then((settings) => {
-        if (!cancelled) {
-          const nextSettings = pickAgentSidebarSettings(settings);
-          setAgentSidebarSettings(nextSettings);
-          writeAgentSidebarSettingsCache(nextSettings);
-        }
+        if (cancelled) return;
+        const picked = pickAgentSidebarSettings(settings);
+        setAgentSidebarSettings(picked);
+        writeAgentSidebarSettingsCache(picked);
       })
-      .catch((error) => {
-        console.warn('Không thể tải cấu hình agent cho sidebar.', error);
-        if (!cancelled) {
-          setAgentSidebarSettings((current) => current ?? DEFAULT_AGENT_SIDEBAR_SETTINGS);
-        }
+      .catch(() => {
+        // Silently ignore – sidebar will use defaults
       });
 
     return () => {
@@ -198,67 +195,20 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
     },
   ];
 
-  const techRootRoutes: IRouteConfig[] = [
-    {
-      key: 'template-variables',
-      label: t('navigation.templateVariables'),
-      href: '/template-variables',
-      icon: <Braces className="size-5" />,
-      match: (path) => path === '/template-variables' || path.startsWith('/template-variables/'),
-    },
-  ];
-
-  const documentRoutes: IRouteConfig[] = [
-    {
-      key: 'documents',
-      label: t('navigation.documents'),
-      href: '/documents',
-      icon: <Files className="size-5" />,
-      match: (path) => path === '/documents' || path.startsWith('/documents/'),
-    },
-  ];
-
-  const dashboardRoutes: IRouteConfig[] = [
-    {
-      key: 'dashboard',
-      label: t('navigation.dashboard'),
-      href: '/dashboard',
-      icon: <BarChart3 className="size-5" />,
-      match: (path) => path === '/dashboard' || path.startsWith('/dashboard/'),
-    },
-  ];
-
-  const agentSettingsRoute: IRouteConfig = {
-    key: 'agent-settings',
-    label: t('navigation.agentSettings'),
-    href: '/settings',
-    icon: <Settings className="size-5" />,
-    match: (path) =>
-      path === '/settings' || path.startsWith('/settings/') || path === '/openai' || path.startsWith('/openai/'),
-  };
-
-  const adminRoute: IRouteConfig = {
-    key: 'admin',
-    label: t('navigation.admin'),
-    href: '/admin',
-    icon: <Users className="size-5" />,
-    match: (path) => path === '/admin' || path.startsWith('/admin/'),
+  const documentInputAgentRoute: IRouteConfig = {
+    key: 'document-input-agent',
+    label: t('navigation.documentInputAgent'),
+    href: '/document-input-agent',
+    icon: <Bot className="size-5" />,
+    match: (path) => path.startsWith('/document-input-agent'),
   };
 
   const templateAgentRoute: IRouteConfig = {
     key: 'template-agent',
     label: t('navigation.templateAgent'),
     href: '/template-agent',
-    icon: <Bot className="size-5" />,
-    match: (path) => path === '/template-agent' || path.startsWith('/template-agent/'),
-  };
-
-  const documentInputAgentRoute: IRouteConfig = {
-    key: 'document-input-agent',
-    label: t('navigation.documentInputAgent'),
-    href: '/document-input-agent',
     icon: <ClipboardPenLine className="size-5" />,
-    match: (path) => path === '/document-input-agent' || path.startsWith('/document-input-agent/'),
+    match: (path) => path.startsWith('/template-agent'),
   };
 
   const documentInputAgentHistoryRoute: IRouteConfig = {
@@ -266,86 +216,104 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
     label: t('navigation.documentInputAgentHistory'),
     href: '/document-input-agent-history',
     icon: <History className="size-5" />,
-    match: (path) => path === '/document-input-agent-history' || path.startsWith('/document-input-agent-history/'),
+    match: (path) => path.startsWith('/document-input-agent-history'),
   };
 
-  // New Figma nav items (UI placeholder – not yet wired to real routes)
-  const universityHubsRoute: IRouteConfig = {
-    key: 'university-hubs',
-    label: t('navigation.universityHubs'),
-    href: '/home',
-    icon: <Network className="size-5" />,
-    match: () => false,
+  const adminRoute: IRouteConfig = {
+    key: 'admin',
+    label: t('navigation.adminPanel'),
+    href: '/admin',
+    icon: <Shield className="size-5" />,
+    match: (path) => path.startsWith('/admin'),
   };
 
-  const myHubsRoute: IRouteConfig = {
-    key: 'my-hubs',
-    label: t('navigation.myHubs'),
-    href: '/home',
-    icon: <FolderOpen className="size-5" />,
-    match: () => false,
-  };
-
-  const ticketsRoute: IRouteConfig = {
-    key: 'tickets',
-    label: t('navigation.tickets'),
-    href: '/home',
-    icon: <Ticket className="size-5" />,
-    match: () => false,
+  const openaiRoute: IRouteConfig = {
+    key: 'openai',
+    label: t('navigation.openaiSettings'),
+    href: '/openai',
+    icon: <Braces className="size-5" />,
+    match: (path) => path.startsWith('/openai'),
   };
 
   const sharingRoute: IRouteConfig = {
     key: 'sharing',
     label: t('navigation.sharing'),
-    href: '/home',
-    icon: <FolderShared className="size-5" />,
-    match: () => false,
+    href: '/dashboard/sharing',
+    icon: <Share2 className="size-5" />,
+    match: (path) => path.startsWith('/dashboard/sharing'),
   };
 
   const sharedRoute: IRouteConfig = {
     key: 'shared',
     label: t('navigation.shared'),
-    href: '/home',
-    icon: <Files className="size-5" />,
-    match: () => false,
+    href: '/dashboard/shared',
+    icon: <Users className="size-5" />,
+    match: (path) => path.startsWith('/dashboard/shared'),
   };
 
   const recycleBinRoute: IRouteConfig = {
     key: 'recycle-bin',
     label: t('navigation.recycleBin'),
-    href: '/home',
+    href: '/dashboard/recycle-bin',
     icon: <Trash2 className="size-5" />,
-    match: () => false,
+    match: (path) => path.startsWith('/dashboard/recycle-bin'),
   };
 
-  const templateAgentRoutes =
-    hasTechRootAccess && TECH_CONFIG_VARIABLE_ENABLED && agentSettings.template_agent_enabled
-      ? [templateAgentRoute]
-      : [];
-  const isDocumentInputAgentEnabled = agentSettings.document_input_agent_enabled;
-  const documentInputAgentRoutes =
-    canUseDocumentInputAgent && isDocumentInputAgentEnabled ? [documentInputAgentRoute] : [];
-  const documentInputAgentHistoryRoutes =
-    hasRootAccess && isDocumentInputAgentEnabled ? [documentInputAgentHistoryRoute] : [];
-  const agentSettingsRoutes = hasRootAccess ? [agentSettingsRoute] : [];
+  const ticketsRoute: IRouteConfig = {
+    key: 'tickets',
+    label: 'Tickets',
+    href: '/dashboard/tickets',
+    icon: <Ticket className="size-5" />,
+    match: (path) => path.startsWith('/dashboard/tickets'),
+  };
 
+  const agentSettingsRoutes: IRouteConfig[] = TECH_CONFIG_VARIABLE_ENABLED
+    ? [
+        {
+          key: 'template-variable-docs',
+          label: t('navigation.templateVariableDocs'),
+          href: '/template-variable-docs',
+          icon: <BarChart3 className="size-5" />,
+          match: (path) => path.startsWith('/template-variable-docs'),
+        },
+        openaiRoute,
+      ]
+    : [];
+
+  const documentInputAgentHistoryRoutes: IRouteConfig[] = isAdmin
+    ? [documentInputAgentHistoryRoute]
+    : [];
+
+  // ─── Primary nav matching the Figma design ───────────────────────────────────
   const primaryRoutes: IRouteConfig[] = [
     {
       key: 'home',
-      label: t('navigation.home'),
+      label: 'Overview',
       href: '/home',
-      icon: <Home className="size-5" />,
-      match: (path) => path === '/home' || path.startsWith('/home/'),
+      icon: <LayoutDashboard className="size-5" />,
+      match: (path) => path === '/home' || path === '/',
     },
-    ...(hasDashboardAccess ? dashboardRoutes : []),
-    ...(hasTemplateAccess ? templateRoutes : []),
-    ...(hasTechRootAccess && TECH_CONFIG_VARIABLE_ENABLED ? techRootRoutes : []),
-    ...templateAgentRoutes,
-    ...(!isAdmin ? agentSettingsRoutes : []),
-    ...(hasDocumentAccess ? documentRoutes : []),
-    ...documentInputAgentRoutes,
-    universityHubsRoute,
-    myHubsRoute,
+    {
+      key: 'documents',
+      label: 'Published Documents',
+      href: '/documents',
+      icon: <FileText className="size-5" />,
+      match: (path) => path.startsWith('/documents'),
+    },
+    {
+      key: 'university-hubs',
+      label: 'University Hubs',
+      href: '/dashboard/hubs',
+      icon: <Network className="size-5" />,
+      match: (path) => path.startsWith('/dashboard/hubs'),
+    },
+    {
+      key: 'my-hubs',
+      label: 'My Hubs',
+      href: '/dashboard/my-hubs',
+      icon: <FolderGit2 className="size-5" />,
+      match: (path) => path.startsWith('/dashboard/my-hubs'),
+    },
     ticketsRoute,
   ];
 
@@ -354,6 +322,13 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
     sharedRoute,
     recycleBinRoute,
     ...(isAdmin ? [...documentInputAgentHistoryRoutes, adminRoute, ...agentSettingsRoutes] : []),
+    {
+      key: 'settings',
+      label: t('navigation.settings'),
+      href: '/settings',
+      icon: <Settings className="size-5" />,
+      match: (path) => path.startsWith('/settings'),
+    },
   ];
 
   const shouldWaitForProfile = !routes && !profile;
@@ -362,43 +337,144 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
 
   return (
     <aside
-      className={`fixed bottom-0 left-0 top-16 z-30 flex flex-col border-r border-slate-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.06)] transition-all duration-300 ease-in-out ${
-        isCollapsed ? 'w-20' : 'w-64'
+      className={`fixed bottom-0 left-0 top-0 z-50 flex flex-col border-r border-slate-200 bg-white shadow-[4px_0_24px_rgba(0,0,0,0.03)] transition-all duration-300 ease-in-out ${
+        isCollapsed ? 'w-[72px]' : 'w-64'
       }`}>
-              <p className="truncate text-xs text-slate-500">{t('app.title')}</p>
+      {/* Logo Area */}
+      <div className="flex h-16 items-center justify-between border-b border-slate-100 px-4">
+        {!isCollapsed && (
+          <div className="flex items-center gap-3">
+            {/* Shield icon */}
+            <div className="flex size-9 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm">
+              <Shield className="size-5" />
+            </div>
+            <div className="flex flex-col leading-tight">
+              <span className="text-[15px] font-bold text-slate-800">Document Control</span>
+              <span className="text-[10px] font-bold tracking-widest text-blue-600 uppercase">ADMIN</span>
             </div>
           </div>
         )}
-      </div> */}
+        {isCollapsed && (
+          <div className="mx-auto flex size-9 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm">
+            <Shield className="size-5" />
+          </div>
+        )}
+        {!isCollapsed && (
+          <button
+            onClick={() => onCollapsedChange(!isCollapsed)}
+            className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
+            title="Collapse sidebar"
+          >
+            <ArrowLeftToLine className="size-4" />
+          </button>
+        )}
+      </div>
 
-      <nav className="flex flex-1 flex-col gap-1.5 px-4 py-4">
-        {routeList.map((route) => (
-          <SidebarItem
-            key={route.key}
-            icon={route.icon}
-            label={route.label}
-            href={route.href}
-            is_active={route.match(pathname)}
-            isCollapsed={isCollapsed}
-          />
-        ))}
-      </nav>
-      <div className="mt-auto border-t border-slate-100 p-3">
+      {/* Expand button when collapsed */}
+      {isCollapsed && (
         <button
-          type="button"
-          className={`flex w-full items-center rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 ${
-            isCollapsed ? 'justify-center' : 'justify-between'
-          }`}
-          onClick={() => onCollapsedChange(!isCollapsed)}>
-          {isCollapsed ? (
-            <ArrowRightToLine className="size-4" />
-          ) : (
-            <div className="flex w-full items-center justify-between gap-3">
-              <span className="text-base font-semibold">{t('navigation.collapse')}</span>
-              <ArrowLeftToLine className="size-4" />
-            </div>
-          )}
+          onClick={() => onCollapsedChange(!isCollapsed)}
+          className="mx-auto mt-3 flex size-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
+          title="Expand sidebar"
+        >
+          <ArrowRightToLine className="size-4" />
         </button>
+      )}
+
+      <div className="flex-1 overflow-y-auto overflow-x-hidden px-3 py-4 space-y-1">
+        {/* Main Routes */}
+        <nav className="flex flex-col gap-0.5">
+          {routeList.map((route) => (
+            <SidebarItem
+              key={route.key}
+              icon={route.icon}
+              label={route.label}
+              href={route.href}
+              is_active={route.match(pathname)}
+              isCollapsed={isCollapsed}
+            />
+          ))}
+        </nav>
+
+        {/* Management Routes */}
+        {(!shouldWaitForProfile && managementRoutes.length > 0) && (
+          <div className="pt-4">
+            {!isCollapsed && (
+              <div className="mb-2 px-3 text-[10px] font-bold tracking-widest text-slate-400 uppercase">
+                MANAGEMENT
+              </div>
+            )}
+            <nav className="flex flex-col gap-0.5">
+              {managementRoutes.map((route) => (
+                <SidebarItem
+                  key={route.key}
+                  icon={route.icon}
+                  label={route.label}
+                  href={route.href}
+                  is_active={route.match(pathname)}
+                  isCollapsed={isCollapsed}
+                />
+              ))}
+            </nav>
+          </div>
+        )}
+      </div>
+
+      {/* User Profile & Storage Area */}
+      <div className="border-t border-slate-100 p-3">
+        {!isCollapsed ? (
+          <div className="flex flex-col gap-3 rounded-2xl bg-slate-50 p-3">
+            <div className="flex items-center gap-3">
+              <img
+                src="https://i.pravatar.cc/150?u=a042581f4e29026024d"
+                alt="Avatar"
+                className="size-9 shrink-0 rounded-full object-cover ring-2 ring-white shadow-sm"
+              />
+              <div className="flex min-w-0 flex-col">
+                <span className="truncate text-sm font-bold text-slate-900">{displayName || 'Dr. Sarah Jenkins'}</span>
+                <span className="truncate text-xs text-slate-500">{roleLabel || 'Dean of Information'}</span>
+              </div>
+            </div>
+
+            <div className="rounded-xl bg-[#2E2063] p-3 text-white">
+              <div className="mb-1.5 text-[10px] font-bold uppercase tracking-wider text-white/70">
+                Storage Usage
+              </div>
+              <div className="text-sm font-bold">
+                {STORAGE_USED_GB} TB / {STORAGE_TOTAL_GB} TB
+              </div>
+              <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/20">
+                <div
+                  className="h-full bg-blue-400 transition-all"
+                  style={{ width: `${STORAGE_PERCENT}%` }}
+                />
+              </div>
+            </div>
+
+            <button
+              onClick={logout}
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-white py-2 text-sm font-semibold text-red-500 transition-colors hover:bg-red-50 hover:border-red-300"
+            >
+              <LogOut className="size-4" />
+              Sign Out
+            </button>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center gap-3">
+            <img
+              src="https://i.pravatar.cc/150?u=a042581f4e29026024d"
+              alt="Avatar"
+              className="size-9 rounded-full object-cover ring-2 ring-white shadow-sm"
+            />
+            <button
+              onClick={logout}
+              className="rounded-xl bg-red-50 p-2 text-red-500 hover:bg-red-100 transition-colors"
+              title="Sign Out"
+            >
+              <LogOut className="size-4" />
+            </button>
+          </div>
+        )}
       </div>
     </aside>
   );
