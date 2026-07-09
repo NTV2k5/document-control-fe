@@ -76,7 +76,7 @@ export const DocumentGridView = ({ documents, selectedDocument, onSelectDocument
               {/* Right Column: Text and Metas */}
               <div className="flex-1 min-w-0 pr-4">
                 {/* Title */}
-                <h3 className="line-clamp-2 text-sm font-bold text-[#1b2559] leading-snug mb-2 pr-2" title={doc.title}>
+                <h3 className="truncate text-sm font-bold text-[#1b2559] leading-snug mb-2 pr-2" title={doc.title}>
                   {doc.title}
                 </h3>
                 
