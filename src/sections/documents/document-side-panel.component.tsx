@@ -1,7 +1,8 @@
 import { X, FileText, Download, Edit3, UserPlus, Folder } from 'lucide-react';
-import { type IDocument } from 'api';
+import { type IDocument, exportOfficeArtifactAPI } from 'api';
 import { formatDate } from '../../lib';
 import { useState } from 'react';
+import { useNavigate } from '@tanstack/react-router';
 
 interface IDocumentSidePanelProps {
   document: IDocument | null;
@@ -10,7 +11,9 @@ interface IDocumentSidePanelProps {
 }
 
 export const DocumentSidePanel = ({ document, onClose, inline = false }: IDocumentSidePanelProps) => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'detail' | 'activity' | 'version'>('detail');
+  const [downloading, setDownloading] = useState(false);
 
   if (!document) {
     if (inline) {
@@ -41,6 +44,30 @@ export const DocumentSidePanel = ({ document, onClose, inline = false }: IDocume
     if (typeLower === 'pdf') return 'bg-red-50 border border-red-100/50';
     if (typeLower === 'excel' || typeLower === 'spreadsheet') return 'bg-emerald-50 border border-emerald-100/50';
     return 'bg-blue-50 border border-blue-100/50';
+  };
+
+  const handleDownload = async () => {
+    if (!document) return;
+    try {
+      setDownloading(true);
+      const isSpreadsheet = document.artifact_type === 'spreadsheet';
+      const isPresentation = document.artifact_type === 'presentation';
+      const format = isSpreadsheet ? 'xlsx' : isPresentation ? 'pptx' : 'pdf';
+      
+      const blob = await exportOfficeArtifactAPI('document', document.id, format);
+      
+      const suggestedName = `${document.title || 'document'}.${format}`;
+      const url = window.URL.createObjectURL(blob);
+      const a = window.location.document?.createElement?.('a') || window.document.createElement('a');
+      a.href = url;
+      a.download = suggestedName;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Error downloading document:', err);
+    } finally {
+      setDownloading(false);
+    }
   };
 
   const panelContent = (
@@ -108,6 +135,7 @@ export const DocumentSidePanel = ({ document, onClose, inline = false }: IDocume
               </p>
               <button
                 type="button"
+                onClick={() => navigate({ to: '/documents/$id', params: { id: document.id } })}
                 className="rounded-full border border-slate-200 bg-white px-6 py-2 text-xs font-bold text-[#1B2559] shadow-sm hover:bg-slate-50 transition">
                 View Fullscreen
               </button>
@@ -185,11 +213,14 @@ export const DocumentSidePanel = ({ document, onClose, inline = false }: IDocume
       <div className={`flex items-center gap-3 border-t border-slate-100 mt-6 ${inline ? 'px-1 py-4' : 'p-6'}`}>
         <button
           type="button"
-          className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white py-3 px-4 font-bold text-xs text-[#1B2559] hover:bg-slate-50 transition shadow-sm">
-          <Download className="size-3.5" /> Download
+          disabled={downloading}
+          onClick={handleDownload}
+          className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white py-3 px-4 font-bold text-xs text-[#1B2559] hover:bg-slate-50 transition shadow-sm disabled:opacity-50">
+          <Download className="size-3.5" /> {downloading ? 'Downloading...' : 'Download'}
         </button>
         <button
           type="button"
+          onClick={() => navigate({ to: '/documents/$id', params: { id: document.id } })}
           className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 py-3 px-4 font-bold text-xs text-white shadow-md shadow-blue-600/10 transition">
           <Edit3 className="size-3.5" /> Edit Details
         </button>
@@ -199,7 +230,10 @@ export const DocumentSidePanel = ({ document, onClose, inline = false }: IDocume
 
   if (inline) {
     return (
-      <div className="hidden xl:flex w-full xl:w-[380px] shrink-0 flex-col border border-slate-100 bg-white p-6 rounded-2xl shadow-sm h-fit">
+      <div
+        className="hidden xl:flex w-full xl:w-[380px] shrink-0 flex-col border border-slate-100 bg-white p-6 rounded-2xl shadow-sm h-fit"
+        onClick={(e) => e.stopPropagation()}
+      >
         {panelContent}
       </div>
     );
@@ -211,9 +245,13 @@ export const DocumentSidePanel = ({ document, onClose, inline = false }: IDocume
         className="fixed inset-0 z-40 bg-slate-900/15 backdrop-blur-[1px] transition-opacity"
         onClick={onClose}
       />
-      <div className="fixed bottom-0 right-0 top-0 z-50 flex w-[450px] flex-col border-l border-slate-200 bg-white shadow-[-10px_0_30px_rgba(0,0,0,0.05)] transition-transform duration-300">
+      <div
+        className="fixed bottom-0 right-0 top-0 z-50 flex w-[450px] flex-col border-l border-slate-200 bg-white shadow-[-10px_0_30px_rgba(0,0,0,0.05)] transition-transform duration-300"
+        onClick={(e) => e.stopPropagation()}
+      >
         {panelContent}
       </div>
     </>
   );
 };
+

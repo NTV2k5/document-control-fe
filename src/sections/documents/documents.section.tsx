@@ -890,7 +890,7 @@ export const DocumentsSection: React.FC<IDocumentsSectionProps> = () => {
 
         {/* Right Side: Embedded Side Panel (Desktop inline variant) */}
         {selectedDocument && (
-          <div className="hidden xl:block">
+          <div className="hidden xl:block" onClick={(e) => e.stopPropagation()}>
             <DocumentSidePanel
               document={selectedDocument}
               onClose={() => setSelectedDocument(null)}
@@ -901,7 +901,7 @@ export const DocumentsSection: React.FC<IDocumentsSectionProps> = () => {
       </div>
 
       {/* Drawer variant for mobile/tablet */}
-      <div className="block xl:hidden">
+      <div className="block xl:hidden" onClick={(e) => e.stopPropagation()}>
         {selectedDocument && (
           <DocumentSidePanel
             document={selectedDocument}
