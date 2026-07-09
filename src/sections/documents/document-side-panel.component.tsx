@@ -58,7 +58,7 @@ export const DocumentSidePanel = ({ document, onClose, inline = false }: IDocume
       
       const suggestedName = `${document.title || 'document'}.${format}`;
       const url = window.URL.createObjectURL(blob);
-      const a = window.location.document?.createElement?.('a') || window.document.createElement('a');
+      const a = document.createElement('a');
       a.href = url;
       a.download = suggestedName;
       a.click();
