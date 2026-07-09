@@ -30,19 +30,33 @@ export const DocumentSidePanel = ({ document, onClose, inline = false }: IDocume
 
   const getDocIcon = (type?: string) => {
     const typeLower = type?.toLowerCase() || '';
-    if (typeLower === 'pdf') {
+    if (typeLower === 'pdf' || typeLower === 'image_form') {
       return <FileText className="size-6 text-red-500" />;
     }
-    if (typeLower === 'excel' || typeLower === 'spreadsheet') {
-      return <FileText className="size-6 text-emerald-600" />;
+    if (
+      typeLower === 'excel' ||
+      typeLower === 'spreadsheet' ||
+      typeLower === 'rich_text' ||
+      typeLower === 'word'
+    ) {
+      return <FileText className="size-6 text-emerald-500" />;
     }
     return <FileText className="size-6 text-blue-600" />;
   };
 
   const getDocIconBg = (type?: string) => {
     const typeLower = type?.toLowerCase() || '';
-    if (typeLower === 'pdf') return 'bg-red-50 border border-red-100/50';
-    if (typeLower === 'excel' || typeLower === 'spreadsheet') return 'bg-emerald-50 border border-emerald-100/50';
+    if (typeLower === 'pdf' || typeLower === 'image_form') {
+      return 'bg-red-50 border border-red-100/50';
+    }
+    if (
+      typeLower === 'excel' ||
+      typeLower === 'spreadsheet' ||
+      typeLower === 'rich_text' ||
+      typeLower === 'word'
+    ) {
+      return 'bg-emerald-50 border border-emerald-100/50';
+    }
     return 'bg-blue-50 border border-blue-100/50';
   };
 
@@ -73,13 +87,13 @@ export const DocumentSidePanel = ({ document, onClose, inline = false }: IDocume
   const panelContent = (
     <div className="flex flex-1 flex-col h-full">
       {/* Header Title */}
-      <div className={`flex items-start justify-between ${inline ? 'px-1 py-4' : 'px-8 py-6 pt-10'}`}>
-        <div className="flex items-start gap-4">
+      <div className={`flex items-start justify-between min-w-0 w-full ${inline ? 'px-1 py-4' : 'px-8 py-6 pt-10'}`}>
+        <div className="flex items-start gap-4 min-w-0 flex-1">
           <div className={`flex size-12 shrink-0 items-center justify-center rounded-xl ${getDocIconBg(document.artifact_type)}`}>
             {getDocIcon(document.artifact_type)}
           </div>
-          <div className="min-w-0">
-            <h2 className="text-base font-bold text-[#1B2559] truncate leading-tight" title={document.title}>
+          <div className="min-w-0 flex-1">
+            <h2 className="text-base font-bold text-[#1B2559] truncate leading-tight pr-4" title={document.title}>
               {document.title}
             </h2>
             <p className="text-xs text-[#A3AED0] mt-1">Document ID: #{document.id.slice(0, 12)}</p>
