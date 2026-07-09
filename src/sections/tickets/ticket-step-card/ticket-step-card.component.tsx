@@ -1,4 +1,4 @@
-import type { ITicketStepCardProps } from '../ticket.type';
+import type { ITicketStepCardProps, ITicketStep } from '../ticket.type';
 import { EStepStatus } from '../ticket.type';
 import { useState, useEffect } from 'react';
 import {
@@ -21,6 +21,7 @@ import {
   MessageSquare,
   ChevronDown,
   ChevronUp,
+  X,
 } from 'lucide-react';
 
 const stepIconMap: Record<string, React.ReactNode> = {
@@ -85,6 +86,7 @@ export const TicketStepCard = ({ step, isLast, viewRole = 'staff', onStepUpdate 
   
   // Simulation states
   const [noteText, setNoteText] = useState('');
+  const [showNoteInput, setShowNoteInput] = useState(false);
   const [localProofAttached, setLocalProofAttached] = useState(step.paymentInfo?.proofAttached || false);
   const [localProofFile, setLocalProofFile] = useState(step.paymentInfo?.proofFile || '');
   const [localScanAttached, setLocalScanAttached] = useState(!!step.uploadedFile);
@@ -647,8 +649,6 @@ export const TicketStepCard = ({ step, isLast, viewRole = 'staff', onStepUpdate 
             </div>
           </div>
         )}
-      </div>
-    </div>
       </div>
     </div>
   );
