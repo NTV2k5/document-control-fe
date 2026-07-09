@@ -1,7 +1,7 @@
 import type { ITicketStepCardProps, ITicketStep } from '../ticket.type';
 import { EStepStatus } from '../ticket.type';
 import { useState, useEffect } from 'react';
-import QRCode from 'react-qr-code';
+import { QRCodeSVG as QRCode } from 'qrcode.react';
 import {
   AlertCircle,
   Paperclip,
@@ -84,11 +84,7 @@ export const TicketStepCard = ({ step, isLast, viewRole = 'staff', onStepUpdate 
   const [showComments, setShowComments] = useState(false);
   const [comments, setComments] = useState(step.comments);
   const [newComment, setNewComment] = useState('');
-
-  const qrValue = step.paymentInfo?.transferContent
-    ? `00020101021238580010A00000072701280006970436011412345678900208QRIBFTTA53037045405500005802VN62380815${step.paymentInfo.transferContent}6304`
-    : '';
-
+  
   // Simulation states
   const [noteText, setNoteText] = useState('');
   const [showNoteInput, setShowNoteInput] = useState(false);
@@ -441,16 +437,22 @@ export const TicketStepCard = ({ step, isLast, viewRole = 'staff', onStepUpdate 
                     <div className="flex justify-center my-2">
                       <div 
                         onClick={() => setShowProofLightbox(true)}
-                        className="cursor-pointer border border-slate-200 bg-white p-1 rounded-lg shadow-sm hover:shadow"
+                        className="cursor-pointer border border-slate-200 bg-white p-1.5 rounded-lg shadow-sm hover:shadow"
                       >
-                        <div className="size-24 flex items-center justify-center bg-white p-1 rounded">
-                          <QRCode
-                            size={80}
-                            style={{ height: 'auto', maxWidth: '100%', width: '100%' }}
-                            value={qrValue}
-                            viewBox={`0 0 256 256`}
-                          />
-                        </div>
+                        <QRCode
+                          value={`STK: ${step.paymentInfo?.accountNumber || '1234567890'} - NH: ${step.paymentInfo?.bank || 'Vietcombank'} - So tien: ${step.paymentInfo?.amount || 50000}đ - Noi dung: ${step.paymentInfo?.transferContent || 'SV-2041'}`}
+                          size={80}
+                          level="H"
+                          includeMargin={false}
+                          imageSettings={{
+                            src: "/gdu/logo/logo-icon.png",
+                            x: undefined,
+                            y: undefined,
+                            height: 16,
+                            width: 16,
+                            excavate: true,
+                          }}
+                        />
                       </div>
                     </div>
 
@@ -626,12 +628,20 @@ export const TicketStepCard = ({ step, isLast, viewRole = 'staff', onStepUpdate 
                 <X className="size-4" />
               </button>
               <h3 className="mb-4 text-base font-bold text-slate-800">Quét Mã QR</h3>
-              <div className="bg-white p-4 rounded-xl border border-slate-200 flex items-center justify-center shadow-inner">
+              <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100 flex items-center justify-center shadow-inner">
                 <QRCode
+                  value={`STK: ${step.paymentInfo?.accountNumber || '1234567890'} - NH: ${step.paymentInfo?.bank || 'Vietcombank'} - So tien: ${step.paymentInfo?.amount || 50000}đ - Noi dung: ${step.paymentInfo?.transferContent || 'SV-2041'}`}
                   size={180}
-                  style={{ height: 'auto', maxWidth: '100%', width: '100%' }}
-                  value={qrValue}
-                  viewBox={`0 0 256 256`}
+                  level="H"
+                  includeMargin={false}
+                  imageSettings={{
+                    src: "/gdu/logo/logo-icon.png",
+                    x: undefined,
+                    y: undefined,
+                    height: 36,
+                    width: 36,
+                    excavate: true,
+                  }}
                 />
               </div>
               <p className="mt-4 text-xs font-semibold text-slate-700 text-center">

@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import type { ITicketDetailModalProps, ITicketStep } from '../ticket.type';
 import { ETicketType, ETicketStatus, EPaymentStatus, EProcessingForm } from '../ticket.type';
+import { QRCodeSVG as QRCode } from 'qrcode.react';
 import { TicketStepCard } from '../ticket-step-card';
-import QRCode from 'react-qr-code';
 import {
   X,
   FileText,
@@ -95,18 +95,26 @@ const formatDate = (d: string) => {
   return `${dd}/${mm}/${yyyy} ${hh}:${min}`;
 };
 
-export const MockQRCode = ({ value, size = 120 }: { value: string; size?: number }) => (
+export const MockQRCode = ({ size = 120, value = 'GDU Document Control' }: { size?: number; value?: string }) => (
   <div
-    className="flex flex-col items-center gap-1.5 bg-white p-2 rounded-lg border border-slate-200/60 shadow-sm shrink-0"
-    style={{ width: size + 16, height: size + 32 }}
+    className="flex flex-col items-center justify-center gap-1.5 bg-white p-2.5 rounded-xl border border-slate-200/60 shadow-sm shrink-0"
+    style={{ width: size + 20, height: size + 38 }}
   >
     <QRCode
-      size={size}
-      style={{ height: 'auto', maxWidth: '100%', width: '100%' }}
       value={value}
-      viewBox={`0 0 256 256`}
+      size={size}
+      level="H"
+      includeMargin={false}
+      imageSettings={{
+        src: "/gdu/logo/logo-icon.png",
+        x: undefined,
+        y: undefined,
+        height: Math.max(16, Math.floor(size * 0.18)),
+        width: Math.max(16, Math.floor(size * 0.18)),
+        excavate: true,
+      }}
     />
-    <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest leading-none mt-1">VietQR</span>
+    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest leading-none">VietQR</span>
   </div>
 );
 
@@ -115,10 +123,6 @@ export const TicketDetailModal = ({ ticket, open, onClose }: ITicketDetailModalP
   const [steps, setSteps] = useState<ITicketStep[]>([]);
   const [paymentBannerOpen, setPaymentBannerOpen] = useState(true);
   const [zoomedQR, setZoomedQR] = useState(false);
-
-  const qrValue = ticket
-    ? `00020101021238580010A00000072701280006970436011412345678900208QRIBFTTA53037045405500005802VN62380815${ticket.code} ${ticket.student.mssv}6304`
-    : '';
 
   useEffect(() => {
     if (ticket) {
@@ -250,7 +254,7 @@ export const TicketDetailModal = ({ ticket, open, onClose }: ITicketDetailModalP
                     onClick={() => setZoomedQR(true)}
                     className="group relative cursor-pointer overflow-hidden rounded-xl border border-slate-200 bg-white p-1.5 shadow-sm transition-all hover:shadow-md"
                   >
-                    <MockQRCode value={qrValue} size={110} />
+                    <MockQRCode size={110} />
                     <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
                       <span className="rounded bg-white/95 px-2 py-1 text-[9px] font-bold text-slate-700">Phóng to</span>
                     </div>
@@ -468,7 +472,7 @@ export const TicketDetailModal = ({ ticket, open, onClose }: ITicketDetailModalP
                 <X className="size-4" />
               </button>
               <h3 className="mb-4 text-base font-bold text-slate-800">Mã QR Thanh Toán</h3>
-              <MockQRCode value={qrValue} size={220} />
+              <MockQRCode size={220} />
               <div className="mt-4 w-full space-y-1.5 rounded-xl bg-slate-50 p-4 text-xs text-slate-600">
                 <div className="flex justify-between">
                   <span>Ngân hàng:</span>
