@@ -1,4 +1,5 @@
-import type { ITicketDetailModalProps } from '../ticket.type';
+import { useState, useEffect } from 'react';
+import type { ITicketDetailModalProps, ITicketStep } from '../ticket.type';
 import { ETicketType, ETicketStatus, EPaymentStatus, EProcessingForm } from '../ticket.type';
 import { TicketStepCard } from '../ticket-step-card';
 import {
@@ -93,18 +94,88 @@ const formatDate = (d: string) => {
   return `${dd}/${mm}/${yyyy} ${hh}:${min}`;
 };
 
+export const MockQRCode = ({ size = 120 }: { size?: number }) => (
+  <div
+    className="flex flex-col items-center gap-1 bg-white p-2 rounded-lg border border-slate-200/60 shadow-sm shrink-0"
+    style={{ width: size + 16, height: size + 34 }}
+  >
+    <svg className="text-slate-800" width={size} height={size} viewBox="0 0 100 100" fill="currentColor">
+      {/* Top-Left Finder */}
+      <path d="M0,0 h28 v28 h-28 z M4,4 h20 v20 h-20 z M8,8 h12 v12 h-12 z" />
+      {/* Top-Right Finder */}
+      <path d="M72,0 h28 v28 h-28 z M76,4 h20 v20 h-20 z M80,8 h12 v12 h-12 z" />
+      {/* Bottom-Left Finder */}
+      <path d="M0,72 h28 v28 h-28 z M4,76 h20 v20 h-20 z M8,80 h12 v12 h-12 z" />
+      {/* Bottom-Right alignment */}
+      <rect x="80" y="80" width="8" height="8" />
+      <rect x="84" y="84" width="4" height="4" fill="white" />
+      {/* QR Code pseudo-pixels */}
+      <rect x="36" y="4" width="4" height="8" />
+      <rect x="44" y="0" width="8" height="4" />
+      <rect x="56" y="8" width="4" height="12" />
+      <rect x="64" y="4" width="8" height="4" />
+      <rect x="36" y="16" width="12" height="4" />
+      <rect x="48" y="24" width="4" height="4" />
+      <rect x="56" y="20" width="12" height="4" />
+      <rect x="12" y="36" width="8" height="4" />
+      <rect x="0" y="44" width="4" height="8" />
+      <rect x="24" y="40" width="4" height="12" />
+      <rect x="32" y="32" width="12" height="4" />
+      <rect x="44" y="44" width="16" height="4" />
+      <rect x="36" y="52" width="4" height="8" />
+      <rect x="48" y="56" width="8" height="4" />
+      <rect x="64" y="36" width="4" height="8" />
+      <rect x="76" y="40" width="12" height="4" />
+      <rect x="88" y="48" width="4" height="8" />
+      <rect x="72" y="56" width="8" height="4" />
+      <rect x="32" y="68" width="4" height="12" />
+      <rect x="44" y="72" width="8" height="4" />
+      <rect x="36" y="84" width="12" height="4" />
+      <rect x="48" y="88" width="4" height="8" />
+      <rect x="60" y="68" width="4" height="12" />
+      <rect x="64" y="84" width="8" height="4" />
+      <rect x="88" y="68" width="4" height="4" />
+      {/* Center visual icon wrapper */}
+      <rect x="40" y="40" width="20" height="20" rx="3" fill="white" stroke="#e2e8f0" strokeWidth="1" />
+      <circle cx="50" cy="50" r="6" fill="#1e40af" />
+      <path d="M48,47 h4 v6 h-4 z" fill="white" />
+    </svg>
+    <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest leading-none">VietQR</span>
+  </div>
+);
+
 export const TicketDetailModal = ({ ticket, open, onClose }: ITicketDetailModalProps) => {
+  const [viewRole, setViewRole] = useState<'staff' | 'student'>('staff');
+  const [steps, setSteps] = useState<ITicketStep[]>([]);
+  const [paymentBannerOpen, setPaymentBannerOpen] = useState(true);
+  const [zoomedQR, setZoomedQR] = useState(false);
+
+  useEffect(() => {
+    if (ticket) {
+      setSteps(ticket.steps);
+      setPaymentBannerOpen(true);
+      setZoomedQR(false);
+    }
+  }, [ticket]);
+
   if (!open || !ticket) return null;
 
   const showPaymentBanner =
+    paymentBannerOpen &&
     ticket.type === ETicketType.DICH_VU_HANH_CHINH &&
     ticket.hasFee &&
     ticket.paymentStatus === EPaymentStatus.CHUA_THANH_TOAN &&
     ticket.status === ETicketStatus.MOI;
 
+  const handleStepUpdate = (stepId: string, updatedFields: Partial<ITicketStep>) => {
+    setSteps((prev) =>
+      prev.map((s) => (s.id === stepId ? { ...s, ...updatedFields } : s))
+    );
+  };
+
   return (
     <div className="fixed inset-0 z-[100] flex items-start justify-center bg-black/50 backdrop-blur-sm p-0 sm:p-4">
-      <div className="mt-0 sm:mt-8 flex h-full sm:h-[calc(100vh-64px)] w-full max-w-6xl flex-col overflow-hidden sm:rounded-2xl bg-white shadow-2xl">
+      <div className="mt-0 sm:mt-8 flex h-full sm:h-[calc(100vh-64px)] w-full max-w-6xl flex-col overflow-hidden sm:rounded-2xl bg-white shadow-2xl relative">
         {/* Header */}
         <div className="flex shrink-0 items-center justify-between border-b border-slate-100 px-6 py-4">
           <div className="flex items-center gap-3">
@@ -112,12 +183,33 @@ export const TicketDetailModal = ({ ticket, open, onClose }: ITicketDetailModalP
             <span className="text-slate-300">—</span>
             <span className="text-lg font-semibold text-slate-800">{ticket.title}</span>
           </div>
-          <button
-            onClick={onClose}
-            className="flex size-8 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
-          >
-            <X className="size-5" />
-          </button>
+          <div className="flex items-center gap-3">
+            {/* Role switch simulation */}
+            <div className="flex items-center gap-1.5 rounded-full bg-slate-100 p-1">
+              <button
+                onClick={() => setViewRole('staff')}
+                className={`rounded-full px-3 py-1 text-[11px] font-bold transition-all ${
+                  viewRole === 'staff' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                Cán bộ
+              </button>
+              <button
+                onClick={() => setViewRole('student')}
+                className={`rounded-full px-3 py-1 text-[11px] font-bold transition-all ${
+                  viewRole === 'student' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                Sinh viên
+              </button>
+            </div>
+            <button
+              onClick={onClose}
+              className="flex size-8 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+            >
+              <X className="size-5" />
+            </button>
+          </div>
         </div>
 
         {/* Body (2 columns) */}
@@ -137,16 +229,63 @@ export const TicketDetailModal = ({ ticket, open, onClose }: ITicketDetailModalP
 
             {/* Payment banner */}
             {showPaymentBanner && (
-              <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 p-3">
-                <div className="flex items-center gap-2">
+              <div className="mb-4 relative rounded-xl border border-amber-200 bg-amber-50 p-4">
+                <button
+                  onClick={() => setPaymentBannerOpen(false)}
+                  className="absolute top-2 right-2 flex size-5 items-center justify-center rounded-full text-amber-500 hover:bg-amber-100 hover:text-amber-700"
+                >
+                  <X className="size-3" />
+                </button>
+                <div className="flex items-center gap-2 pr-6">
                   <CreditCard className="size-4 text-amber-600" />
                   <span className="text-xs font-semibold text-amber-700">
                     Cần thanh toán {ticket.feeAmount?.toLocaleString('vi-VN')}đ để bắt đầu xử lý
                   </span>
                 </div>
-                <p className="mt-1 text-[11px] text-amber-600">
+                <p className="mt-1 text-[11px] text-amber-600 pr-6">
                   Quét mã QR hoặc chuyển khoản để hoàn tất thanh toán.
                 </p>
+
+                {/* Transfer Info */}
+                <div className="mt-3 space-y-1 rounded-lg border border-amber-100 bg-white p-2.5 text-[11px] text-slate-600">
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Ngân hàng</span>
+                    <span className="font-semibold text-slate-700">Vietcombank</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Số tài khoản</span>
+                    <span className="font-semibold text-slate-700">1234567890</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Chủ tài khoản</span>
+                    <span className="font-semibold text-slate-700">Trường ĐH Gia Định</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Số tiền</span>
+                    <span className="font-semibold text-slate-700">
+                      {ticket.feeAmount?.toLocaleString('vi-VN')}đ
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Nội dung</span>
+                    <span className="font-semibold text-blue-600">
+                      {ticket.code} {ticket.student.mssv}
+                    </span>
+                  </div>
+                </div>
+
+                {/* QR Display with Lightbox click trigger */}
+                <div className="mt-3 flex justify-center">
+                  <div 
+                    onClick={() => setZoomedQR(true)}
+                    className="group relative cursor-pointer overflow-hidden rounded-xl border border-slate-200 bg-white p-1.5 shadow-sm transition-all hover:shadow-md"
+                  >
+                    <MockQRCode size={110} />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+                      <span className="rounded bg-white/95 px-2 py-1 text-[9px] font-bold text-slate-700">Phóng to</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
 
@@ -314,16 +453,18 @@ export const TicketDetailModal = ({ ticket, open, onClose }: ITicketDetailModalP
           </div>
 
           {/* Right Column — Action Flow */}
-          <div className="flex-1 md:overflow-y-auto p-6">
+          <div className="flex-1 md:overflow-y-auto p-6 bg-slate-50/20">
             <h3 className="mb-4 text-sm font-bold text-slate-800">
               Luồng xử lý ticket
             </h3>
             <div className="pl-1">
-              {ticket.steps.map((step, idx) => (
+              {steps.map((step, idx) => (
                 <TicketStepCard
                   key={step.id}
                   step={step}
-                  isLast={idx === ticket.steps.length - 1}
+                  isLast={idx === steps.length - 1}
+                  viewRole={viewRole}
+                  onStepUpdate={handleStepUpdate}
                 />
               ))}
             </div>
@@ -331,7 +472,7 @@ export const TicketDetailModal = ({ ticket, open, onClose }: ITicketDetailModalP
         </div>
 
         {/* Footer */}
-        <div className="flex shrink-0 items-center justify-end border-t border-slate-100 px-6 py-3">
+        <div className="flex shrink-0 items-center justify-end border-t border-slate-100 px-6 py-3 bg-white">
           <button
             onClick={onClose}
             className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50"
@@ -339,6 +480,53 @@ export const TicketDetailModal = ({ ticket, open, onClose }: ITicketDetailModalP
             Đóng
           </button>
         </div>
+
+        {/* Lightbox for large QR Code */}
+        {zoomedQR && (
+          <div 
+            onClick={() => setZoomedQR(false)}
+            className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 cursor-zoom-out"
+          >
+            <div 
+              onClick={(e) => e.stopPropagation()}
+              className="relative flex flex-col items-center rounded-2xl bg-white p-6 shadow-2xl max-w-sm w-full cursor-default"
+            >
+              <button 
+                onClick={() => setZoomedQR(false)}
+                className="absolute top-3 right-3 flex size-8 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors"
+              >
+                <X className="size-4" />
+              </button>
+              <h3 className="mb-4 text-base font-bold text-slate-800">Mã QR Thanh Toán</h3>
+              <MockQRCode size={220} />
+              <div className="mt-4 w-full space-y-1.5 rounded-xl bg-slate-50 p-4 text-xs text-slate-600">
+                <div className="flex justify-between">
+                  <span>Ngân hàng:</span>
+                  <span className="font-semibold text-slate-800">Vietcombank</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Số tài khoản:</span>
+                  <span className="font-semibold text-slate-800">1234567890</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Chủ tài khoản:</span>
+                  <span className="font-semibold text-slate-800">Trường ĐH Gia Định</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Số tiền:</span>
+                  <span className="font-semibold text-slate-800">{ticket.feeAmount?.toLocaleString('vi-VN')}đ</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Nội dung:</span>
+                  <span className="font-bold text-blue-600">{ticket.code} {ticket.student.mssv}</span>
+                </div>
+              </div>
+              <p className="mt-4 text-[10px] text-center text-slate-400">
+                Vui lòng chuyển khoản đúng số tiền và nội dung chuyển khoản để giao dịch được xác thực tự động.
+              </p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

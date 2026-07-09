@@ -1,7 +1,10 @@
 import type { ITicketStepCardProps } from '../ticket.type';
 import { EStepStatus } from '../ticket.type';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
+  AlertCircle,
+  Paperclip,
+  ChevronRight,
   CheckCircle,
   Clock,
   Circle,
@@ -75,9 +78,71 @@ const formatDateTime = (iso?: string) => {
   return `${dd}/${mm}/${yyyy} ${hh}:${min}`;
 };
 
-export const TicketStepCard = ({ step, isLast }: ITicketStepCardProps) => {
+export const TicketStepCard = ({ step, isLast, viewRole = 'staff', onStepUpdate }: ITicketStepCardProps) => {
   const [showComments, setShowComments] = useState(false);
+  const [comments, setComments] = useState(step.comments);
+  const [newComment, setNewComment] = useState('');
+  
+  // Simulation states
+  const [noteText, setNoteText] = useState('');
+  const [localProofAttached, setLocalProofAttached] = useState(step.paymentInfo?.proofAttached || false);
+  const [localProofFile, setLocalProofFile] = useState(step.paymentInfo?.proofFile || '');
+  const [localScanAttached, setLocalScanAttached] = useState(!!step.uploadedFile);
+  const [localScanFile, setLocalScanFile] = useState(step.uploadedFile || '');
+  const [showProofLightbox, setShowProofLightbox] = useState(false);
+
+  useEffect(() => {
+    setComments(step.comments);
+  }, [step.comments]);
+
+  useEffect(() => {
+    setLocalProofAttached(step.paymentInfo?.proofAttached || false);
+    setLocalProofFile(step.paymentInfo?.proofFile || '');
+    setLocalScanAttached(!!step.uploadedFile);
+    setLocalScanFile(step.uploadedFile || '');
+  }, [step]);
+
   const config = statusConfig[step.status];
+
+  const handleAddComment = () => {
+    const trimmed = newComment.trim();
+    if (!trimmed) return;
+    const commentItem = {
+      id: Math.random().toString(36).substring(7),
+      stepId: step.id,
+      author: {
+        id: viewRole === 'student' ? 'student' : 'staff',
+        name: viewRole === 'student' ? 'Sinh viên (Bạn)' : 'Cán bộ Phòng Đào tạo',
+        role: viewRole === 'student' ? 'Sinh viên' : 'Cán bộ',
+      },
+      content: trimmed,
+      createdAt: new Date().toISOString(),
+    };
+    const updatedComments = [...comments, commentItem];
+    setComments(updatedComments);
+    setNewComment('');
+    if (onStepUpdate) {
+      onStepUpdate(step.id, { comments: updatedComments });
+    }
+  };
+
+  const handleCompleteStep = (resultSummary: string, extraFields: Partial<ITicketStep> = {}) => {
+    if (onStepUpdate) {
+      onStepUpdate(step.id, {
+        status: EStepStatus.DA_XONG,
+        completedAt: new Date().toISOString(),
+        resultSummary,
+        ...extraFields
+      });
+    }
+  };
+
+  // Helper to determine if a step is a studentAction
+  const isStudentStep =
+    step.isStudentAction ||
+    step.icon === 'user-check' ||
+    step.name.toLowerCase().includes('sinh viên xác nhận') ||
+    step.name.toLowerCase().includes('thanh toán qr');
 
   return (
     <div className="relative flex gap-4">
@@ -157,9 +222,18 @@ export const TicketStepCard = ({ step, isLast }: ITicketStepCardProps) => {
                     <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-600">
                       Đang chờ duyệt
                     </span>
-                    <button className="rounded-md bg-blue-600 px-3 py-1 text-[10px] font-semibold text-white transition-colors hover:bg-blue-700">
-                      Duyệt
-                    </button>
+                    {viewRole === 'staff' && (
+                      <button
+                        onClick={() => {
+                          const updatedLevels = step.approvalLevels?.map(l => l.id === level.id ? { ...l, status: 'approved' as const } : l);
+                          handleCompleteStep('Đơn từ đã được phê duyệt đầy đủ qua các cấp.', { approvalLevels: updatedLevels });
+                          alert('Phê duyệt thành công!');
+                        }}
+                        className="rounded bg-blue-600 px-3 py-1 text-[10px] font-semibold text-white transition-colors hover:bg-blue-700"
+                      >
+                        Duyệt
+                      </button>
+                    )}
                   </div>
                 ) : (
                   <span className="text-[10px] text-slate-400">Chờ</span>
@@ -169,7 +243,16 @@ export const TicketStepCard = ({ step, isLast }: ITicketStepCardProps) => {
           </div>
         )}
 
-        {/* Payment info */}
+        {/* Uploaded PDF file scan display */}
+        {localScanAttached && (
+          <div className="mt-2 flex items-center gap-2 rounded-lg border border-slate-100 bg-white p-2.5 text-xs text-blue-600">
+            <FileText className="size-3.5" />
+            <span className="truncate">Bản scan đã đính kèm: {localScanFile}</span>
+            <a href="#" onClick={(e) => { e.preventDefault(); alert('Đang tải xuống file scan sao chép...'); }} className="ml-auto underline text-[10px] text-slate-500 hover:text-slate-700">Tải xuống</a>
+          </div>
+        )}
+
+        {/* Payment info (when done) */}
         {step.paymentInfo && step.status === EStepStatus.DA_XONG && (
           <div className="mt-2 rounded-lg bg-blue-50 px-3 py-2 text-xs text-blue-700">
             Đã thu {step.paymentInfo.amount.toLocaleString('vi-VN')}đ qua QR ngân hàng.
@@ -179,59 +262,299 @@ export const TicketStepCard = ({ step, isLast }: ITicketStepCardProps) => {
         {/* Call note */}
         {step.callNote && (
           <div className="mt-2 rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600">
-            <strong>Ghi chú:</strong> {step.callNote}
+            <strong>Ghi chú cuộc gọi:</strong> {step.callNote}
           </div>
         )}
 
         {/* Feedback note */}
         {step.feedbackNote && (
           <div className="mt-2 rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600">
-            <strong>Kết quả:</strong> {step.feedbackNote}
+            <strong>Kết quả phản hồi:</strong> {step.feedbackNote}
           </div>
         )}
 
         {/* CTA buttons for current step */}
-        {step.status === EStepStatus.DANG_CHO && !step.approvalLevels && (
+        {step.status === EStepStatus.DANG_CHO && (
           <div className="mt-3">
-            {step.icon === 'phone' && (
-              <div className="flex gap-2">
-                <button className="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-blue-700">
-                  Gọi qua GDU360
-                </button>
-                <button className="rounded-md border border-blue-200 bg-white px-3 py-1.5 text-xs font-semibold text-blue-600 transition-colors hover:bg-blue-50">
-                  Gọi số di động
-                </button>
+            {/* If viewRole is student and this is NOT a student step, lock it */}
+            {viewRole === 'student' && !isStudentStep ? (
+              <div className="rounded-lg bg-slate-50 border border-slate-150 p-2.5 text-xs text-slate-500 flex items-start gap-2">
+                <AlertCircle className="size-4 text-slate-400 shrink-0 mt-0.5" />
+                <span>
+                  Bước này do hệ thống/cán bộ phụ trách thực hiện. Bạn sẽ được thông báo khi có cập nhật.
+                </span>
               </div>
-            )}
-            {step.icon === 'file-text' && (
-              <button className="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-blue-700">
-                Lưu kết quả phản hồi
-              </button>
-            )}
-            {step.icon === 'check-circle' && (
-              <button className="rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-emerald-700">
-                Đóng ticket
-              </button>
-            )}
-            {step.icon === 'file-plus' && (
-              <button className="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-blue-700">
-                Tạo phiếu
-              </button>
-            )}
-            {step.icon === 'send' && (
-              <button className="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-blue-700">
-                Gửi email cho sinh viên
-              </button>
-            )}
-            {step.icon === 'credit-card' && (
-              <p className="text-xs text-amber-600 italic">
-                Đang chờ sinh viên chuyển khoản và đính kèm minh chứng.
-              </p>
-            )}
-            {step.icon === 'user-check' && (
-              <p className="text-xs text-amber-600 italic">
-                Đang chờ sinh viên xác nhận.
-              </p>
+            ) : (
+              <>
+                {/* 1. Phone step */}
+                {step.icon === 'phone' && (
+                  <div className="space-y-3">
+                    <div className="flex flex-wrap gap-2">
+                      <button 
+                        onClick={() => alert('Đang kết nối cuộc gọi GDU360...')}
+                        className="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-blue-700"
+                      >
+                        Gọi qua GDU360
+                      </button>
+                      <button 
+                        onClick={() => alert('Đang thực hiện cuộc gọi di động...')}
+                        className="rounded-md border border-blue-200 bg-white px-3 py-1.5 text-xs font-semibold text-blue-600 transition-colors hover:bg-slate-50"
+                      >
+                        Gọi số di động
+                      </button>
+                      <button 
+                        onClick={() => setShowNoteInput(!showNoteInput)}
+                        className="rounded-md border border-slate-200 bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-200"
+                      >
+                        Đã gọi & ghi nhận kết quả
+                      </button>
+                    </div>
+                    {showNoteInput && (
+                      <div className="space-y-2 rounded-lg border border-slate-200 bg-white p-3">
+                        <textarea
+                          placeholder="Nhập nội dung cuộc gọi..."
+                          value={noteText}
+                          onChange={(e) => setNoteText(e.target.value)}
+                          className="w-full min-h-[60px] rounded-md border border-slate-200 p-2 text-xs text-slate-700 focus:border-blue-400 focus:outline-none"
+                        />
+                        <button
+                          onClick={() => handleCompleteStep('Đã gọi điện và ghi nhận kết quả.', { callNote: noteText || 'Đã liên hệ thành công.' })}
+                          className="rounded-md bg-emerald-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-800"
+                        >
+                          Lưu kết quả gọi điện
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* 2. Feedback text step */}
+                {step.icon === 'file-text' && (
+                  <div className="space-y-3">
+                    <div className="rounded-lg border border-slate-200 bg-white p-3 space-y-2">
+                      <textarea
+                        placeholder="Nhập nội dung phản hồi của sinh viên..."
+                        value={noteText}
+                        onChange={(e) => setNoteText(e.target.value)}
+                        className="w-full min-h-[60px] rounded-md border border-slate-200 p-2 text-xs text-slate-700 focus:border-blue-400 focus:outline-none"
+                      />
+                      <button
+                        onClick={() => handleCompleteStep('Đã lưu kết quả phản hồi thành công.', { feedbackNote: noteText || 'Sinh viên đã nhận phản hồi.' })}
+                        className="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700"
+                      >
+                        Lưu kết quả phản hồi
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* 3. Close ticket step */}
+                {step.icon === 'check-circle' && (
+                  <button
+                    onClick={() => handleCompleteStep('Ticket đã được đóng thành công.')}
+                    className="rounded-md bg-emerald-700 px-4 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-emerald-800"
+                  >
+                    Đóng ticket
+                  </button>
+                )}
+
+                {/* 4. Create document/phieu step */}
+                {step.icon === 'file-plus' && (
+                  <button
+                    onClick={() => handleCompleteStep('Đã tạo Đơn từ từ Phiếu PVB-002.')}
+                    className="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-blue-700"
+                  >
+                    Tạo phiếu
+                  </button>
+                )}
+
+                {/* 5. Send file / notice step */}
+                {step.icon === 'send' && (
+                  <div className="space-y-2">
+                    {step.name.includes('scan') ? (
+                      <div className="space-y-2">
+                        {localScanAttached ? (
+                          <div className="flex items-center gap-2 text-xs text-slate-600">
+                            <Paperclip className="size-3.5 text-emerald-600" />
+                            <span className="truncate">Đã đính kèm: {localScanFile}</span>
+                            <button 
+                              onClick={() => { setLocalScanAttached(false); setLocalScanFile(''); }}
+                              className="text-red-500 underline text-[10px]"
+                            >
+                              Xóa
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => { setLocalScanAttached(true); setLocalScanFile('document_scan_copy.pdf'); }}
+                            className="flex items-center gap-1.5 rounded-md border border-dashed border-slate-300 bg-white px-3 py-2 text-xs text-slate-600 hover:bg-slate-50"
+                          >
+                            <Paperclip className="size-3.5" />
+                            Đính kèm file scan (.pdf)
+                          </button>
+                        )}
+                        <button
+                          disabled={!localScanAttached}
+                          onClick={() => handleCompleteStep('Đã gửi email bản scan cho sinh viên.', { uploadedFile: localScanFile })}
+                          className={`rounded-md px-3 py-1.5 text-xs font-semibold text-white transition-colors ${
+                            localScanAttached ? 'bg-blue-600 hover:bg-blue-700 cursor-pointer' : 'bg-slate-300 cursor-not-allowed'
+                          }`}
+                        >
+                          Gửi email cho sinh viên
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => handleCompleteStep('Đã gửi email thông báo thành công.')}
+                        className="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700"
+                      >
+                        Gửi email / thông báo
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                {/* 6. Payment QR step */}
+                {step.icon === 'credit-card' && (
+                  <div className="space-y-2 bg-slate-50 p-3 rounded-lg border border-slate-200">
+                    <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
+                      Thông tin thanh toán QR
+                    </span>
+                    
+                    {/* Bank Info */}
+                    <div className="text-xs space-y-1 bg-white p-2.5 rounded border border-slate-100 text-slate-600">
+                      <div>Ngân hàng: <span className="font-semibold text-slate-800">{step.paymentInfo?.bank || 'Vietcombank'}</span></div>
+                      <div>Số tài khoản: <span className="font-semibold text-slate-800">{step.paymentInfo?.accountNumber || '1234567890'}</span></div>
+                      <div>Chủ tài khoản: <span className="font-semibold text-slate-800">{step.paymentInfo?.accountHolder || 'Trường ĐH Gia Định'}</span></div>
+                      <div>Số tiền: <span className="font-semibold text-slate-800">{(step.paymentInfo?.amount || 50000).toLocaleString('vi-VN')}đ</span></div>
+                      <div>Nội dung: <span className="font-semibold text-blue-600">{step.paymentInfo?.transferContent || 'SV-2041 2174801000'}</span></div>
+                    </div>
+
+                    {/* QR Graphic preview with click trigger */}
+                    <div className="flex justify-center my-2">
+                      <div 
+                        onClick={() => setShowProofLightbox(true)}
+                        className="cursor-pointer border border-slate-200 bg-white p-1 rounded-lg shadow-sm hover:shadow"
+                      >
+                        <div className="size-24 flex items-center justify-center bg-slate-50 rounded">
+                          <svg className="size-20 text-slate-800" viewBox="0 0 100 100" fill="currentColor">
+                            <path d="M0,0 h25 v25 h-25 z M3,3 h19 v19 h-19 z M6,6 h13 v13 h-13 z" />
+                            <path d="M75,0 h25 v25 h-25 z M78,3 h19 v19 h-19 z M81,6 h13 v13 h-13 z" />
+                            <path d="M0,75 h25 v25 h-25 z M3,78 h19 v19 h-19 z M6,81 h13 v13 h-13 z" />
+                            <rect x="80" y="80" width="8" height="8" />
+                            <rect x="35" y="5" width="5" height="15" />
+                            <rect x="55" y="10" width="10" height="5" />
+                            <rect x="15" y="45" width="15" height="5" />
+                            <rect x="45" y="45" width="5" height="15" />
+                            <rect x="40" y="70" width="10" height="5" />
+                            <rect x="70" y="45" width="5" height="15" />
+                            <rect x="65" y="70" width="15" height="5" />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Check role */}
+                    {viewRole === 'student' ? (
+                      <div className="space-y-2">
+                        {localProofAttached ? (
+                          <div className="flex items-center gap-2 text-xs text-slate-600 bg-emerald-50 border border-emerald-100 p-2 rounded">
+                            <Paperclip className="size-3.5 text-emerald-600" />
+                            <span className="truncate">Minh chứng: {localProofFile}</span>
+                            <button 
+                              onClick={() => { setLocalProofAttached(false); setLocalProofFile(''); }}
+                              className="text-red-500 underline text-[10px] ml-auto shrink-0"
+                            >
+                              Xóa
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => { setLocalProofAttached(true); setLocalProofFile('proof_payment.png'); }}
+                            className="flex items-center justify-center gap-1.5 w-full rounded-md border border-dashed border-slate-300 bg-white px-3 py-2 text-xs text-slate-600 hover:bg-slate-100"
+                          >
+                            <Paperclip className="size-3.5" />
+                            Đính kèm ảnh/biên lai minh chứng
+                          </button>
+                        )}
+                        <button
+                          disabled={!localProofAttached}
+                          onClick={() => {
+                            if (onStepUpdate) {
+                              onStepUpdate(step.id, {
+                                paymentInfo: {
+                                  ...step.paymentInfo!,
+                                  proofAttached: true,
+                                  proofFile: localProofFile
+                                }
+                              });
+                            }
+                            alert('Đã gửi thông tin minh chứng chuyển khoản! Vui lòng chờ cán bộ duyệt.');
+                          }}
+                          className={`w-full rounded-md px-3 py-2 text-xs font-bold text-white transition-all ${
+                            localProofAttached ? 'bg-emerald-700 hover:bg-emerald-800' : 'bg-slate-300 cursor-not-allowed'
+                          }`}
+                        >
+                          Hoàn tất chuyển khoản
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        {step.paymentInfo?.proofAttached ? (
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-1.5 text-xs text-slate-700 bg-emerald-50/50 p-2 rounded border border-emerald-100">
+                              <Paperclip className="size-3.5 text-emerald-600" />
+                              <span className="truncate font-semibold text-slate-800">Minh chứng: {step.paymentInfo.proofFile}</span>
+                            </div>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => alert('Đang đối soát tài khoản thanh toán... Giao dịch hợp lệ.')}
+                                className="flex-1 rounded border border-blue-200 bg-white px-3 py-1.5 text-[11px] font-semibold text-blue-600 hover:bg-blue-50"
+                              >
+                                Kiểm tra giao dịch
+                              </button>
+                              <button
+                                onClick={() => handleCompleteStep('Đã thu 50.000đ qua QR ngân hàng - giao dịch thành công.', {
+                                  paymentInfo: {
+                                    ...step.paymentInfo!,
+                                    proofAttached: true,
+                                    proofFile: step.paymentInfo?.proofFile
+                                  }
+                                })}
+                                className="flex-1 rounded bg-emerald-700 px-3 py-1.5 text-[11px] font-semibold text-white hover:bg-emerald-800"
+                              >
+                                Xác nhận thanh toán
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="rounded bg-amber-50 text-amber-700 p-2 text-center text-xs">
+                            Đang chờ sinh viên chuyển khoản và đính kèm minh chứng.
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* 7. Student confirmation step */}
+                {step.icon === 'user-check' && (
+                  <div>
+                    {viewRole === 'student' ? (
+                      <button
+                        onClick={() => handleCompleteStep('Sinh viên đã xác nhận đã nhận file/hồ sơ.')}
+                        className="rounded bg-emerald-700 px-4 py-1.5 text-xs font-semibold text-white hover:bg-emerald-800"
+                      >
+                        Xác nhận đã nhận file/hồ sơ
+                      </button>
+                    ) : (
+                      <div className="rounded bg-amber-50 text-amber-700 p-2 text-center text-xs">
+                        Đang chờ sinh viên xác nhận.
+                      </div>
+                    )}
+                  </div>
+                )}
+              </>
             )}
           </div>
         )}
@@ -248,20 +571,84 @@ export const TicketStepCard = ({ step, isLast }: ITicketStepCardProps) => {
 
         {showComments && (
           <div className="mt-2 space-y-2 border-t border-slate-100 pt-2">
-            {step.comments.length === 0 && (
-              <p className="text-[11px] text-slate-400 italic">Chưa có bình luận.</p>
+            {comments.length === 0 && (
+              <p className="text-[11px] text-slate-400 italic mb-2">Chưa có bình luận.</p>
             )}
-            {step.comments.map((c) => (
-              <div key={c.id} className="rounded-lg bg-slate-50 px-3 py-2">
+            {comments.map((c) => (
+              <div key={c.id} className="rounded-lg bg-slate-50 px-3 py-2 text-xs">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-medium text-slate-700">{c.author.name}</span>
+                  <span className="text-[11px] font-semibold text-slate-700">{c.author.name}</span>
                   <span className="text-[10px] text-slate-400">{formatDateTime(c.createdAt)}</span>
                 </div>
-                <p className="mt-1 text-xs text-slate-600">{c.content}</p>
+                <p className="mt-1 text-xs text-slate-600 leading-normal">{c.content}</p>
               </div>
             ))}
+            
+            {/* Input field to add a new comment */}
+            <div className="mt-3 flex items-center gap-2">
+              <input
+                type="text"
+                placeholder="Nhập nội dung bình luận..."
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleAddComment();
+                  }
+                }}
+                className="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-700 placeholder:text-slate-400 focus:border-blue-400 focus:outline-none"
+              />
+              <button
+                type="button"
+                onClick={handleAddComment}
+                className="flex size-7 items-center justify-center rounded-lg bg-blue-600 text-white transition-colors hover:bg-blue-700 shrink-0"
+              >
+                <Send className="size-3" />
+              </button>
+            </div>
           </div>
         )}
+
+        {/* Lightbox for Payment proof QR code inside step */}
+        {showProofLightbox && (
+          <div 
+            onClick={() => setShowProofLightbox(false)}
+            className="fixed inset-0 z-[210] flex items-center justify-center bg-black/75 p-4 cursor-zoom-out"
+          >
+            <div 
+              onClick={(e) => e.stopPropagation()}
+              className="relative flex flex-col items-center rounded-2xl bg-white p-6 max-w-sm w-full cursor-default"
+            >
+              <button 
+                onClick={() => setShowProofLightbox(false)}
+                className="absolute top-3 right-3 flex size-8 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors"
+              >
+                <X className="size-4" />
+              </button>
+              <h3 className="mb-4 text-base font-bold text-slate-800">Quét Mã QR</h3>
+              <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 flex items-center justify-center">
+                <svg className="size-48 text-slate-800" viewBox="0 0 100 100" fill="currentColor">
+                  <path d="M0,0 h25 v25 h-25 z M3,3 h19 v19 h-19 z M6,6 h13 v13 h-13 z" />
+                  <path d="M75,0 h25 v25 h-25 z M78,3 h19 v19 h-19 z M81,6 h13 v13 h-13 z" />
+                  <path d="M0,75 h25 v25 h-25 z M3,78 h19 v19 h-19 z M6,81 h13 v13 h-13 z" />
+                  <rect x="80" y="80" width="8" height="8" />
+                  <rect x="35" y="5" width="5" height="15" />
+                  <rect x="55" y="10" width="10" height="5" />
+                  <rect x="15" y="45" width="15" height="5" />
+                  <rect x="45" y="45" width="5" height="15" />
+                  <rect x="40" y="70" width="10" height="5" />
+                  <rect x="70" y="45" width="5" height="15" />
+                  <rect x="65" y="70" width="15" height="5" />
+                </svg>
+              </div>
+              <p className="mt-4 text-xs font-semibold text-slate-700 text-center">
+                Vietcombank · 1234567890 · Trường ĐH Gia Định
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
       </div>
     </div>
   );

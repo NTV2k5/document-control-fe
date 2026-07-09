@@ -207,6 +207,8 @@ export interface ITicketDetailModalProps {
 export interface ITicketStepCardProps {
   step: ITicketStep;
   isLast: boolean;
+  viewRole?: 'staff' | 'student';
+  onStepUpdate?: (stepId: string, updatedFields: Partial<ITicketStep>) => void;
 }
 
 export interface ICreateTicketModalProps {
