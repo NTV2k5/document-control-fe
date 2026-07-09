@@ -81,9 +81,9 @@ export const DocumentGridView = ({ documents, selectedDocument, onSelectDocument
                 </h3>
                 
                 {/* Status & Recipients */}
-                <div className="flex flex-wrap items-center gap-3 justify-between mb-2">
+                <div className="flex items-center justify-between gap-2 mb-2">
                   <span className="flex items-center gap-1 rounded-full bg-[#eef2ff] px-2.5 py-0.5 text-[10px] font-bold text-[#2563eb] border border-blue-100">
-                    <BadgeCheck className="size-4 text-[#2563eb] fill-white" />
+                    <BadgeCheck className="size-4 text-white fill-[#2563eb]" />
                     {doc.status === 'APPROVED' ? 'APPROVED' : doc.status}
                   </span>
 
@@ -99,14 +99,15 @@ export const DocumentGridView = ({ documents, selectedDocument, onSelectDocument
                   </div>
                 </div>
 
-                {/* Creator Metadata (Created by and Created on inline, bold) */}
-                <div className="flex flex-wrap gap-x-4 text-[11px] text-[#a3aed0] font-bold mt-3">
+                {/* Creator Metadata (Created by and Created on inline, bold labels, normal values) */}
+                <div className="flex flex-wrap gap-x-4 text-[11px] mt-3">
                   <span>
-                    Created by: <span className="font-extrabold text-[#2b3674]">{doc.created_by || 'Sarah Chen'}</span>
+                    <span className="font-bold text-[#a3aed0]">Created by:</span>{' '}
+                    <span className="font-medium text-[#2b3674]">{doc.created_by || 'Sarah Chen'}</span>
                   </span>
                   <span>
-                    Created on:{' '}
-                    <span className="font-extrabold text-[#2b3674]">{formatDate(doc.created_at)}</span>
+                    <span className="font-bold text-[#a3aed0]">Created on:</span>{' '}
+                    <span className="font-medium text-[#2b3674]">{formatDate(doc.created_at)}</span>
                   </span>
                 </div>
               </div>
@@ -115,7 +116,7 @@ export const DocumentGridView = ({ documents, selectedDocument, onSelectDocument
             {/* Footer Row: Divider + Tag & Views */}
             <div className="flex w-full items-center justify-between mt-4 pt-3 border-t border-slate-100">
               <span className="flex items-center gap-1 text-[11px] font-bold text-[#2563eb] uppercase tracking-wide">
-                # #{doc.template?.template_type || 'ACADEMIC'}
+                #{doc.template?.template_type || 'ACADEMIC'}
               </span>
               <div className="flex items-center gap-1 text-[11px] text-[#a3aed0] font-bold">
                 <Eye className="size-4" /> 12 views

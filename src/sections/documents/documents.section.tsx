@@ -247,8 +247,8 @@ const getColumns = (
       accessorKey: 'title',
       header: 'DOCUMENT NAME',
       cell: ({ row }) => (
-        <div onClick={() => onSelectDocument(row.original)} className="flex min-w-0 flex-col cursor-pointer">
-          <span className="break-words text-left text-sm font-bold leading-5 text-[#1B2559] hover:underline">
+        <div onClick={() => onSelectDocument(row.original)} className="flex min-w-0 max-w-[260px] flex-col cursor-pointer">
+          <span className="truncate block text-left text-sm font-bold leading-5 text-[#1B2559] hover:underline" title={row.original.title}>
             {row.original.title}
           </span>
           <span className="mt-1 text-[10px] font-bold text-slate-400 uppercase">
@@ -256,7 +256,7 @@ const getColumns = (
           </span>
         </div>
       ),
-      meta: { className: 'min-w-[240px] whitespace-normal' },
+      meta: { className: 'min-w-[240px] max-w-[280px]' },
     },
     {
       id: 'creator',
