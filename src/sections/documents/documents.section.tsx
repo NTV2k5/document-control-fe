@@ -234,9 +234,11 @@ const getColumns = (
           text = 'XLS';
         }
         return (
-          <span className={`inline-flex items-center justify-center rounded-lg px-2 py-1 text-[10px] font-black uppercase tracking-wider ${bgClass}`}>
-            {text}
-          </span>
+          <div onClick={() => onSelectDocument(row.original)} className="cursor-pointer flex justify-center">
+            <span className={`inline-flex items-center justify-center rounded-lg px-2 py-1 text-[10px] font-black uppercase tracking-wider ${bgClass}`}>
+              {text}
+            </span>
+          </div>
         );
       },
       meta: { className: 'w-16 min-w-[64px] text-center' },
@@ -245,13 +247,10 @@ const getColumns = (
       accessorKey: 'title',
       header: 'DOCUMENT NAME',
       cell: ({ row }) => (
-        <div className="flex min-w-0 flex-col">
-          <button
-            type="button"
-            onClick={() => onSelectDocument(row.original)}
-            className="break-words text-left text-sm font-bold leading-5 text-[#1B2559] hover:underline focus:outline-none">
+        <div onClick={() => onSelectDocument(row.original)} className="flex min-w-0 flex-col cursor-pointer">
+          <span className="break-words text-left text-sm font-bold leading-5 text-[#1B2559] hover:underline">
             {row.original.title}
-          </button>
+          </span>
           <span className="mt-1 text-[10px] font-bold text-slate-400 uppercase">
             #{row.original.template?.template_type || 'ACADEMIC'}
           </span>
@@ -263,7 +262,7 @@ const getColumns = (
       id: 'creator',
       header: 'CREATOR',
       cell: ({ row }) => (
-        <div className="flex items-center gap-2">
+        <div onClick={() => onSelectDocument(row.original)} className="flex items-center gap-2 cursor-pointer">
           <img
             src={`https://i.pravatar.cc/100?u=u${row.index}b`}
             alt="avatar"
@@ -280,19 +279,23 @@ const getColumns = (
       id: 'date',
       header: 'DATE',
       cell: ({ row }) => (
-        <span className="text-sm font-semibold text-[#1B2559]">
-          {formatDate(row.original.created_at)}
-        </span>
+        <div onClick={() => onSelectDocument(row.original)} className="cursor-pointer">
+          <span className="text-sm font-semibold text-[#1B2559]">
+            {formatDate(row.original.created_at)}
+          </span>
+        </div>
       ),
       meta: { className: 'w-[120px] min-w-[100px]' },
     },
     {
       id: 'views',
       header: 'VIEWS',
-      cell: () => (
-        <span className="text-sm font-semibold text-slate-400">
-          12
-        </span>
+      cell: ({ row }) => (
+        <div onClick={() => onSelectDocument(row.original)} className="cursor-pointer">
+          <span className="text-sm font-semibold text-slate-400">
+            12
+          </span>
+        </div>
       ),
       meta: { className: 'w-[80px] min-w-[60px] text-center' },
     },
@@ -301,20 +304,23 @@ const getColumns = (
       header: 'STATUS',
       cell: ({ row }) => {
         const status = row.original.status;
-        if (status === 'APPROVED') {
-          return (
+        const content =
+          status === 'APPROVED' ? (
             <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-bold text-blue-600 border border-blue-100/50">
               <svg className="size-3 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
               </svg>
               APPROVED
             </span>
+          ) : (
+            <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-[10px] font-bold text-amber-600 border border-amber-100/50">
+              {status}
+            </span>
           );
-        }
         return (
-          <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-[10px] font-bold text-amber-600 border border-amber-100/50">
-            {status}
-          </span>
+          <div onClick={() => onSelectDocument(row.original)} className="cursor-pointer">
+            {content}
+          </div>
         );
       },
       meta: { className: 'w-[120px] min-w-[100px]' },
@@ -809,6 +815,11 @@ export const DocumentsSection: React.FC<IDocumentsSectionProps> = () => {
                   loading={isLoading}
                   pagination={pagination}
                   hidePagination={true}
+                  getRowClassName={(row) =>
+                    selectedDocument?.id === row.id
+                      ? 'bg-blue-50/50 hover:bg-blue-50/50'
+                      : 'hover:bg-slate-50/40 cursor-pointer'
+                  }
                   onPaginationChange={(updater) => setPagination((prev) => updater(prev))}
                 />
               </div>
