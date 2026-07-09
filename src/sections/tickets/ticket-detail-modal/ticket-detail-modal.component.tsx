@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import type { ITicketDetailModalProps, ITicketStep } from '../ticket.type';
 import { ETicketType, ETicketStatus, EPaymentStatus, EProcessingForm } from '../ticket.type';
 import { TicketStepCard } from '../ticket-step-card';
+import QRCode from 'react-qr-code';
 import {
   X,
   FileText,
@@ -94,53 +95,18 @@ const formatDate = (d: string) => {
   return `${dd}/${mm}/${yyyy} ${hh}:${min}`;
 };
 
-export const MockQRCode = ({ size = 120 }: { size?: number }) => (
+export const MockQRCode = ({ value, size = 120 }: { value: string; size?: number }) => (
   <div
-    className="flex flex-col items-center gap-1 bg-white p-2 rounded-lg border border-slate-200/60 shadow-sm shrink-0"
-    style={{ width: size + 16, height: size + 34 }}
+    className="flex flex-col items-center gap-1.5 bg-white p-2 rounded-lg border border-slate-200/60 shadow-sm shrink-0"
+    style={{ width: size + 16, height: size + 32 }}
   >
-    <svg className="text-slate-800" width={size} height={size} viewBox="0 0 100 100" fill="currentColor">
-      {/* Top-Left Finder */}
-      <path d="M0,0 h28 v28 h-28 z M4,4 h20 v20 h-20 z M8,8 h12 v12 h-12 z" />
-      {/* Top-Right Finder */}
-      <path d="M72,0 h28 v28 h-28 z M76,4 h20 v20 h-20 z M80,8 h12 v12 h-12 z" />
-      {/* Bottom-Left Finder */}
-      <path d="M0,72 h28 v28 h-28 z M4,76 h20 v20 h-20 z M8,80 h12 v12 h-12 z" />
-      {/* Bottom-Right alignment */}
-      <rect x="80" y="80" width="8" height="8" />
-      <rect x="84" y="84" width="4" height="4" fill="white" />
-      {/* QR Code pseudo-pixels */}
-      <rect x="36" y="4" width="4" height="8" />
-      <rect x="44" y="0" width="8" height="4" />
-      <rect x="56" y="8" width="4" height="12" />
-      <rect x="64" y="4" width="8" height="4" />
-      <rect x="36" y="16" width="12" height="4" />
-      <rect x="48" y="24" width="4" height="4" />
-      <rect x="56" y="20" width="12" height="4" />
-      <rect x="12" y="36" width="8" height="4" />
-      <rect x="0" y="44" width="4" height="8" />
-      <rect x="24" y="40" width="4" height="12" />
-      <rect x="32" y="32" width="12" height="4" />
-      <rect x="44" y="44" width="16" height="4" />
-      <rect x="36" y="52" width="4" height="8" />
-      <rect x="48" y="56" width="8" height="4" />
-      <rect x="64" y="36" width="4" height="8" />
-      <rect x="76" y="40" width="12" height="4" />
-      <rect x="88" y="48" width="4" height="8" />
-      <rect x="72" y="56" width="8" height="4" />
-      <rect x="32" y="68" width="4" height="12" />
-      <rect x="44" y="72" width="8" height="4" />
-      <rect x="36" y="84" width="12" height="4" />
-      <rect x="48" y="88" width="4" height="8" />
-      <rect x="60" y="68" width="4" height="12" />
-      <rect x="64" y="84" width="8" height="4" />
-      <rect x="88" y="68" width="4" height="4" />
-      {/* Center visual icon wrapper */}
-      <rect x="40" y="40" width="20" height="20" rx="3" fill="white" stroke="#e2e8f0" strokeWidth="1" />
-      <circle cx="50" cy="50" r="6" fill="#1e40af" />
-      <path d="M48,47 h4 v6 h-4 z" fill="white" />
-    </svg>
-    <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest leading-none">VietQR</span>
+    <QRCode
+      size={size}
+      style={{ height: 'auto', maxWidth: '100%', width: '100%' }}
+      value={value}
+      viewBox={`0 0 256 256`}
+    />
+    <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest leading-none mt-1">VietQR</span>
   </div>
 );
 
@@ -149,6 +115,10 @@ export const TicketDetailModal = ({ ticket, open, onClose }: ITicketDetailModalP
   const [steps, setSteps] = useState<ITicketStep[]>([]);
   const [paymentBannerOpen, setPaymentBannerOpen] = useState(true);
   const [zoomedQR, setZoomedQR] = useState(false);
+
+  const qrValue = ticket
+    ? `00020101021238580010A00000072701280006970436011412345678900208QRIBFTTA53037045405500005802VN62380815${ticket.code} ${ticket.student.mssv}6304`
+    : '';
 
   useEffect(() => {
     if (ticket) {
@@ -280,7 +250,7 @@ export const TicketDetailModal = ({ ticket, open, onClose }: ITicketDetailModalP
                     onClick={() => setZoomedQR(true)}
                     className="group relative cursor-pointer overflow-hidden rounded-xl border border-slate-200 bg-white p-1.5 shadow-sm transition-all hover:shadow-md"
                   >
-                    <MockQRCode size={110} />
+                    <MockQRCode value={qrValue} size={110} />
                     <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
                       <span className="rounded bg-white/95 px-2 py-1 text-[9px] font-bold text-slate-700">Phóng to</span>
                     </div>
@@ -498,7 +468,7 @@ export const TicketDetailModal = ({ ticket, open, onClose }: ITicketDetailModalP
                 <X className="size-4" />
               </button>
               <h3 className="mb-4 text-base font-bold text-slate-800">Mã QR Thanh Toán</h3>
-              <MockQRCode size={220} />
+              <MockQRCode value={qrValue} size={220} />
               <div className="mt-4 w-full space-y-1.5 rounded-xl bg-slate-50 p-4 text-xs text-slate-600">
                 <div className="flex justify-between">
                   <span>Ngân hàng:</span>

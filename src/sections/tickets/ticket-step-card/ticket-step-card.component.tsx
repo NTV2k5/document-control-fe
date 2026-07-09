@@ -1,6 +1,7 @@
 import type { ITicketStepCardProps, ITicketStep } from '../ticket.type';
 import { EStepStatus } from '../ticket.type';
 import { useState, useEffect } from 'react';
+import QRCode from 'react-qr-code';
 import {
   AlertCircle,
   Paperclip,
@@ -83,7 +84,11 @@ export const TicketStepCard = ({ step, isLast, viewRole = 'staff', onStepUpdate 
   const [showComments, setShowComments] = useState(false);
   const [comments, setComments] = useState(step.comments);
   const [newComment, setNewComment] = useState('');
-  
+
+  const qrValue = step.paymentInfo?.transferContent
+    ? `00020101021238580010A00000072701280006970436011412345678900208QRIBFTTA53037045405500005802VN62380815${step.paymentInfo.transferContent}6304`
+    : '';
+
   // Simulation states
   const [noteText, setNoteText] = useState('');
   const [showNoteInput, setShowNoteInput] = useState(false);
@@ -438,20 +443,13 @@ export const TicketStepCard = ({ step, isLast, viewRole = 'staff', onStepUpdate 
                         onClick={() => setShowProofLightbox(true)}
                         className="cursor-pointer border border-slate-200 bg-white p-1 rounded-lg shadow-sm hover:shadow"
                       >
-                        <div className="size-24 flex items-center justify-center bg-slate-50 rounded">
-                          <svg className="size-20 text-slate-800" viewBox="0 0 100 100" fill="currentColor">
-                            <path d="M0,0 h25 v25 h-25 z M3,3 h19 v19 h-19 z M6,6 h13 v13 h-13 z" />
-                            <path d="M75,0 h25 v25 h-25 z M78,3 h19 v19 h-19 z M81,6 h13 v13 h-13 z" />
-                            <path d="M0,75 h25 v25 h-25 z M3,78 h19 v19 h-19 z M6,81 h13 v13 h-13 z" />
-                            <rect x="80" y="80" width="8" height="8" />
-                            <rect x="35" y="5" width="5" height="15" />
-                            <rect x="55" y="10" width="10" height="5" />
-                            <rect x="15" y="45" width="15" height="5" />
-                            <rect x="45" y="45" width="5" height="15" />
-                            <rect x="40" y="70" width="10" height="5" />
-                            <rect x="70" y="45" width="5" height="15" />
-                            <rect x="65" y="70" width="15" height="5" />
-                          </svg>
+                        <div className="size-24 flex items-center justify-center bg-white p-1 rounded">
+                          <QRCode
+                            size={80}
+                            style={{ height: 'auto', maxWidth: '100%', width: '100%' }}
+                            value={qrValue}
+                            viewBox={`0 0 256 256`}
+                          />
                         </div>
                       </div>
                     </div>
@@ -628,20 +626,13 @@ export const TicketStepCard = ({ step, isLast, viewRole = 'staff', onStepUpdate 
                 <X className="size-4" />
               </button>
               <h3 className="mb-4 text-base font-bold text-slate-800">Quét Mã QR</h3>
-              <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 flex items-center justify-center">
-                <svg className="size-48 text-slate-800" viewBox="0 0 100 100" fill="currentColor">
-                  <path d="M0,0 h25 v25 h-25 z M3,3 h19 v19 h-19 z M6,6 h13 v13 h-13 z" />
-                  <path d="M75,0 h25 v25 h-25 z M78,3 h19 v19 h-19 z M81,6 h13 v13 h-13 z" />
-                  <path d="M0,75 h25 v25 h-25 z M3,78 h19 v19 h-19 z M6,81 h13 v13 h-13 z" />
-                  <rect x="80" y="80" width="8" height="8" />
-                  <rect x="35" y="5" width="5" height="15" />
-                  <rect x="55" y="10" width="10" height="5" />
-                  <rect x="15" y="45" width="15" height="5" />
-                  <rect x="45" y="45" width="5" height="15" />
-                  <rect x="40" y="70" width="10" height="5" />
-                  <rect x="70" y="45" width="5" height="15" />
-                  <rect x="65" y="70" width="15" height="5" />
-                </svg>
+              <div className="bg-white p-4 rounded-xl border border-slate-200 flex items-center justify-center shadow-inner">
+                <QRCode
+                  size={180}
+                  style={{ height: 'auto', maxWidth: '100%', width: '100%' }}
+                  value={qrValue}
+                  viewBox={`0 0 256 256`}
+                />
               </div>
               <p className="mt-4 text-xs font-semibold text-slate-700 text-center">
                 Vietcombank · 1234567890 · Trường ĐH Gia Định
