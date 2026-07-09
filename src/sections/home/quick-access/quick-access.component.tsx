@@ -1,4 +1,4 @@
-import { Globe, FileText, UploadCloud } from 'lucide-react';
+import { Earth, FileText, FileUp } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
 import { Card, CardContent } from 'reactjs-platform/ui';
 
@@ -13,7 +13,7 @@ type QuickAccessItem = {
 
 const QUICK_ACCESS_ITEMS: QuickAccessItem[] = [
   {
-    icon: <Globe className="h-6 w-6" strokeWidth={2.5} />,
+    icon: <Earth className="h-6 w-6" strokeWidth={2.5} />,
     label: 'Published',
     description: 'Public institutional records',
     href: '/documents',
@@ -29,7 +29,7 @@ const QUICK_ACCESS_ITEMS: QuickAccessItem[] = [
     iconColor: 'text-fuchsia-600',
   },
   {
-    icon: <UploadCloud className="h-6 w-6" strokeWidth={2.5} />,
+    icon: <FileUp className="h-6 w-6" strokeWidth={2.5} />,
     label: 'Upload New',
     description: 'Submit for control approval',
     href: '/documents/new',

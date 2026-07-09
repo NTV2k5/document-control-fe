@@ -108,10 +108,32 @@ export const TicketTable = ({
   onRowClick,
   onSourceClick,
   onDocumentCodeClick,
+  sortField,
+  sortDirection,
+  onSort,
 }: ITicketTableProps) => {
   const totalPages = Math.ceil(total / pageSize);
   const start = (page - 1) * pageSize;
   const end = Math.min(start + pageSize, total);
+
+  const renderSortableHeader = (field: string, label: string, className = '') => {
+    const isSorted = sortField === field;
+    return (
+      <th
+        onClick={() => onSort?.(field)}
+        className={`px-3 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-500 cursor-pointer select-none transition-colors hover:bg-slate-100/80 hover:text-slate-800 ${className} ${
+          isSorted ? 'bg-blue-50/50 text-blue-700 font-bold' : ''
+        }`}
+      >
+        <div className="flex items-center gap-1.5">
+          <span>{label}</span>
+          <span className="text-[9px] font-sans opacity-70">
+            {isSorted ? (sortDirection === 'asc' ? '▲' : '▼') : '↕'}
+          </span>
+        </div>
+      </th>
+    );
+  };
 
   return (
     <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
@@ -121,21 +143,21 @@ export const TicketTable = ({
           <thead>
             <tr className="border-b border-slate-100 bg-slate-50/60 whitespace-nowrap">
               <th className="w-10 px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">STT</th>
-              <th className="min-w-[90px] px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Mã</th>
-              <th className="min-w-[200px] px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Nội dung</th>
-              <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Sinh viên</th>
-              <th className="min-w-[150px] px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Loại</th>
-              <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Người tạo ticket</th>
-              <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Ngày yêu cầu</th>
-              <th className="min-w-[110px] px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Nguồn</th>
-              <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Mã phiếu</th>
-              <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Hình thức</th>
-              <th className="min-w-[110px] px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Phí</th>
-              <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Người phụ trách</th>
+              {renderSortableHeader('code', 'Mã', 'min-w-[90px]')}
+              {renderSortableHeader('title', 'Nội dung', 'min-w-[200px]')}
+              {renderSortableHeader('student', 'Sinh viên')}
+              {renderSortableHeader('type', 'Loại', 'min-w-[150px]')}
+              {renderSortableHeader('creator', 'Người tạo ticket')}
+              {renderSortableHeader('createdAt', 'Ngày yêu cầu')}
+              {renderSortableHeader('source', 'Nguồn', 'min-w-[110px]')}
+              {renderSortableHeader('documentCode', 'Mã phiếu')}
+              {renderSortableHeader('processingForm', 'Hình thức')}
+              {renderSortableHeader('paymentStatus', 'Phí', 'min-w-[110px]')}
+              {renderSortableHeader('assignee', 'Người phụ trách')}
               <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Người hỗ trợ</th>
-              <th className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Deadline</th>
-              <th className="min-w-[125px] px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Trạng thái</th>
-              <th className="min-w-[120px] px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">SLA</th>
+              {renderSortableHeader('deadline', 'Deadline')}
+              {renderSortableHeader('status', 'Trạng thái', 'min-w-[125px]')}
+              {renderSortableHeader('sla', 'SLA', 'min-w-[120px]')}
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50">

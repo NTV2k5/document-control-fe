@@ -196,6 +196,9 @@ export interface ITicketTableProps {
   onRowClick: (ticket: ITicket) => void;
   onSourceClick: (ticket: ITicket) => void;
   onDocumentCodeClick: (ticket: ITicket) => void;
+  sortField?: string | null;
+  sortDirection?: 'asc' | 'desc';
+  onSort?: (field: string) => void;
 }
 
 export interface ITicketDetailModalProps {
