@@ -26,23 +26,9 @@ export const TicketsSection = (_props: ITicketsSectionProps) => {
   const [createOpen, setCreateOpen] = useState(false);
   const [sourceTicket, setSourceTicket] = useState<ITicket | null>(null);
   const [sourceOpen, setSourceOpen] = useState(false);
-  const [sortField, setSortField] = useState<string | null>(null);
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
   /* ─── Derived ─────────────────────────────────────────── */
   const stats = useMemo(() => buildTicketStats(mockTickets), []);
-
-  const handleSort = useCallback((field: string) => {
-    setSortField((prevField) => {
-      if (prevField === field) {
-        setSortDirection((prevDir) => (prevDir === 'asc' ? 'desc' : 'asc'));
-        return field;
-      }
-      setSortDirection('asc');
-      return field;
-    });
-    setPage(1);
-  }, []);
 
   const filteredTickets = useMemo(() => {
     let result = [...mockTickets];
@@ -85,64 +71,8 @@ export const TicketsSection = (_props: ITicketsSectionProps) => {
       );
     }
 
-    // Sort logic
-    if (sortField) {
-      result.sort((a, b) => {
-        let valA: any = '';
-        let valB: any = '';
-
-        if (sortField === 'code') {
-          valA = a.code;
-          valB = b.code;
-        } else if (sortField === 'title') {
-          valA = a.title;
-          valB = b.title;
-        } else if (sortField === 'student') {
-          valA = a.student.name;
-          valB = b.student.name;
-        } else if (sortField === 'type') {
-          valA = a.type;
-          valB = b.type;
-        } else if (sortField === 'creator') {
-          valA = a.creator.name;
-          valB = b.creator.name;
-        } else if (sortField === 'createdAt') {
-          valA = new Date(a.createdAt).getTime();
-          valB = new Date(b.createdAt).getTime();
-        } else if (sortField === 'source') {
-          valA = a.source;
-          valB = b.source;
-        } else if (sortField === 'documentCode') {
-          valA = a.documentCode || '';
-          valB = b.documentCode || '';
-        } else if (sortField === 'processingForm') {
-          valA = a.processingForm;
-          valB = b.processingForm;
-        } else if (sortField === 'paymentStatus') {
-          valA = a.paymentStatus;
-          valB = b.paymentStatus;
-        } else if (sortField === 'assignee') {
-          valA = a.assignee.name;
-          valB = b.assignee.name;
-        } else if (sortField === 'deadline') {
-          valA = new Date(a.deadline).getTime();
-          valB = new Date(b.deadline).getTime();
-        } else if (sortField === 'status') {
-          valA = a.status;
-          valB = b.status;
-        } else if (sortField === 'sla') {
-          valA = a.slaPercent;
-          valB = b.slaPercent;
-        }
-
-        if (valA < valB) return sortDirection === 'asc' ? -1 : 1;
-        if (valA > valB) return sortDirection === 'asc' ? 1 : -1;
-        return 0;
-      });
-    }
-
     return result;
-  }, [filter, sortField, sortDirection]);
+  }, [filter]);
 
   const pagedTickets = useMemo(() => {
     const start = (page - 1) * PAGE_SIZE;
@@ -192,7 +122,7 @@ export const TicketsSection = (_props: ITicketsSectionProps) => {
 
       {/* Title */}
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Quản lý ticket</h1>
+        <h2 className="text-3xl font-bold text-slate-900">Quản lý ticket</h2>
         <p className="mt-1 max-w-3xl text-xs leading-relaxed text-slate-500">
           Dashboard quản lý ticket cho toàn bộ phòng/ban. Ticket phát sinh từ Q&A hoặc tự tạo sau khi sinh viên thanh toán QR. Mỗi ticket ghi rõ ngày nhận, thời gian muốn phản hồi, loại, hình thức, SLA và trạng thái — duyệt online, ký số đóng dấu và trả kết quả qua email.
         </p>
@@ -222,9 +152,6 @@ export const TicketsSection = (_props: ITicketsSectionProps) => {
         onRowClick={handleRowClick}
         onSourceClick={handleSourceClick}
         onDocumentCodeClick={handleDocumentCodeClick}
-        sortField={sortField}
-        sortDirection={sortDirection}
-        onSort={handleSort}
       />
 
       {/* Detail Modal */}

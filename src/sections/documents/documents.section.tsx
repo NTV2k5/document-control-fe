@@ -737,7 +737,7 @@ export const DocumentsSection: React.FC<IDocumentsSectionProps> = () => {
     <div className="space-y-6" onClick={() => setSelectedDocument(null)}>
       {/* ── Title & Export ── */}
       <div className="flex items-center justify-between" onClick={(e) => e.stopPropagation()}>
-        <h1 className="text-3xl font-bold text-slate-900">Published Documents</h1>
+        <h2 className="text-3xl font-bold text-slate-900">Published Documents</h2>
         <Button
           size="sm"
           className="h-10 rounded-xl bg-[#2563eb] px-6 font-bold hover:bg-blue-700 shadow-md shadow-blue-600/10">
