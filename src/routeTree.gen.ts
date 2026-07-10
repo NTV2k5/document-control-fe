@@ -14,6 +14,7 @@ import { Route as DocxExportPreviewRouteImport } from './routes/docx-export-prev
 import { Route as ChangePasswordRouteImport } from './routes/change-password'
 import { Route as SidebarRouteImport } from './routes/_sidebar'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SidebarProfileRouteImport } from './routes/_sidebar/profile'
 import { Route as SidebarHomeRouteImport } from './routes/_sidebar/home'
 import { Route as SidebarTemplatesIndexRouteImport } from './routes/_sidebar/templates/index'
 import { Route as SidebarTemplateVariablesIndexRouteImport } from './routes/_sidebar/template-variables/index'
@@ -72,6 +73,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const SidebarProfileRoute = SidebarProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => SidebarRoute,
 } as any)
 const SidebarHomeRoute = SidebarHomeRouteImport.update({
   id: '/home',
@@ -273,6 +279,7 @@ export interface FileRoutesByFullPath {
   '/docx-export-preview': typeof DocxExportPreviewRoute
   '/sign-in': typeof SignInRoute
   '/home': typeof SidebarHomeRoute
+  '/profile': typeof SidebarProfileRoute
   '/document-input-agent-history/$userId': typeof SidebarDocumentInputAgentHistoryUserIdRoute
   '/documents/$id': typeof SidebarDocumentsIdRouteWithChildren
   '/documents/new': typeof SidebarDocumentsNewRoute
@@ -313,6 +320,7 @@ export interface FileRoutesByTo {
   '/docx-export-preview': typeof DocxExportPreviewRoute
   '/sign-in': typeof SignInRoute
   '/home': typeof SidebarHomeRoute
+  '/profile': typeof SidebarProfileRoute
   '/document-input-agent-history/$userId': typeof SidebarDocumentInputAgentHistoryUserIdRoute
   '/documents/$id': typeof SidebarDocumentsIdRouteWithChildren
   '/documents/new': typeof SidebarDocumentsNewRoute
@@ -355,6 +363,7 @@ export interface FileRoutesById {
   '/docx-export-preview': typeof DocxExportPreviewRoute
   '/sign-in': typeof SignInRoute
   '/_sidebar/home': typeof SidebarHomeRoute
+  '/_sidebar/profile': typeof SidebarProfileRoute
   '/_sidebar/document-input-agent-history/$userId': typeof SidebarDocumentInputAgentHistoryUserIdRoute
   '/_sidebar/documents/$id': typeof SidebarDocumentsIdRouteWithChildren
   '/_sidebar/documents/new': typeof SidebarDocumentsNewRoute
@@ -397,6 +406,7 @@ export interface FileRouteTypes {
     | '/docx-export-preview'
     | '/sign-in'
     | '/home'
+    | '/profile'
     | '/document-input-agent-history/$userId'
     | '/documents/$id'
     | '/documents/new'
@@ -437,6 +447,7 @@ export interface FileRouteTypes {
     | '/docx-export-preview'
     | '/sign-in'
     | '/home'
+    | '/profile'
     | '/document-input-agent-history/$userId'
     | '/documents/$id'
     | '/documents/new'
@@ -478,6 +489,7 @@ export interface FileRouteTypes {
     | '/docx-export-preview'
     | '/sign-in'
     | '/_sidebar/home'
+    | '/_sidebar/profile'
     | '/_sidebar/document-input-agent-history/$userId'
     | '/_sidebar/documents/$id'
     | '/_sidebar/documents/new'
@@ -557,6 +569,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_sidebar/profile': {
+      id: '/_sidebar/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof SidebarProfileRouteImport
+      parentRoute: typeof SidebarRoute
     }
     '/_sidebar/home': {
       id: '/_sidebar/home'
@@ -834,6 +853,7 @@ const SidebarTemplatesNewRouteWithChildren =
 
 interface SidebarRouteChildren {
   SidebarHomeRoute: typeof SidebarHomeRoute
+  SidebarProfileRoute: typeof SidebarProfileRoute
   SidebarDocumentInputAgentHistoryUserIdRoute: typeof SidebarDocumentInputAgentHistoryUserIdRoute
   SidebarDocumentsIdRoute: typeof SidebarDocumentsIdRouteWithChildren
   SidebarDocumentsNewRoute: typeof SidebarDocumentsNewRoute
@@ -868,6 +888,7 @@ interface SidebarRouteChildren {
 
 const SidebarRouteChildren: SidebarRouteChildren = {
   SidebarHomeRoute: SidebarHomeRoute,
+  SidebarProfileRoute: SidebarProfileRoute,
   SidebarDocumentInputAgentHistoryUserIdRoute:
     SidebarDocumentInputAgentHistoryUserIdRoute,
   SidebarDocumentsIdRoute: SidebarDocumentsIdRouteWithChildren,
