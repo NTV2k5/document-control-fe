@@ -17,4 +17,6 @@ export * from './document-input-agent-history';
 export * from './variables-workspace';
 export * from './tickets';
 export * from './university-hubs';
+export * from './my-hubs';
+
 
