@@ -4,8 +4,8 @@ export interface IDepartmentItem {
   size: string;
   filesCount: number;
   iconKey: 'code' | 'paint' | 'biology' | 'math' | 'folder';
-  avatarUrl?: string;
 }
+
 
 export interface IProjectItem {
   id: string;
