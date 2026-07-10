@@ -26,9 +26,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   Button,
-  Avatar,
-  AvatarImage,
-  AvatarFallback,
 } from 'reactjs-platform/ui';
 import { toast } from 'react-toastify';
 
@@ -43,8 +40,8 @@ export const UniversityHubsSection = ({
       size: '45.2 GB',
       filesCount: 1500,
       iconKey: 'code',
-      avatarUrl: 'https://i.pravatar.cc/150?img=32',
     },
+
     {
       id: 'dept-2',
       name: 'Information Technology',
@@ -243,13 +240,8 @@ export const UniversityHubsSection = ({
               <div className="flex items-start justify-between">
                 <div className="relative">
                   {renderDeptIcon(dept.iconKey)}
-                  {dept.avatarUrl ? (
-                    <Avatar className="absolute -top-1.5 -right-1.5 size-7 border-2 border-white shadow-md">
-                      <AvatarImage src={dept.avatarUrl} alt="Dept Owner" />
-                      <AvatarFallback>U</AvatarFallback>
-                    </Avatar>
-                  ) : null}
                 </div>
+
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
