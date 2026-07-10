@@ -43,6 +43,8 @@ import { Route as SidebarDocumentsNewRouteImport } from './routes/_sidebar/docum
 import { Route as SidebarDocumentsIdRouteImport } from './routes/_sidebar/documents/$id'
 import { Route as SidebarDocumentInputAgentHistoryUserIdRouteImport } from './routes/_sidebar/document-input-agent-history/$userId'
 import { Route as SidebarDashboardTicketsIndexRouteImport } from './routes/_sidebar/dashboard/tickets/index'
+import { Route as SidebarDashboardMyHubsIndexRouteImport } from './routes/_sidebar/dashboard/my-hubs/index'
+import { Route as SidebarDashboardHubsIndexRouteImport } from './routes/_sidebar/dashboard/hubs/index'
 import { Route as SidebarTemplatesNewVariablesRouteImport } from './routes/_sidebar/templates/new.variables'
 import { Route as SidebarTemplatesIdVariablesRouteImport } from './routes/_sidebar/templates/$id.variables'
 import { Route as SidebarDocumentsIdVariablesRouteImport } from './routes/_sidebar/documents/$id.variables'
@@ -234,6 +236,18 @@ const SidebarDashboardTicketsIndexRoute =
     path: '/dashboard/tickets/',
     getParentRoute: () => SidebarRoute,
   } as any)
+const SidebarDashboardMyHubsIndexRoute =
+  SidebarDashboardMyHubsIndexRouteImport.update({
+    id: '/dashboard/my-hubs/',
+    path: '/dashboard/my-hubs/',
+    getParentRoute: () => SidebarRoute,
+  } as any)
+const SidebarDashboardHubsIndexRoute =
+  SidebarDashboardHubsIndexRouteImport.update({
+    id: '/dashboard/hubs/',
+    path: '/dashboard/hubs/',
+    getParentRoute: () => SidebarRoute,
+  } as any)
 const SidebarTemplatesNewVariablesRoute =
   SidebarTemplatesNewVariablesRouteImport.update({
     id: '/variables',
@@ -289,6 +303,8 @@ export interface FileRoutesByFullPath {
   '/documents/$id/variables': typeof SidebarDocumentsIdVariablesRoute
   '/templates/$id/variables': typeof SidebarTemplatesIdVariablesRoute
   '/templates/new/variables': typeof SidebarTemplatesNewVariablesRoute
+  '/dashboard/hubs/': typeof SidebarDashboardHubsIndexRoute
+  '/dashboard/my-hubs/': typeof SidebarDashboardMyHubsIndexRoute
   '/dashboard/tickets/': typeof SidebarDashboardTicketsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -327,6 +343,8 @@ export interface FileRoutesByTo {
   '/documents/$id/variables': typeof SidebarDocumentsIdVariablesRoute
   '/templates/$id/variables': typeof SidebarTemplatesIdVariablesRoute
   '/templates/new/variables': typeof SidebarTemplatesNewVariablesRoute
+  '/dashboard/hubs': typeof SidebarDashboardHubsIndexRoute
+  '/dashboard/my-hubs': typeof SidebarDashboardMyHubsIndexRoute
   '/dashboard/tickets': typeof SidebarDashboardTicketsIndexRoute
 }
 export interface FileRoutesById {
@@ -367,6 +385,8 @@ export interface FileRoutesById {
   '/_sidebar/documents/$id/variables': typeof SidebarDocumentsIdVariablesRoute
   '/_sidebar/templates/$id/variables': typeof SidebarTemplatesIdVariablesRoute
   '/_sidebar/templates/new/variables': typeof SidebarTemplatesNewVariablesRoute
+  '/_sidebar/dashboard/hubs/': typeof SidebarDashboardHubsIndexRoute
+  '/_sidebar/dashboard/my-hubs/': typeof SidebarDashboardMyHubsIndexRoute
   '/_sidebar/dashboard/tickets/': typeof SidebarDashboardTicketsIndexRoute
 }
 export interface FileRouteTypes {
@@ -407,6 +427,8 @@ export interface FileRouteTypes {
     | '/documents/$id/variables'
     | '/templates/$id/variables'
     | '/templates/new/variables'
+    | '/dashboard/hubs/'
+    | '/dashboard/my-hubs/'
     | '/dashboard/tickets/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -445,6 +467,8 @@ export interface FileRouteTypes {
     | '/documents/$id/variables'
     | '/templates/$id/variables'
     | '/templates/new/variables'
+    | '/dashboard/hubs'
+    | '/dashboard/my-hubs'
     | '/dashboard/tickets'
   id:
     | '__root__'
@@ -484,6 +508,8 @@ export interface FileRouteTypes {
     | '/_sidebar/documents/$id/variables'
     | '/_sidebar/templates/$id/variables'
     | '/_sidebar/templates/new/variables'
+    | '/_sidebar/dashboard/hubs/'
+    | '/_sidebar/dashboard/my-hubs/'
     | '/_sidebar/dashboard/tickets/'
   fileRoutesById: FileRoutesById
 }
@@ -735,6 +761,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SidebarDashboardTicketsIndexRouteImport
       parentRoute: typeof SidebarRoute
     }
+    '/_sidebar/dashboard/my-hubs/': {
+      id: '/_sidebar/dashboard/my-hubs/'
+      path: '/dashboard/my-hubs'
+      fullPath: '/dashboard/my-hubs/'
+      preLoaderRoute: typeof SidebarDashboardMyHubsIndexRouteImport
+      parentRoute: typeof SidebarRoute
+    }
+    '/_sidebar/dashboard/hubs/': {
+      id: '/_sidebar/dashboard/hubs/'
+      path: '/dashboard/hubs'
+      fullPath: '/dashboard/hubs/'
+      preLoaderRoute: typeof SidebarDashboardHubsIndexRouteImport
+      parentRoute: typeof SidebarRoute
+    }
     '/_sidebar/templates/new/variables': {
       id: '/_sidebar/templates/new/variables'
       path: '/variables'
@@ -821,6 +861,8 @@ interface SidebarRouteChildren {
   SidebarTemplateVariableDocsIndexRoute: typeof SidebarTemplateVariableDocsIndexRoute
   SidebarTemplateVariablesIndexRoute: typeof SidebarTemplateVariablesIndexRoute
   SidebarTemplatesIndexRoute: typeof SidebarTemplatesIndexRoute
+  SidebarDashboardHubsIndexRoute: typeof SidebarDashboardHubsIndexRoute
+  SidebarDashboardMyHubsIndexRoute: typeof SidebarDashboardMyHubsIndexRoute
   SidebarDashboardTicketsIndexRoute: typeof SidebarDashboardTicketsIndexRoute
 }
 
@@ -859,6 +901,8 @@ const SidebarRouteChildren: SidebarRouteChildren = {
   SidebarTemplateVariableDocsIndexRoute: SidebarTemplateVariableDocsIndexRoute,
   SidebarTemplateVariablesIndexRoute: SidebarTemplateVariablesIndexRoute,
   SidebarTemplatesIndexRoute: SidebarTemplatesIndexRoute,
+  SidebarDashboardHubsIndexRoute: SidebarDashboardHubsIndexRoute,
+  SidebarDashboardMyHubsIndexRoute: SidebarDashboardMyHubsIndexRoute,
   SidebarDashboardTicketsIndexRoute: SidebarDashboardTicketsIndexRoute,
 }
 
