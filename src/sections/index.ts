@@ -11,3 +11,5 @@ export * from './document-input-agent-history';
 export * from './notifications';
 export * from './openai-settings';
 export * from './tickets';
+export * from './university-hubs';
+
