@@ -2,14 +2,12 @@ import { createRootRoute, HeadContent, Outlet, Scripts } from '@tanstack/react-r
 import type { ReactNode } from 'react';
 import { AuthProvider } from 'reactjs-platform/utilities';
 import { ToastContainer } from 'react-toastify';
-import {
-  MentionAutocompleteProvider,
-  NavigationProgress,
-  NotFound,
-  THEME_STORAGE_KEY,
-  ThemeProvider,
-  TooltipProvider,
-} from '../components';
+import { MentionAutocompleteProvider } from '../components/mentions/mention-autocomplete/mention-autocomplete.component';
+import { NavigationProgress } from '../components/ui/navigation-progress/navigation-progress.component';
+import { NotFound } from '../components/ui/not-found/not-found.component';
+import { THEME_STORAGE_KEY, ThemeProvider } from '../components/theme/theme-toggle/theme-toggle.component';
+import { TooltipProvider } from '../components/ui/tooltip/tooltip.component';
+
 import { I18nProvider, LOCALE_STORAGE_KEY } from '../i18n';
 import { groupAccessMap, groupAreaMap, groupPriority, publicPaths } from '../lib';
 import { ExtractionNotificationsSection } from '../sections';

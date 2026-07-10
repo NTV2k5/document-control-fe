@@ -1,6 +1,7 @@
 import { createRouter } from '@tanstack/react-router';
-import { NotFound } from './components';
+import { NotFound } from './components/ui/not-found';
 import { routeTree } from './routeTree.gen';
+
 
 function DefaultPending() {
   return (
