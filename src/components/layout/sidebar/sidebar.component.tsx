@@ -425,7 +425,10 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
       <div className="border-t border-slate-100 p-3">
         {!isCollapsed ? (
           <div className="flex flex-col gap-3 rounded-2xl bg-slate-50 p-3">
-            <div className="flex items-center gap-3">
+            <div
+              onClick={() => navigate({ to: '/profile' })}
+              className="flex cursor-pointer items-center gap-3 transition-opacity hover:opacity-80"
+            >
               <img
                 src="https://i.pravatar.cc/150?u=a042581f4e29026024d"
                 alt="Avatar"
@@ -463,9 +466,10 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
         ) : (
           <div className="flex flex-col items-center gap-3">
             <img
+              onClick={() => navigate({ to: '/profile' })}
               src="https://i.pravatar.cc/150?u=a042581f4e29026024d"
               alt="Avatar"
-              className="size-9 rounded-full object-cover ring-2 ring-white shadow-sm"
+              className="size-9 cursor-pointer rounded-full object-cover ring-2 ring-white shadow-sm transition-opacity hover:opacity-80"
             />
             <button
               onClick={logout}

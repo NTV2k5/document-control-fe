@@ -18,5 +18,7 @@ export * from './variables-workspace';
 export * from './tickets';
 export * from './university-hubs';
 export * from './my-hubs';
+export * from './profile';
+
 
 
