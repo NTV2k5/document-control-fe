@@ -13,6 +13,15 @@ import type { IPersonalInfoFormState } from './profile.type';
 export const ProfileSection = () => {
   const profile = profileStore((state) => state.profile);
   const [isSaving, setIsSaving] = useState(false);
+  const [storageStats] = useState({
+    documentsTb: 2.8,
+    mediaAssetsTb: 1.4,
+    totalStorageTb: 10,
+  });
+
+  const usedStorageTb = Number((storageStats.documentsTb + storageStats.mediaAssetsTb).toFixed(1));
+  const documentsPercent = Math.round((storageStats.documentsTb / usedStorageTb) * 100);
+  const mediaPercent = 100 - documentsPercent;
 
   const handleSaveProfile = async (formData: IPersonalInfoFormState) => {
     if (!profile) {
@@ -97,7 +106,14 @@ export const ProfileSection = () => {
 
         {/* Right Column (1/3 width) */}
         <div className="space-y-6 lg:col-span-1">
-          <StorageAnalytics />
+          <StorageAnalytics
+            usedStorageTb={usedStorageTb}
+            totalStorageTb={storageStats.totalStorageTb}
+            documentsPercent={documentsPercent}
+            mediaPercent={mediaPercent}
+            documentsTb={storageStats.documentsTb}
+            mediaAssetsTb={storageStats.mediaAssetsTb}
+          />
           <RecentActivity />
           <ChangePasswordCard />
         </div>
