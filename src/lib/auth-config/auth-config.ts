@@ -5,7 +5,7 @@ const templateVariableDocsPath = '/template-variable-docs';
 const settingsPath = '/settings';
 const legacyOpenAiSettingsPath = '/openai';
 
-const commonPaths = [docxExportPreviewPath, '/home', '/change-password'];
+const commonPaths = [docxExportPreviewPath, '/home', '/change-password', '/profile'];
 const dashboardPaths = ['/dashboard'];
 const templatePaths = ['/templates'];
 const documentPaths = ['/documents'];
