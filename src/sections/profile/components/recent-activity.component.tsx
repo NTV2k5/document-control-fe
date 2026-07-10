@@ -29,38 +29,38 @@ export const RecentActivity = ({ activities = DEFAULT_ACTIVITIES }: Partial<IRec
   const getIcon = (iconName: string) => {
     switch (iconName) {
       case 'document':
-        return <FileEdit className="size-3.5 text-white" />;
+        return <FileEdit className="size-3.5 text-blue-600" />;
       case 'shield':
-        return <ShieldAlert className="size-3.5 text-white" />;
+        return <ShieldAlert className="size-3.5 text-emerald-600" />;
       case 'lock':
       default:
-        return <KeyRound className="size-3.5 text-white" />;
+        return <KeyRound className="size-3.5 text-amber-500" />;
     }
   };
 
-  const getBadgeBg = (iconName: string) => {
+  const getBadgeColor = (iconName: string) => {
     switch (iconName) {
       case 'document':
-        return 'bg-[#1B59F8]';
+        return 'bg-blue-100 border-blue-200';
       case 'shield':
-        return 'bg-[#10B981]';
+        return 'bg-emerald-100 border-emerald-200';
       case 'lock':
       default:
-        return 'bg-[#F59E0B]';
+        return 'bg-amber-100 border-amber-200';
     }
   };
 
   return (
-    <div className="rounded-3xl border border-slate-100 bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.02)] flex flex-col h-full">
+    <div className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm flex flex-col">
       <h3 className="text-base font-bold text-slate-800 mb-6">Recent Activity</h3>
 
-      {/* Timeline wrapper */}
-      <div className="relative flex-1 pl-7 border-l border-slate-100/80 ml-3.5 py-1 space-y-6">
-        {activities.map((activity) => (
+      {/* Timeline */}
+      <div className="relative space-y-6 pl-4 border-l-2 border-slate-100 ml-4 py-2 my-2">
+        {activities.map((activity, idx) => (
           <div key={activity.id} className="relative group">
-            {/* Timeline solid dot */}
+            {/* Timeline dot */}
             <div
-              className={`absolute -left-[42px] top-0 flex h-7 w-7 items-center justify-center rounded-full text-white shadow-sm transition-transform group-hover:scale-105 ${getBadgeBg(activity.iconName)}`}
+              className={`absolute -left-[27px] top-0 flex h-6 w-6 items-center justify-center rounded-full border-2 bg-white ${getBadgeColor(activity.iconName)} shadow-sm transition-transform group-hover:scale-110`}
             >
               {getIcon(activity.iconName)}
             </div>
@@ -70,7 +70,7 @@ export const RecentActivity = ({ activities = DEFAULT_ACTIVITIES }: Partial<IRec
               <span className="text-xs font-bold text-slate-800 leading-tight group-hover:text-blue-600 transition-colors">
                 {activity.title}
               </span>
-              <span className="text-[10px] text-slate-400 font-semibold mt-1">
+              <span className="text-[10px] text-slate-400 font-medium mt-1">
                 {activity.timestamp}
               </span>
             </div>
@@ -79,7 +79,7 @@ export const RecentActivity = ({ activities = DEFAULT_ACTIVITIES }: Partial<IRec
       </div>
 
       {/* Footer link */}
-      <div className="mt-8 text-center border-t border-slate-50 pt-4">
+      <div className="mt-6 text-center border-t border-slate-50 pt-4">
         <button
           type="button"
           className="text-xs font-bold text-blue-600 hover:text-blue-700 hover:underline transition-all"

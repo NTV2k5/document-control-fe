@@ -13,15 +13,6 @@ import type { IPersonalInfoFormState } from './profile.type';
 export const ProfileSection = () => {
   const profile = profileStore((state) => state.profile);
   const [isSaving, setIsSaving] = useState(false);
-  const [storageStats] = useState({
-    documentsTb: 2.8,
-    mediaAssetsTb: 1.4,
-    totalStorageTb: 10,
-  });
-
-  const usedStorageTb = Number((storageStats.documentsTb + storageStats.mediaAssetsTb).toFixed(1));
-  const documentsPercent = Math.round((storageStats.documentsTb / usedStorageTb) * 100);
-  const mediaPercent = 100 - documentsPercent;
 
   const handleSaveProfile = async (formData: IPersonalInfoFormState) => {
     if (!profile) {
@@ -61,6 +52,41 @@ export const ProfileSection = () => {
       autoClose: 4000,
     });
   };
+
+  // Dynamic storage stats
+  const [storageData] = useState({
+    usedStorageTb: 4.2,
+    totalStorageTb: 10,
+    documentsPercent: 65,
+    mediaPercent: 35,
+    documentsTb: 2.8,
+    mediaTb: 1.4,
+  });
+
+  // Dynamic recent activities
+  const [activities] = useState([
+    {
+      id: '1',
+      type: 'document' as const,
+      title: 'Updated "Enrollment_Form_V2"',
+      timestamp: '2 hours ago • Document',
+      iconName: 'document' as const,
+    },
+    {
+      id: '2',
+      type: 'security' as const,
+      title: 'Login from New Device',
+      timestamp: 'Yesterday at 10:45 AM • Security',
+      iconName: 'shield' as const,
+    },
+    {
+      id: '3',
+      type: 'security' as const,
+      title: 'Password Changed',
+      timestamp: 'Oct 24, 2025 • Security',
+      iconName: 'lock' as const,
+    },
+  ]);
 
   // Fallback profile if user is not logged in or profile is empty
   const defaultProfile = {
@@ -107,14 +133,14 @@ export const ProfileSection = () => {
         {/* Right Column (1/3 width) */}
         <div className="space-y-6 lg:col-span-1">
           <StorageAnalytics
-            usedStorageTb={usedStorageTb}
-            totalStorageTb={storageStats.totalStorageTb}
-            documentsPercent={documentsPercent}
-            mediaPercent={mediaPercent}
-            documentsTb={storageStats.documentsTb}
-            mediaAssetsTb={storageStats.mediaAssetsTb}
+            usedStorageTb={storageData.usedStorageTb}
+            totalStorageTb={storageData.totalStorageTb}
+            documentsPercent={storageData.documentsPercent}
+            mediaPercent={storageData.mediaPercent}
+            documentsTb={storageData.documentsTb}
+            mediaTb={storageData.mediaTb}
           />
-          <RecentActivity />
+          <RecentActivity activities={activities} />
           <ChangePasswordCard />
         </div>
       </div>

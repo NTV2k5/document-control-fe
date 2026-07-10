@@ -25,8 +25,8 @@ export interface IStorageAnalyticsProps {
   totalStorageTb: number;
   documentsPercent: number;
   mediaPercent: number;
-  documentsTb?: number;
-  mediaAssetsTb?: number;
+  documentsTb: number;
+  mediaTb: number;
 }
 
 export interface IRecentActivityItem {
