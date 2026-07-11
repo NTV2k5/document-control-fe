@@ -47,10 +47,24 @@ export const ProfileSection = () => {
   };
 
   const handleAvatarClick = () => {
-    toast.info('Profile picture upload feature is simulated in the development environment.', {
-      position: 'top-right',
-      autoClose: 4000,
-    });
+    // Hidden file input is clicked internally in ProfileHeader
+  };
+
+  const handleAvatarChange = async (url: string) => {
+    try {
+      const updatedProfile = {
+        ...activeProfile,
+        profile_url: url,
+      };
+      await updateProfileAction(updatedProfile);
+      toast.success('Profile picture updated successfully!', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
+    } catch (error) {
+      console.error(error);
+      toast.error('Failed to update profile picture.');
+    }
   };
 
   // Dynamic storage stats
@@ -122,7 +136,11 @@ export const ProfileSection = () => {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Left Column (2/3 width) */}
         <div className="space-y-6 lg:col-span-2">
-          <ProfileHeader profile={activeProfile} onAvatarClick={handleAvatarClick} />
+          <ProfileHeader
+            profile={activeProfile}
+            onAvatarClick={handleAvatarClick}
+            onAvatarChange={handleAvatarChange}
+          />
           <PersonalInfoForm
             profile={activeProfile}
             onSave={handleSaveProfile}

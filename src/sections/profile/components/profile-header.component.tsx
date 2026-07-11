@@ -1,13 +1,37 @@
 import type { IProfileHeaderProps } from '../profile.type';
 import { Mail, Phone, Building2, MapPin, Camera } from 'lucide-react';
 
-export const ProfileHeader = ({ profile, onAvatarClick }: IProfileHeaderProps) => {
+import { useRef } from 'react';
+
+export const ProfileHeader = ({ profile, onAvatarClick, onAvatarChange }: IProfileHeaderProps) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const fullName = [profile.first_name, profile.last_name].filter(Boolean).join(' ') || 'Dr. Sarah Jenkins';
   const jobTitle = profile.job || 'Dean of Information Systems';
   const email = profile.email || 'tam.nguyen@giadinh.edu.vn';
   const phoneNumber = profile.phone_number || '+84 982 727 272';
   const department = 'Information Management Dept.';
   const location = 'Main Campus, Building A';
+
+  const handleCameraClick = () => {
+    if (onAvatarClick) {
+      onAvatarClick();
+    }
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && onAvatarChange) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const dataUrl = event.target?.result as string;
+        if (dataUrl) {
+          onAvatarChange(dataUrl);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   return (
     <div className="relative overflow-hidden rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
@@ -25,8 +49,15 @@ export const ProfileHeader = ({ profile, onAvatarClick }: IProfileHeaderProps) =
               className="h-full w-full object-cover"
             />
           </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleFileChange}
+          />
           <button
-            onClick={onAvatarClick}
+            onClick={handleCameraClick}
             type="button"
             className="absolute -bottom-2 -right-2 flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-white shadow-md transition-all hover:bg-blue-700 hover:scale-105"
             title="Edit Profile Picture"

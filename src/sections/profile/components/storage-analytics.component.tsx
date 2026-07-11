@@ -14,7 +14,7 @@ export const StorageAnalytics = ({
 
   // SVG circle calculations
   const radius = 60;
-  const strokeWidth = 8;
+  const strokeWidth = 14;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (usedPercent / 100) * circumference;
 

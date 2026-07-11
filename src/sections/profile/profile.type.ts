@@ -12,6 +12,7 @@ export interface IPersonalInfoFormState {
 export interface IProfileHeaderProps {
   profile: IUserProfile;
   onAvatarClick?: () => void;
+  onAvatarChange?: (url: string) => void;
 }
 
 export interface IPersonalInfoFormProps {
