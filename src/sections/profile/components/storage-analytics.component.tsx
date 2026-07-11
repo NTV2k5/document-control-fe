@@ -1,4 +1,4 @@
-import { Info, FileText, Image } from 'lucide-react';
+import { Info, FileText, Film } from 'lucide-react';
 import type { IStorageAnalyticsProps } from '../profile.type';
 import { Tooltip, TooltipContent, TooltipTrigger } from 'reactjs-platform/ui';
 
@@ -12,8 +12,8 @@ export const StorageAnalytics = ({
 }: Partial<IStorageAnalyticsProps>) => {
   const usedPercent = Math.round((usedStorageTb / totalStorageTb) * 100);
 
-  // SVG circle calculations - optimized to match mockup's thick, flat ring exactly
-  const radius = 62;
+  // SVG circle calculations
+  const radius = 65;
   const strokeWidth = 12;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (usedPercent / 100) * circumference;
@@ -35,9 +35,9 @@ export const StorageAnalytics = ({
         </Tooltip>
       </div>
 
-      {/* Circle Chart - Large and thick like Image 2, with flat ends */}
-      <div className="my-6 flex justify-center items-center relative">
-        <svg className="w-40 h-40 transform -rotate-90">
+      {/* Circle Chart */}
+      <div className="relative my-6 mx-auto flex h-40 w-40 items-center justify-center">
+        <svg className="absolute inset-0 w-full h-full transform -rotate-90">
           {/* Background circle */}
           <circle
             cx="80"
@@ -57,12 +57,13 @@ export const StorageAnalytics = ({
             fill="transparent"
             strokeDasharray={circumference}
             strokeDashoffset={strokeDashoffset}
+            strokeLinecap="round"
           />
         </svg>
-        {/* Inner Text */}
-        <div className="absolute flex flex-col items-center justify-center">
-          <span className="text-2xl font-black text-slate-800">{usedPercent}%</span>
-          <span className="text-[10px] font-bold tracking-wider text-slate-400 uppercase mt-0.5">USED</span>
+        {/* Inner Text - Perfectly Centered */}
+        <div className="flex flex-col items-center justify-center leading-none">
+          <span className="text-3xl font-extrabold text-slate-850">{usedPercent}%</span>
+          <span className="text-[10px] font-bold tracking-wider text-slate-450 mt-1 uppercase">USED</span>
         </div>
       </div>
 
@@ -76,7 +77,7 @@ export const StorageAnalytics = ({
             </div>
             <div className="flex flex-col">
               <span className="text-xs font-bold text-slate-800 leading-tight">Documents</span>
-              <span className="text-[10px] text-slate-400 font-medium mt-0.5">{documentsTb} TB</span>
+              <span className="text-[10px] text-slate-400 font-medium">{documentsTb} TB</span>
             </div>
           </div>
           <span className="text-xs font-bold text-slate-800">{documentsPercent}%</span>
@@ -85,12 +86,12 @@ export const StorageAnalytics = ({
         {/* Media Assets */}
         <div className="flex items-center justify-between rounded-2xl bg-slate-50/70 p-3.5 hover:bg-slate-50 transition-colors">
           <div className="flex items-center gap-3">
-            <div className="flex size-9 items-center justify-center rounded-xl bg-blue-50 text-blue-600 border border-blue-100/30">
-              <Image className="size-4.5" />
+            <div className="flex size-9 items-center justify-center rounded-xl bg-purple-50 text-purple-600 border border-purple-100/30">
+              <Film className="size-4.5" />
             </div>
             <div className="flex flex-col">
               <span className="text-xs font-bold text-slate-800 leading-tight">Media Assets</span>
-              <span className="text-[10px] text-slate-400 font-medium mt-0.5">{mediaTb} TB</span>
+              <span className="text-[10px] text-slate-400 font-medium">{mediaTb} TB</span>
             </div>
           </div>
           <span className="text-xs font-bold text-slate-800">{mediaPercent}%</span>
