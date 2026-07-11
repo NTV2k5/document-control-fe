@@ -58,28 +58,32 @@ export const HubStats = ({ stats }: IHubStatsProps) => {
           key={stat.id}
           className="relative flex flex-col justify-between rounded-3xl border border-slate-100 bg-white p-6 shadow-sm transition-all duration-200 hover:shadow-md"
         >
-          <div className="flex items-start justify-between">
-            <div className="flex flex-col gap-1">
-              <span className="text-[10px] font-bold tracking-wider text-slate-400 uppercase">
-                {stat.label}
-              </span>
-              <span className="text-2xl font-extrabold text-slate-800">
-                {stat.itemsCount} Items
-              </span>
-            </div>
-            <div className={`flex size-11 items-center justify-center rounded-2xl ${stat.iconBgColor} ${stat.iconColor}`}>
+          {/* Top Row: Icon (Left) & Label (Right) */}
+          <div className="flex items-center justify-between">
+            <div className={`flex size-10 items-center justify-center rounded-xl ${stat.iconBgColor} ${stat.iconColor}`}>
               {stat.icon}
             </div>
+            <span className="text-[10px] font-bold tracking-wider text-slate-400 uppercase">
+              {stat.label}
+            </span>
           </div>
 
-          <div className="mt-6 flex flex-col gap-2">
+          {/* Middle Row: Items Count */}
+          <div className="mt-4 flex flex-col gap-1">
+            <span className="text-xl font-extrabold text-slate-800">
+              {stat.itemsCount} Items
+            </span>
+          </div>
+
+          {/* Bottom Row: Progress Bar & Space Used */}
+          <div className="mt-4 flex flex-col gap-2">
             <div className="h-1.5 w-full rounded-full bg-slate-100">
               <div
                 className={`h-full rounded-full ${stat.barColor}`}
                 style={{ width: `${stat.percentage}%` }}
               />
             </div>
-            <span className="text-[11px] font-bold text-slate-400">
+            <span className="text-[10px] font-bold text-slate-400">
               {stat.usedSpace}
             </span>
           </div>
@@ -87,4 +91,5 @@ export const HubStats = ({ stats }: IHubStatsProps) => {
       ))}
     </div>
   );
+
 };
