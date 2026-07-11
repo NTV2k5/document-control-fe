@@ -13,8 +13,8 @@ export const StorageAnalytics = ({
   const usedPercent = Math.round((usedStorageTb / totalStorageTb) * 100);
 
   // SVG circle calculations
-  const radius = 65;
-  const strokeWidth = 12;
+  const radius = 60;
+  const strokeWidth = 8;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (usedPercent / 100) * circumference;
 
@@ -37,7 +37,10 @@ export const StorageAnalytics = ({
 
       {/* Circle Chart */}
       <div className="relative my-6 mx-auto flex h-40 w-40 items-center justify-center">
-        <svg className="absolute inset-0 w-full h-full transform -rotate-90">
+        <svg
+          viewBox="0 0 160 160"
+          className="absolute inset-0 w-full h-full transform -rotate-90"
+        >
           {/* Background circle */}
           <circle
             cx="80"
@@ -62,8 +65,8 @@ export const StorageAnalytics = ({
         </svg>
         {/* Inner Text - Perfectly Centered */}
         <div className="flex flex-col items-center justify-center leading-none">
-          <span className="text-3xl font-extrabold text-slate-850">{usedPercent}%</span>
-          <span className="text-[10px] font-bold tracking-wider text-slate-450 mt-1 uppercase">USED</span>
+          <span className="text-3xl font-extrabold text-slate-800">{usedPercent}%</span>
+          <span className="text-[10px] font-bold tracking-wider text-slate-400 mt-1 uppercase">USED</span>
         </div>
       </div>
 
