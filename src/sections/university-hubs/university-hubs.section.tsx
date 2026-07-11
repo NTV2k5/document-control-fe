@@ -7,11 +7,11 @@ import {
   FolderInput,
   Share2,
   Archive,
-  Code,
+  SquareTerminal,
   Palette,
-  FlaskConical,
+  Microscope,
   Sigma,
-  Brain,
+  BrainCog,
   Leaf,
   Rocket,
   Scan,
@@ -132,7 +132,7 @@ export const UniversityHubsSection = ({
       case 'code':
         return (
           <div className="flex size-11 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
-            <Code className="size-5" />
+            <SquareTerminal className="size-5" />
           </div>
         );
       case 'paint':
@@ -144,7 +144,7 @@ export const UniversityHubsSection = ({
       case 'biology':
         return (
           <div className="flex size-11 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-500">
-            <FlaskConical className="size-5" />
+            <Microscope className="size-5" />
           </div>
         );
       case 'math':
@@ -156,7 +156,7 @@ export const UniversityHubsSection = ({
       default:
         return (
           <div className="flex size-11 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
-            <Code className="size-5" />
+            <SquareTerminal className="size-5" />
           </div>
         );
     }
@@ -167,7 +167,7 @@ export const UniversityHubsSection = ({
       case 'brain':
         return (
           <div className="flex size-11 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
-            <Brain className="size-5" />
+            <BrainCog className="size-5" />
           </div>
         );
       case 'leaf':
@@ -191,7 +191,7 @@ export const UniversityHubsSection = ({
       default:
         return (
           <div className="flex size-11 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
-            <Brain className="size-5" />
+            <BrainCog className="size-5" />
           </div>
         );
     }
