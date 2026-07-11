@@ -7,6 +7,8 @@ import { NavigationProgress } from '../components/ui/navigation-progress/navigat
 import { NotFound } from '../components/ui/not-found/not-found.component';
 import { THEME_STORAGE_KEY, ThemeProvider } from '../components/theme/theme-toggle/theme-toggle.component';
 import { TooltipProvider } from '../components/ui/tooltip/tooltip.component';
+import { Error500 } from '../components/ui/error-500/error-500.component';
+
 
 import { I18nProvider, LOCALE_STORAGE_KEY } from '../i18n';
 import { groupAccessMap, groupAreaMap, groupPriority, publicPaths } from '../lib';
@@ -91,19 +93,10 @@ export const Route = createRootRoute({
     ],
   }),
   component: RootComponent,
-  errorComponent: ({ error }) => {
-    return (
-      <main className="pt-16 p-4 container mx-auto">
-        <h1>Error / Lỗi</h1>
-        <p>{error instanceof Error ? error.message : 'An unexpected error occurred. / Đã xảy ra lỗi ngoài dự kiến.'}</p>
-        {import.meta.env.DEV && error instanceof Error && error.stack ? (
-          <pre className="w-full p-4 overflow-x-auto">
-            <code>{error.stack}</code>
-          </pre>
-        ) : null}
-      </main>
-    );
+  errorComponent: ({ error, reset }) => {
+    return <Error500 error={error} reset={reset} />;
   },
+
   notFoundComponent: () => <NotFound />,
 });
 
