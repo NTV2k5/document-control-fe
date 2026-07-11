@@ -1,4 +1,4 @@
-import { Image as ImageIcon, Video, FileText, Box } from 'lucide-react';
+import { Image as ImageIcon, Clapperboard, FileText, Archive } from 'lucide-react';
 import type { IHubStatsProps } from './hub-stats.type';
 
 export const HubStats = ({ stats }: IHubStatsProps) => {
@@ -20,7 +20,7 @@ export const HubStats = ({ stats }: IHubStatsProps) => {
       itemsCount: 2,
       usedSpace: '333.79 MB used',
       percentage: 5.5,
-      icon: <Video className="size-5" />,
+      icon: <Clapperboard className="size-5" />,
       iconBgColor: 'bg-blue-50',
       iconColor: 'text-blue-500',
       barColor: 'bg-blue-500',
@@ -42,7 +42,7 @@ export const HubStats = ({ stats }: IHubStatsProps) => {
       itemsCount: 226,
       usedSpace: '30.77 GB used',
       percentage: 75.2,
-      icon: <Box className="size-5" />,
+      icon: <Archive className="size-5" />,
       iconBgColor: 'bg-amber-50',
       iconColor: 'text-amber-500',
       barColor: 'bg-amber-500',
