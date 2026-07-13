@@ -254,7 +254,7 @@ export const MyHubsSection = ({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="size-7 rounded-full text-slate-400 hover:bg-slate-55 hover:text-slate-65"
+                      className="size-7 rounded-full text-slate-400 hover:bg-slate-55 hover:text-slate-65 focus-visible:ring-0 focus-visible:ring-offset-0"
                     >
                       <MoreVertical className="size-4" />
                     </Button>
@@ -335,7 +335,7 @@ export const MyHubsSection = ({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="size-7 rounded-full text-slate-400 hover:bg-slate-50 hover:text-slate-65"
+                    className="size-7 rounded-full text-slate-400 hover:bg-slate-50 hover:text-slate-65 focus-visible:ring-0 focus-visible:ring-offset-0"
                   >
                     <MoreVertical className="size-4" />
                   </Button>
@@ -401,7 +401,6 @@ export const MyHubsSection = ({
                 onChange={(e) => setNewFolderName(e.target.value)}
                 placeholder="Enter folder name..."
                 className="h-11 rounded-xl border-slate-200 text-sm focus-visible:ring-blue-600"
-                autoFocus
               />
             </div>
             <DialogFooter className="flex items-center justify-end gap-3">
@@ -443,7 +442,6 @@ export const MyHubsSection = ({
                 onChange={(e) => setNewFileName(e.target.value)}
                 placeholder="Enter file name..."
                 className="h-11 rounded-xl border-slate-200 text-sm focus-visible:ring-blue-600"
-                autoFocus
               />
             </div>
             <DialogFooter className="flex items-center justify-end gap-3">
