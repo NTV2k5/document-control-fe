@@ -126,7 +126,7 @@ export const ProfileSection = () => {
     <div className="space-y-6 pb-12">
       {/* Breadcrumbs and Title */}
       <div className="flex flex-col gap-1">
-        <h1 className="text-3xl font-bold text-slate-900">My Profile</h1>
+        <h2 className="text-3xl font-bold text-slate-900">My Profile</h2>
         <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
           Dashboard &gt; Account Settings
         </div>

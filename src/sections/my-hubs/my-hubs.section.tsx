@@ -201,7 +201,7 @@ export const MyHubsSection = ({
     <div className="mx-auto flex max-w-screen-2xl flex-col gap-8 pb-12">
       {/* Header section */}
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-slate-900">My Hubs</h1>
+        <h2 className="text-3xl font-bold text-slate-900">My Hubs</h2>
         <Button
           variant="outline"
           className="flex h-10 items-center gap-2 rounded-full border-slate-200 bg-white px-4 text-xs font-bold text-slate-600 shadow-sm transition-all hover:bg-slate-50"
