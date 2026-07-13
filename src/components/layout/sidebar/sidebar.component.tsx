@@ -106,7 +106,7 @@ const STORAGE_TOTAL_GB = 10;
 const STORAGE_PERCENT = Math.round((STORAGE_USED_GB / STORAGE_TOTAL_GB) * 100);
 
 export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProps) => {
-  const { t } = useTranslation();
+  const { t, locale, setLocale } = useTranslation();
   const { logout } = useAuth();
   const navigate = useNavigate();
   const profile = profileStore((state) => state.profile);
@@ -453,6 +453,28 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
                   style={{ width: `${STORAGE_PERCENT}%` }}
                 />
               </div>
+            </div>
+
+            {/* Language switcher for mobile */}
+            <div className="flex items-center justify-between border-t border-slate-200/60 pt-3 sm:hidden">
+              <span className="text-xs font-bold text-slate-500">Language</span>
+              <button
+                type="button"
+                onClick={() => setLocale(locale === 'vi' ? 'en' : 'vi')}
+                className="flex h-8 w-[68px] cursor-pointer items-center rounded-full bg-slate-200/50 p-1 transition-colors hover:bg-slate-200"
+                title="Switch language"
+              >
+                <div
+                  className={`flex h-full w-1/2 items-center justify-center rounded-full transition-all ${locale === 'vi' ? 'bg-white shadow-sm' : ''}`}
+                >
+                  <span className={`text-[11px] font-bold ${locale === 'vi' ? 'text-slate-900' : 'text-slate-500'}`}>VN</span>
+                </div>
+                <div
+                  className={`flex h-full w-1/2 items-center justify-center rounded-full transition-all ${locale === 'en' ? 'bg-white shadow-sm' : ''}`}
+                >
+                  <span className={`text-[11px] font-bold ${locale === 'en' ? 'text-slate-900' : 'text-slate-500'}`}>EN</span>
+                </div>
+              </button>
             </div>
 
             <button
