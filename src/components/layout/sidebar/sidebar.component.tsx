@@ -420,22 +420,34 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
                 />
               ))}
 
-              {/* Mobile-only Language Switcher */}
-              <button
-                type="button"
-                onClick={toggleLocale}
-                className="group flex w-full items-center px-2 py-1 text-base transition-colors duration-200 justify-start sm:hidden"
-              >
-                <div className="flex w-full min-w-0 gap-3 px-3 py-2.5 rounded-full border-transparent text-slate-500 hover:bg-slate-50 hover:text-slate-900 items-center transition-all duration-200">
-                  <div className="flex size-5 shrink-0 items-center justify-center text-slate-500 group-hover:text-slate-800 transition-colors duration-200">
-                    <Globe className="size-5" />
-                  </div>
-                  <span className="min-w-0 flex-1 truncate whitespace-nowrap font-bold text-[12.5px] text-left">
-                    {locale === 'vi' ? 'Ngôn ngữ: Tiếng Việt' : 'Language: English'}
+              {/* Mobile-only Language Switcher (Pill Style) */}
+              <div className="flex items-center justify-between px-5 py-2.5 sm:hidden">
+                <div className="flex items-center gap-3 text-slate-500">
+                  <Globe className="size-5 shrink-0" />
+                  <span className="font-bold text-[12.5px]">
+                    {locale === 'vi' ? 'Ngôn ngữ' : 'Language'}
                   </span>
                 </div>
-              </button>
+                <button
+                  type="button"
+                  onClick={toggleLocale}
+                  className="h-8 w-[68px] shrink-0 cursor-pointer items-center rounded-full bg-slate-100 p-1 transition-colors hover:bg-slate-200 flex"
+                  title="Switch language"
+                >
+                  <div
+                    className={`flex h-full w-1/2 items-center justify-center rounded-full transition-all ${locale === 'vi' ? 'bg-white shadow-sm' : ''}`}
+                  >
+                    <span className={`text-[11px] font-bold ${locale === 'vi' ? 'text-slate-900' : 'text-slate-500'}`}>VN</span>
+                  </div>
+                  <div
+                    className={`flex h-full w-1/2 items-center justify-center rounded-full transition-all ${locale === 'en' ? 'bg-white shadow-sm' : ''}`}
+                  >
+                    <span className={`text-[11px] font-bold ${locale === 'en' ? 'text-slate-900' : 'text-slate-500'}`}>EN</span>
+                  </div>
+                </button>
+              </div>
             </nav>
+
 
           </div>
         )}
