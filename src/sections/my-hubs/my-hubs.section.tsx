@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+
 import {
   Folder,
   FolderPlus,
@@ -163,41 +164,61 @@ export const MyHubsSection = ({
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const selectedFile = e.target.files?.[0];
+    if (!selectedFile) return;
 
-    let formattedSize = '0 B';
-    if (file.size >= 1024 * 1024 * 1024) {
-      formattedSize = `${(file.size / (1024 * 1024 * 1024)).toFixed(1)} GB`;
-    } else if (file.size >= 1024 * 1024) {
-      formattedSize = `${(file.size / (1024 * 1024)).toFixed(1)} MB`;
-    } else if (file.size >= 1024) {
-      formattedSize = `${(file.size / 1024).toFixed(0)} KB`;
-    } else {
-      formattedSize = `${file.size} B`;
-    }
-
-    const extension = file.name.split('.').pop()?.toLowerCase() || 'pdf';
-    const nameWithoutExt = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
-
-    const newFile: IFileItem = {
-      id: `file-${Date.now()}`,
-      name: nameWithoutExt,
-      size: formattedSize,
-      fileType: extension,
+    const formatSize = (bytes: number): string => {
+      if (bytes === 0) return '0 B';
+      const k = 1024;
+      const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     };
 
-    setFiles((prev) => [newFile, ...prev]);
-    toast.success(`Successfully uploaded file: ${file.name}`);
-    e.target.value = '';
-  };
+    const ext = selectedFile.name.split('.').pop()?.toLowerCase();
+    let type: 'pdf' | 'docx' | 'xlsx' | 'other' = 'other';
+    if (ext === 'pdf') {
+      type = 'pdf';
+    } else if (ext === 'docx' || ext === 'doc') {
+      type = 'docx';
+    } else if (ext === 'xlsx' || ext === 'xls') {
+      type = 'xlsx';
+    }
 
+    const nameWithoutExt = selectedFile.name.substring(0, selectedFile.name.lastIndexOf('.')) || selectedFile.name;
+
+    const newFileItem: IFileItem = {
+      id: `file-${Date.now()}`,
+      name: nameWithoutExt,
+      size: formatSize(selectedFile.size),
+      fileType: type,
+    };
+
+    setFiles((prev) => [newFileItem, ...prev]);
+    toast.success(`Successfully uploaded file: ${selectedFile.name}`);
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   const renderFileIcon = (fileType: string) => {
     switch (fileType) {
       case 'pdf':
         return (
           <div className="flex size-9 items-center justify-center rounded-xl bg-red-50 text-red-500">
+            <FileText className="size-4.5" />
+          </div>
+        );
+      case 'docx':
+        return (
+          <div className="flex size-9 items-center justify-center rounded-xl bg-blue-50 text-blue-500">
+            <FileText className="size-4.5" />
+          </div>
+        );
+      case 'xlsx':
+        return (
+          <div className="flex size-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-500">
             <FileText className="size-4.5" />
           </div>
         );
@@ -209,6 +230,7 @@ export const MyHubsSection = ({
         );
     }
   };
+
 
   return (
     <div className="space-y-6 pb-12">
@@ -240,12 +262,6 @@ export const MyHubsSection = ({
               <FolderPlus className="size-4" />
               Create Folder
             </Button>
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleFileChange}
-              className="hidden"
-            />
             <Button
               variant="outline"
               className="flex h-10 items-center gap-2 rounded-2xl border-slate-200 bg-white px-4 text-xs font-bold text-slate-600 shadow-sm transition-all hover:bg-slate-50"
@@ -254,6 +270,14 @@ export const MyHubsSection = ({
               <FilePlus className="size-4" />
               Add File
             </Button>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              style={{ display: 'none' }}
+              accept=".pdf,.doc,.docx,.xls,.xlsx"
+            />
+
           </div>
         </div>
 
@@ -441,6 +465,8 @@ export const MyHubsSection = ({
           </form>
         </DialogContent>
       </Dialog>
+
+
     </div>
   );
 };

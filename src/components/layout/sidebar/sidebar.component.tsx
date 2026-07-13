@@ -13,6 +13,8 @@ import {
   FolderGit2,
   FolderOpen,
   FolderOutput,
+  Globe,
+
   Folders,
   History,
   Home,
@@ -106,7 +108,8 @@ const STORAGE_TOTAL_GB = 10;
 const STORAGE_PERCENT = Math.round((STORAGE_USED_GB / STORAGE_TOTAL_GB) * 100);
 
 export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProps) => {
-  const { t, locale, setLocale } = useTranslation();
+  const { t, locale, toggleLocale } = useTranslation();
+
   const { logout } = useAuth();
   const navigate = useNavigate();
   const profile = profileStore((state) => state.profile);
@@ -416,7 +419,24 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
                   isCollapsed={isCollapsed}
                 />
               ))}
+
+              {/* Mobile-only Language Switcher */}
+              <button
+                type="button"
+                onClick={toggleLocale}
+                className="group flex w-full items-center px-2 py-1 text-base transition-colors duration-200 justify-start sm:hidden"
+              >
+                <div className="flex w-full min-w-0 gap-3 px-3 py-2.5 rounded-full border-transparent text-slate-500 hover:bg-slate-50 hover:text-slate-900 items-center transition-all duration-200">
+                  <div className="flex size-5 shrink-0 items-center justify-center text-slate-500 group-hover:text-slate-800 transition-colors duration-200">
+                    <Globe className="size-5" />
+                  </div>
+                  <span className="min-w-0 flex-1 truncate whitespace-nowrap font-bold text-[12.5px] text-left">
+                    {locale === 'vi' ? 'Ngôn ngữ: Tiếng Việt' : 'Language: English'}
+                  </span>
+                </div>
+              </button>
             </nav>
+
           </div>
         )}
       </div>
@@ -453,28 +473,6 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
                   style={{ width: `${STORAGE_PERCENT}%` }}
                 />
               </div>
-            </div>
-
-            {/* Language switcher for mobile */}
-            <div className="flex items-center justify-between border-t border-slate-200/60 pt-3 sm:hidden">
-              <span className="text-xs font-bold text-slate-500">Language</span>
-              <button
-                type="button"
-                onClick={() => setLocale(locale === 'vi' ? 'en' : 'vi')}
-                className="flex h-8 w-[68px] cursor-pointer items-center rounded-full bg-slate-200/50 p-1 transition-colors hover:bg-slate-200"
-                title="Switch language"
-              >
-                <div
-                  className={`flex h-full w-1/2 items-center justify-center rounded-full transition-all ${locale === 'vi' ? 'bg-white shadow-sm' : ''}`}
-                >
-                  <span className={`text-[11px] font-bold ${locale === 'vi' ? 'text-slate-900' : 'text-slate-500'}`}>VN</span>
-                </div>
-                <div
-                  className={`flex h-full w-1/2 items-center justify-center rounded-full transition-all ${locale === 'en' ? 'bg-white shadow-sm' : ''}`}
-                >
-                  <span className={`text-[11px] font-bold ${locale === 'en' ? 'text-slate-900' : 'text-slate-500'}`}>EN</span>
-                </div>
-              </button>
             </div>
 
             <button

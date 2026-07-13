@@ -18,10 +18,11 @@ interface IHeaderProps {
 }
 
 export const Header = ({ isSidebarCollapsed, onSidebarCollapsedChange }: IHeaderProps) => {
-  const { t, locale, setLocale } = useTranslation();
+  const { t, locale, toggleLocale } = useTranslation();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [notificationCount] = useState(3); // TODO: replace with real notification count from API
+  const activeLang = locale === 'vi' ? 'VN' : 'EN';
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleSearch = (e: React.FormEvent) => {
@@ -92,22 +93,21 @@ export const Header = ({ isSidebarCollapsed, onSidebarCollapsedChange }: IHeader
           {/* Language switcher pill */}
           <button
             type="button"
-            onClick={() => setLocale(locale === 'vi' ? 'en' : 'vi')}
+            onClick={toggleLocale}
             className="hidden h-8 w-[68px] cursor-pointer items-center rounded-full bg-slate-100 p-1 transition-colors hover:bg-slate-200 sm:flex"
             title="Switch language"
           >
             <div
-              className={`flex h-full w-1/2 items-center justify-center rounded-full transition-all ${locale === 'vi' ? 'bg-white shadow-sm' : ''}`}
+              className={`flex h-full w-1/2 items-center justify-center rounded-full transition-all ${activeLang === 'VN' ? 'bg-white shadow-sm' : ''}`}
             >
-              <span className={`text-[11px] font-bold ${locale === 'vi' ? 'text-slate-900' : 'text-slate-500'}`}>VN</span>
+              <span className={`text-[11px] font-bold ${activeLang === 'VN' ? 'text-slate-900' : 'text-slate-500'}`}>VN</span>
             </div>
             <div
-              className={`flex h-full w-1/2 items-center justify-center rounded-full transition-all ${locale === 'en' ? 'bg-white shadow-sm' : ''}`}
+              className={`flex h-full w-1/2 items-center justify-center rounded-full transition-all ${activeLang === 'EN' ? 'bg-white shadow-sm' : ''}`}
             >
-              <span className={`text-[11px] font-bold ${locale === 'en' ? 'text-slate-900' : 'text-slate-500'}`}>EN</span>
+              <span className={`text-[11px] font-bold ${activeLang === 'EN' ? 'text-slate-900' : 'text-slate-500'}`}>EN</span>
             </div>
           </button>
-
 
           {/* Notification bell */}
           <button
