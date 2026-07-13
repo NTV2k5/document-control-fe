@@ -198,7 +198,7 @@ export const MyHubsSection = ({
   };
 
   return (
-    <div className="mx-auto flex max-w-screen-2xl flex-col gap-8 pb-12">
+    <div className="space-y-6 pb-12">
       {/* Header section */}
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold text-slate-900">My Hubs</h2>
