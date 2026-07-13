@@ -425,7 +425,7 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
                 <div className="flex items-center gap-3 text-slate-500">
                   <Globe className="size-5 shrink-0" />
                   <span className="font-bold text-[12.5px]">
-                    {locale === 'vi' ? 'Ngôn ngữ' : 'Language'}
+                    Language
                   </span>
                 </div>
                 <button
