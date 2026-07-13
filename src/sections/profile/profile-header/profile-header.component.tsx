@@ -1,6 +1,5 @@
 import type { IProfileHeaderProps } from '../profile.type';
 import { Mail, Phone, Building2, MapPin, Camera } from 'lucide-react';
-
 import { useRef } from 'react';
 
 export const ProfileHeader = ({ profile, onAvatarClick, onAvatarChange }: IProfileHeaderProps) => {

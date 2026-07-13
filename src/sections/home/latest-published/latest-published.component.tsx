@@ -1,4 +1,4 @@
-import { Scale, ShieldCheck, TerminalSquare } from 'lucide-react';
+import { Scale, ShieldUser, TerminalSquare } from 'lucide-react';
 import { Badge, Card, CardContent } from 'reactjs-platform/ui';
 
 type LatestPublishedProps = {
@@ -30,7 +30,7 @@ export function LatestPublished({ docs }: LatestPublishedProps) {
       return <Scale className="h-5 w-5 text-slate-500" />;
     }
     if (type === 'POLICY') {
-      return <ShieldCheck className="h-5 w-5 text-slate-500" />;
+      return <ShieldUser className="h-5 w-5 text-slate-500" />;
     }
     return <TerminalSquare className="h-5 w-5 text-slate-500" />;
   };

@@ -1,6 +1,6 @@
 import type { ITicketStatsProps } from '../ticket.type';
 import {
-  Layers,
+  Ticket,
   User,
   Clock,
   AlertTriangle,
@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 
 const iconMap: Record<string, React.ReactNode> = {
-  layers: <Layers className="size-5" strokeWidth={2.5} />,
+  layers: <Ticket className="size-5" strokeWidth={2.5} />,
   user: <User className="size-5" strokeWidth={2.5} />,
   clock: <Clock className="size-5" strokeWidth={2.5} />,
   'alert-triangle': <AlertTriangle className="size-5" strokeWidth={2.5} />,

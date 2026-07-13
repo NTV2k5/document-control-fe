@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import {
-  Building,
+  Landmark,
   SlidersHorizontal,
   Pencil,
   Download,
@@ -16,7 +16,7 @@ import {
   Rocket,
   Scan,
   MoreVertical,
-  Layers,
+  Atom,
 } from 'lucide-react';
 import type { IUniversityHubsSectionProps, IDepartmentItem, IProjectItem } from './university-hubs.type';
 import { HubStats, HubRecentActivity } from '../../components/hubs';
@@ -219,7 +219,7 @@ export const UniversityHubsSection = ({
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Building className="size-5 text-slate-500" />
+            <Landmark className="size-5 text-slate-500" />
             <h2 className="text-lg font-bold text-slate-800">Departments</h2>
           </div>
           <button
@@ -306,7 +306,7 @@ export const UniversityHubsSection = ({
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Layers className="size-5 text-slate-500" />
+            <Atom className="size-5 text-slate-500" />
             <h2 className="text-lg font-bold text-slate-800">Active Projects</h2>
           </div>
           <button
