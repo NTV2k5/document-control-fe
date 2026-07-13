@@ -1,4 +1,4 @@
-import { FileEdit, ShieldAlert, KeyRound } from 'lucide-react';
+import { Pencil, LogIn, KeyRound } from 'lucide-react';
 import type { IRecentActivityProps, IRecentActivityItem } from '../profile.type';
 
 const DEFAULT_ACTIVITIES: IRecentActivityItem[] = [
@@ -29,9 +29,9 @@ export const RecentActivity = ({ activities = DEFAULT_ACTIVITIES }: Partial<IRec
   const getIcon = (iconName: string) => {
     switch (iconName) {
       case 'document':
-        return <FileEdit className="size-3.5 text-blue-600" />;
+        return <Pencil className="size-3.5 text-blue-600" />;
       case 'shield':
-        return <ShieldAlert className="size-3.5 text-emerald-600" />;
+        return <LogIn className="size-3.5 text-emerald-600" />;
       case 'lock':
       default:
         return <KeyRound className="size-3.5 text-amber-500" />;

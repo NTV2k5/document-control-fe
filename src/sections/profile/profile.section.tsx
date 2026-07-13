@@ -1,13 +1,11 @@
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { profileStore, updateProfileAction } from 'reactjs-platform/utilities';
-import {
-  ProfileHeader,
-  PersonalInfoForm,
-  StorageAnalytics,
-  RecentActivity,
-  ChangePasswordCard,
-} from './components';
+import { ProfileHeader } from './profile-header';
+import { PersonalInfoForm } from './personal-info-form';
+import { StorageAnalytics } from './storage-analytics';
+import { RecentActivity } from './recent-activity';
+import { ChangePasswordCard } from './change-password-card';
 import type { IPersonalInfoFormState } from './profile.type';
 
 export const ProfileSection = () => {

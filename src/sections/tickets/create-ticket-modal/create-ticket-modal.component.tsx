@@ -1,7 +1,7 @@
 import type { ICreateTicketModalProps } from '../ticket.type';
 import { ETicketType } from '../ticket.type';
 import { useState } from 'react';
-import { X, Phone, FileText, CheckCircle, ClipboardCheck, ArrowRight } from 'lucide-react';
+import { X, Info, FileText, CheckCircle, ClipboardCheck, ArrowRight } from 'lucide-react';
 import { mockFaculties, mockStudentsByFaculty, mockDocumentTemplates } from '../ticket.mock';
 
 export const CreateTicketModal = ({ open, onClose }: ICreateTicketModalProps) => {
@@ -79,7 +79,7 @@ export const CreateTicketModal = ({ open, onClose }: ICreateTicketModalProps) =>
                   <div className={`flex size-8 items-center justify-center rounded-lg ${
                     isCCTT ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-400'
                   }`}>
-                    <Phone className="size-4" />
+                    <Info className="size-4" />
                   </div>
                   <div className="mt-2 text-sm font-semibold text-slate-800">Cung cấp thông tin</div>
                   <div className="mt-0.5 text-[10px] text-slate-400">
@@ -192,7 +192,7 @@ export const CreateTicketModal = ({ open, onClose }: ICreateTicketModalProps) =>
                 <div className={`flex size-8 items-center justify-center rounded-lg ${
                   isCCTT ? 'bg-blue-600 text-white' : 'bg-indigo-600 text-white'
                 }`}>
-                  {isCCTT ? <Phone className="size-4" /> : <FileText className="size-4" />}
+                  {isCCTT ? <Info className="size-4" /> : <FileText className="size-4" />}
                 </div>
                 <div>
                   <div className={`text-sm font-bold ${isCCTT ? 'text-blue-800' : 'text-indigo-800'}`}>
