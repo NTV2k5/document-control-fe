@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import {
   Folder,
   FolderPlus,
@@ -132,9 +132,8 @@ export const MyHubsSection = ({
   );
 
   const [isOpenFolderDialog, setIsOpenFolderDialog] = useState(false);
-  const [isOpenFileDialog, setIsOpenFileDialog] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
-  const [newFileName, setNewFileName] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleDeleteFolder = (id: string, name: string) => {
     setFolders((prev) => prev.filter((f) => f.id !== id));
@@ -163,22 +162,36 @@ export const MyHubsSection = ({
     toast.success(`Created folder: ${newFolder.name}`);
   };
 
-  const handleCreateFileSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newFileName.trim()) return;
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    let formattedSize = '0 B';
+    if (file.size >= 1024 * 1024 * 1024) {
+      formattedSize = `${(file.size / (1024 * 1024 * 1024)).toFixed(1)} GB`;
+    } else if (file.size >= 1024 * 1024) {
+      formattedSize = `${(file.size / (1024 * 1024)).toFixed(1)} MB`;
+    } else if (file.size >= 1024) {
+      formattedSize = `${(file.size / 1024).toFixed(0)} KB`;
+    } else {
+      formattedSize = `${file.size} B`;
+    }
+
+    const extension = file.name.split('.').pop()?.toLowerCase() || 'pdf';
+    const nameWithoutExt = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
 
     const newFile: IFileItem = {
       id: `file-${Date.now()}`,
-      name: newFileName,
-      size: '0 B',
-      fileType: 'pdf',
+      name: nameWithoutExt,
+      size: formattedSize,
+      fileType: extension,
     };
 
-    setFiles((prev) => [...prev, newFile]);
-    setNewFileName('');
-    setIsOpenFileDialog(false);
-    toast.success(`Added file: ${newFile.name}`);
+    setFiles((prev) => [newFile, ...prev]);
+    toast.success(`Successfully uploaded file: ${file.name}`);
+    e.target.value = '';
   };
+
 
   const renderFileIcon = (fileType: string) => {
     switch (fileType) {
@@ -227,10 +240,16 @@ export const MyHubsSection = ({
               <FolderPlus className="size-4" />
               Create Folder
             </Button>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              className="hidden"
+            />
             <Button
               variant="outline"
               className="flex h-10 items-center gap-2 rounded-2xl border-slate-200 bg-white px-4 text-xs font-bold text-slate-600 shadow-sm transition-all hover:bg-slate-50"
-              onClick={() => setIsOpenFileDialog(true)}
+              onClick={() => fileInputRef.current?.click()}
             >
               <FilePlus className="size-4" />
               Add File
@@ -417,47 +436,6 @@ export const MyHubsSection = ({
                 className="h-10 rounded-xl bg-blue-600 px-4 text-xs font-bold text-white shadow-md hover:bg-blue-700"
               >
                 Create
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Add File Dialog */}
-      <Dialog open={isOpenFileDialog} onOpenChange={setIsOpenFileDialog}>
-        <DialogContent className="max-w-md bg-white rounded-3xl p-6">
-          <form onSubmit={handleCreateFileSubmit}>
-            <DialogHeader>
-              <DialogTitle className="text-[17px] font-bold text-slate-800">
-                Add New File
-              </DialogTitle>
-            </DialogHeader>
-            <div className="py-6 flex flex-col gap-2">
-              <Label htmlFor="file-name" className="text-xs font-bold text-slate-500">
-                File Name (PDF)
-              </Label>
-              <Input
-                id="file-name"
-                value={newFileName}
-                onChange={(e) => setNewFileName(e.target.value)}
-                placeholder="Enter file name..."
-                className="h-11 rounded-xl border-slate-200 text-sm focus-visible:ring-blue-600"
-              />
-            </div>
-            <DialogFooter className="flex items-center justify-end gap-3">
-              <Button
-                type="button"
-                variant="ghost"
-                className="h-10 rounded-xl px-4 text-xs font-bold text-slate-500"
-                onClick={() => setIsOpenFileDialog(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                className="h-10 rounded-xl bg-blue-600 px-4 text-xs font-bold text-white shadow-md hover:bg-blue-700"
-              >
-                Add File
               </Button>
             </DialogFooter>
           </form>
