@@ -1,7 +1,7 @@
 import { useNavigate } from '@tanstack/react-router';
 import { Bell, Filter, Mic, Search, Menu } from 'lucide-react';
 import { useRef, useState } from 'react';
-import { useTranslation } from '../../../i18n';
+import { useTranslation } from '../../../i18n/use-translation';
 
 const TRENDING_TAGS = [
   '#AIEthics',

@@ -120,7 +120,7 @@ export const statsOverview = {
   sharingFiles: {
     label: 'Sharing Files',
     value: '50',
-    trend: 'Sharing for 38 emails',
+    trend: 'Sharing for 35 emails',
     trendColor: 'text-slate-500', 
   },
 };

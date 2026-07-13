@@ -46,7 +46,7 @@ import {
   profileStore,
   useAuth,
 } from 'reactjs-platform/utilities';
-import { useTranslation } from '../../../i18n';
+import { useTranslation } from '../../../i18n/use-translation';
 
 type TAgentSidebarSettings = Pick<
   IDocumentInputAgentSettings,

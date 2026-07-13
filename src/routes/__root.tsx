@@ -10,7 +10,8 @@ import { TooltipProvider } from '../components/ui/tooltip/tooltip.component';
 import { Error500 } from '../components/ui/error-500/error-500.component';
 
 
-import { I18nProvider, LOCALE_STORAGE_KEY } from '../i18n';
+import { I18nProvider } from '../i18n/i18n-provider';
+import { LOCALE_STORAGE_KEY } from '../i18n/config';
 import { groupAccessMap, groupAreaMap, groupPriority, publicPaths } from '../lib';
 import { ExtractionNotificationsSection } from '../sections';
 import appCss from '../app.css?url';

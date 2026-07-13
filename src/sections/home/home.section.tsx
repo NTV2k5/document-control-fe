@@ -122,30 +122,7 @@ export const HomeSection = (_props: IHomeSectionProps) => {
   }, [userId, reportParams]);
 
   // Mapping dynamic stats overview data
-  const statsOverviewData = useMemo(() => {
-    if (!documentSummary) return mockStatsOverview;
-
-    return {
-      publishedFiles: {
-        label: locale === 'vi' ? 'Tài liệu đã xuất bản' : 'Published Files',
-        value: documentSummary.published.toLocaleString(),
-        trend: locale === 'vi' ? `Tổng số ${documentSummary.total.toLocaleString()} tài liệu` : `Total ${documentSummary.total.toLocaleString()} documents`,
-        trendColor: 'text-slate-500',
-      },
-      myFiles: {
-        label: locale === 'vi' ? 'Tài liệu của tôi' : 'My Files',
-        value: myFilesCount.toLocaleString(),
-        trend: locale === 'vi' ? 'Do bạn tạo ra' : 'Created by you',
-        trendColor: 'text-slate-500',
-      },
-      sharingFiles: {
-        label: locale === 'vi' ? 'Chờ phê duyệt' : 'Pending Approval',
-        value: documentSummary.pending.toLocaleString(),
-        trend: locale === 'vi' ? `${documentSummary.approved.toLocaleString()} đã duyệt` : `${documentSummary.approved.toLocaleString()} approved`,
-        trendColor: 'text-blue-600',
-      },
-    };
-  }, [documentSummary, myFilesCount, locale]);
+  const statsOverviewData = mockStatsOverview;
 
   // Mapping Engagement Analytics (views last week or trend points)
   const analyticsData = useMemo(() => {
