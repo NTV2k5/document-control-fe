@@ -248,7 +248,7 @@ export const UniversityHubsSection = ({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="size-7 rounded-full text-slate-400 hover:bg-slate-50 hover:text-slate-600"
+                      className="size-7 rounded-full text-slate-400 hover:bg-slate-50 hover:text-slate-600 focus-visible:ring-0 focus-visible:ring-offset-0"
                     >
                       <MoreVertical className="size-4" />
                     </Button>
@@ -332,7 +332,7 @@ export const UniversityHubsSection = ({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="size-7 rounded-full text-slate-400 hover:bg-slate-50 hover:text-slate-600"
+                      className="size-7 rounded-full text-slate-400 hover:bg-slate-50 hover:text-slate-600 focus-visible:ring-0 focus-visible:ring-offset-0"
                     >
                       <MoreVertical className="size-4" />
                     </Button>
