@@ -22,6 +22,31 @@ import { profileStore } from 'reactjs-platform/utilities';
 import { Skeleton } from 'reactjs-platform/ui';
 import { useTranslation } from '../../i18n';
 
+const getRelativeTime = (isoString: string, locale: string) => {
+  try {
+    const date = new Date(isoString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / (60 * 1000));
+    const diffHours = Math.floor(diffMs / (60 * 60 * 1000));
+    const diffDays = Math.floor(diffMs / (24 * 60 * 60 * 1000));
+
+    if (diffHours < 1) {
+      const mins = Math.max(1, diffMins);
+      if (locale === 'vi') return `${mins} phút trước`;
+      return `${mins} minute${mins > 1 ? 's' : ''} ago`;
+    } else if (diffHours < 24) {
+      if (locale === 'vi') return `${diffHours} giờ trước`;
+      return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+    } else {
+      if (locale === 'vi') return `${diffDays} ngày trước`;
+      return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+    }
+  } catch {
+    return locale === 'vi' ? 'vừa xong' : 'just now';
+  }
+};
+
 export const HomeSection = (_props: IHomeSectionProps) => {
   const { locale } = useTranslation();
   const profile = profileStore((state) => state.profile);
@@ -147,14 +172,7 @@ export const HomeSection = (_props: IHomeSectionProps) => {
   }, [documentSummary]);
 
   // Mapping Trending Data to Overview Banner
-  const trendingData = useMemo(() => {
-    if (latestDocs.length === 0) return mockTrendingNow;
-    return latestDocs.slice(0, 5).map((doc, i) => ({
-      rank: String(i + 1).padStart(2, '0'),
-      title: doc.title,
-      dept: `${doc.template?.template_type || 'Document'} • ${doc.created_by || 'Admin Office'}`,
-    }));
-  }, [latestDocs]);
+  const trendingData = mockTrendingNow;
 
   // Mapping Latest Published documents
   const latestPublishedDocs = useMemo(() => {
@@ -172,16 +190,15 @@ export const HomeSection = (_props: IHomeSectionProps) => {
   // Mapping Recently Interacted documents
   const recentlyInteractedDocs = useMemo(() => {
     if (recentDocs.length === 0) return mockRecentlyInteracted;
-    return recentDocs.map((doc) => {
+    return recentDocs.slice(0, 6).map((doc) => {
       let docType = 'WORD';
       if (doc.artifact_type === 'spreadsheet') docType = 'EXCEL';
-      else if (doc.artifact_type === 'presentation') docType = 'PDF';
-      else if (doc.artifact_type === 'image_form') docType = 'IMAGE';
+      else if (doc.artifact_type === 'pdf' || doc.artifact_type === 'presentation') docType = 'PDF';
+      else if (doc.artifact_type === 'image' || doc.artifact_type === 'image_form') docType = 'IMAGE';
+      else if (doc.artifact_type === 'video') docType = 'VIDEO';
+      else if (doc.artifact_type === 'txt') docType = 'TXT';
 
-      // Format simple date
-      const editedTime = doc.updated_at
-        ? new Date(doc.updated_at).toLocaleDateString(locale === 'vi' ? 'vi-VN' : 'en-US', { hour: '2-digit', minute: '2-digit' })
-        : '';
+      const editedTime = doc.updated_at ? getRelativeTime(doc.updated_at, locale) : '';
 
       return {
         id: doc.id,

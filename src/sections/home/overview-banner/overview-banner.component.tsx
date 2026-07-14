@@ -97,7 +97,7 @@ export function OverviewBanner({ trendingData }: OverviewBannerProps) {
                   type="button"
                   className="flex w-full cursor-pointer items-center gap-3 rounded-xl border border-blue-500/30 bg-blue-700/40 p-3 text-left transition-colors hover:bg-blue-700/70"
                 >
-                  <span className="w-5 shrink-0 text-sm font-light text-blue-300">
+                  <span className="w-10 shrink-0 text-3xl font-extrabold text-blue-200/70">
                     {String(i + 1).padStart(2, '0')}
                   </span>
                   <div className="min-w-0">

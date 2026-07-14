@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Landmark,
   SlidersHorizontal,
@@ -28,6 +28,13 @@ import {
   Button,
 } from 'reactjs-platform/ui';
 import { toast } from 'react-toastify';
+import {
+  listDepartmentsAPI,
+  archiveDepartmentAPI,
+  listProjectsAPI,
+  archiveProjectAPI
+} from 'api';
+
 
 export const UniversityHubsSection = ({
   initialDepartments,
@@ -111,21 +118,43 @@ export const UniversityHubsSection = ({
   ];
 
   const [departments, setDepartments] = useState<IDepartmentItem[]>(
-    initialDepartments ?? defaultDepts
+    initialDepartments ?? []
   );
   const [projects, setProjects] = useState<IProjectItem[]>(
-    initialProjects ?? defaultProjects
+    initialProjects ?? []
   );
 
-  const handleArchiveDept = (id: string, name: string) => {
-    setDepartments((prev) => prev.filter((d) => d.id !== id));
-    toast.success(`Archived department: ${name}`);
+  useEffect(() => {
+    listDepartmentsAPI().then(setDepartments).catch(err => {
+      console.error('Failed to fetch departments:', err);
+      toast.error('Failed to fetch departments.');
+    });
+    listProjectsAPI().then(setProjects).catch(err => {
+      console.error('Failed to fetch projects:', err);
+      toast.error('Failed to fetch projects.');
+    });
+  }, []);
+
+  const handleArchiveDept = async (id: string, name: string) => {
+    try {
+      await archiveDepartmentAPI(id);
+      setDepartments((prev) => prev.filter((d) => d.id !== id));
+      toast.success(`Archived department: ${name}`);
+    } catch {
+      toast.error(`Failed to archive department: ${name}`);
+    }
   };
 
-  const handleArchiveProject = (id: string, name: string) => {
-    setProjects((prev) => prev.filter((p) => p.id !== id));
-    toast.success(`Archived project: ${name}`);
+  const handleArchiveProject = async (id: string, name: string) => {
+    try {
+      await archiveProjectAPI(id);
+      setProjects((prev) => prev.filter((p) => p.id !== id));
+      toast.success(`Archived project: ${name}`);
+    } catch {
+      toast.error(`Failed to archive project: ${name}`);
+    }
   };
+
 
   const renderDeptIcon = (iconKey: string) => {
     switch (iconKey) {

@@ -97,11 +97,12 @@ export const trendingTags = [
 ];
 
 export const trendingNow = [
-  { rank: '01', title: 'Exam Preparation: AI Tools Policy', dept: '120 views • Academic Affairs' },
-  { rank: '02', title: 'Summer Internship 2024 Portal Open', dept: '200 entries • Career Hub' },
-  { rank: '03', title: 'New Student Housing Regulations', dept: '450 views • Housing Office' },
-  { rank: '04', title: 'New Student Housing Regulations', dept: '450 views • Housing Office' },
-  { rank: '05', title: 'New Student Housing Regulations', dept: '450 views • Housing Office' },
+  { rank: '01', title: 'Exam Preparation: AI Tools Policy', dept: '1.2k reads • Academic Affairs' },
+  { rank: '02', title: 'Summer Internship 2024 PortalOpen', dept: '850 active • Careers Hub' },
+  { rank: '03', title: 'New Student Housing Regulations', dept: '620 reads • Housing Office' },
+  { rank: '04', title: 'New Student Housing Regulations', dept: '620 reads • Housing Office' },
+  { rank: '05', title: 'New Student Housing Regulations', dept: '620 reads • Housing Office' },
+  { rank: '06', title: 'New Student Housing Regulations', dept: '620 reads • Housing Office' },
 ];
 
 export const statsOverview = {

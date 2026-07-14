@@ -523,8 +523,8 @@ export const DocumentsSection: React.FC<IDocumentsSectionProps> = () => {
   }, [documents, searchQuery, typeFilter, isLoading]);
 
   // Adjust pagination info based on displayed list
-  const totalEntries = displayDocs.length;
-  const totalPages = Math.ceil(totalEntries / pageSize);
+  const totalEntries = documents.length > 0 ? pagination.total : displayDocs.length;
+  const totalPages = documents.length > 0 ? pagination.total_pages : Math.ceil(totalEntries / pageSize);
 
   const paginatedDocs = useMemo(() => {
     if (documents.length > 0) {

@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 import {
   Folder,
@@ -30,6 +30,15 @@ import {
   Label,
 } from 'reactjs-platform/ui';
 import { toast } from 'react-toastify';
+import {
+  listFoldersAPI,
+  createFolderAPI,
+  deleteFolderAPI,
+  listFilesAPI,
+  createFileAPI,
+  deleteFileAPI
+} from 'api';
+
 
 export const MyHubsSection = ({
   initialFolders,
@@ -126,44 +135,63 @@ export const MyHubsSection = ({
   ];
 
   const [folders, setFolders] = useState<IFolderItem[]>(
-    initialFolders ?? defaultFolders
+    initialFolders ?? []
   );
   const [files, setFiles] = useState<IFileItem[]>(
-    initialFiles ?? defaultFiles
+    initialFiles ?? []
   );
 
   const [isOpenFolderDialog, setIsOpenFolderDialog] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleDeleteFolder = (id: string, name: string) => {
-    setFolders((prev) => prev.filter((f) => f.id !== id));
-    toast.success(`Deleted folder: ${name}`);
+  useEffect(() => {
+    listFoldersAPI().then(setFolders).catch(err => {
+      console.error('Failed to fetch folders:', err);
+      toast.error('Failed to fetch folders.');
+    });
+    listFilesAPI().then(setFiles).catch(err => {
+      console.error('Failed to fetch files:', err);
+      toast.error('Failed to fetch files.');
+    });
+  }, []);
+
+  const handleDeleteFolder = async (id: string, name: string) => {
+    try {
+      await deleteFolderAPI(id);
+      setFolders((prev) => prev.filter((f) => f.id !== id));
+      toast.success(`Deleted folder: ${name}`);
+    } catch {
+      toast.error(`Failed to delete folder: ${name}`);
+    }
   };
 
-  const handleDeleteFile = (id: string, name: string) => {
-    setFiles((prev) => prev.filter((f) => f.id !== id));
-    toast.success(`Deleted file: ${name}`);
+  const handleDeleteFile = async (id: string, name: string) => {
+    try {
+      await deleteFileAPI(id);
+      setFiles((prev) => prev.filter((f) => f.id !== id));
+      toast.success(`Deleted file: ${name}`);
+    } catch {
+      toast.error(`Failed to delete file: ${name}`);
+    }
   };
 
-  const handleCreateFolderSubmit = (e: React.FormEvent) => {
+  const handleCreateFolderSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newFolderName.trim()) return;
 
-    const newFolder: IFolderItem = {
-      id: `folder-${Date.now()}`,
-      name: newFolderName,
-      size: '0 B',
-      filesCount: 0,
-    };
-
-    setFolders((prev) => [...prev, newFolder]);
-    setNewFolderName('');
-    setIsOpenFolderDialog(false);
-    toast.success(`Created folder: ${newFolder.name}`);
+    try {
+      const newFolder = await createFolderAPI(newFolderName);
+      setFolders((prev) => [...prev, newFolder]);
+      setNewFolderName('');
+      setIsOpenFolderDialog(false);
+      toast.success(`Created folder: ${newFolder.name}`);
+    } catch {
+      toast.error(`Failed to create folder: ${newFolderName}`);
+    }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;
 
@@ -187,15 +215,17 @@ export const MyHubsSection = ({
 
     const nameWithoutExt = selectedFile.name.substring(0, selectedFile.name.lastIndexOf('.')) || selectedFile.name;
 
-    const newFileItem: IFileItem = {
-      id: `file-${Date.now()}`,
-      name: nameWithoutExt,
-      size: formatSize(selectedFile.size),
-      fileType: type,
-    };
-
-    setFiles((prev) => [newFileItem, ...prev]);
-    toast.success(`Successfully uploaded file: ${selectedFile.name}`);
+    try {
+      const newFileItem = await createFileAPI({
+        name: nameWithoutExt,
+        size: formatSize(selectedFile.size),
+        fileType: type,
+      });
+      setFiles((prev) => [newFileItem, ...prev]);
+      toast.success(`Successfully uploaded file: ${selectedFile.name}`);
+    } catch {
+      toast.error(`Failed to upload file: ${selectedFile.name}`);
+    }
 
     if (fileInputRef.current) {
       fileInputRef.current.value = '';

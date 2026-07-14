@@ -15,7 +15,7 @@ import {
 
 /* ─── People ─────────────────────────────────────────────── */
 
-const people: Record<string, IPerson> = {
+export const people: Record<string, IPerson> = {
   nguyenVanAn: {
     id: 'p1',
     name: 'Nguyễn Văn An',
@@ -86,7 +86,7 @@ const people: Record<string, IPerson> = {
 
 /* ─── Helper: Build CCTT steps (4 steps) ─────────────────── */
 
-const buildCCTTSteps = (
+export const buildCCTTSteps = (
   assignee: IPerson,
   status: 'all_done' | 'step2' | 'step3' | 'new',
 ): ITicketStep[] => {
@@ -151,9 +151,9 @@ const buildCCTTSteps = (
 };
 
 
-/* ─── Helper: Build DVHC steps (6–8 steps) ───────────────── */
+/* ─── Helper: Build DVHC steps (6-8 steps) ───────────────── */
 
-const buildDVHCSteps = (
+export const buildDVHCSteps = (
   assignee: IPerson,
   hasFee: boolean,
   form: EProcessingForm,

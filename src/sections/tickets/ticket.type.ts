@@ -214,6 +214,7 @@ export interface ITicketStepCardProps {
 export interface ICreateTicketModalProps {
   open: boolean;
   onClose: () => void;
+  onTicketCreated?: () => void;
 }
 
 export interface ITicketSourceModalProps {

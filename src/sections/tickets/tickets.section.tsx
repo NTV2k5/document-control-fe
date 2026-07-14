@@ -1,18 +1,21 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import type { ITicketsSectionProps, ITicketFilter, ITicket } from './ticket.type';
 import { ETicketType, ETicketStatus, ETicketSource } from './ticket.type';
-import { mockTickets, buildTicketStats } from './ticket.mock';
+import { buildTicketStats } from './ticket.mock';
 import { TicketStats } from './ticket-stats';
 import { TicketToolbar } from './ticket-toolbar';
 import { TicketTable } from './ticket-table';
 import { TicketDetailModal } from './ticket-detail-modal';
 import { CreateTicketModal } from './create-ticket-modal';
 import { TicketSourceModal } from './ticket-source-modal';
+import { listTicketsAPI } from 'api';
+import { toast } from 'react-toastify';
 
 const PAGE_SIZE = 6;
 
 export const TicketsSection = (_props: ITicketsSectionProps) => {
   /* ─── State ───────────────────────────────────────────── */
+  const [tickets, setTickets] = useState<ITicket[]>([]);
   const [filter, setFilter] = useState<ITicketFilter>({
     search: '',
     type: '',
@@ -27,11 +30,23 @@ export const TicketsSection = (_props: ITicketsSectionProps) => {
   const [sourceTicket, setSourceTicket] = useState<ITicket | null>(null);
   const [sourceOpen, setSourceOpen] = useState(false);
 
+  const fetchTickets = useCallback(() => {
+    listTicketsAPI().then(setTickets).catch(err => {
+      console.error('Failed to fetch tickets:', err);
+      toast.error('Failed to fetch tickets.');
+    });
+  }, []);
+
+  useEffect(() => {
+    fetchTickets();
+  }, [fetchTickets]);
+
   /* ─── Derived ─────────────────────────────────────────── */
-  const stats = useMemo(() => buildTicketStats(mockTickets), []);
+  const stats = useMemo(() => buildTicketStats(tickets), [tickets]);
 
   const filteredTickets = useMemo(() => {
-    let result = [...mockTickets];
+    let result = [...tickets];
+
 
     // Stats filter
     if (filter.statsFilter === 'assigned_to_me') {
@@ -72,7 +87,7 @@ export const TicketsSection = (_props: ITicketsSectionProps) => {
     }
 
     return result;
-  }, [filter]);
+  }, [filter, tickets]);
 
   const pagedTickets = useMemo(() => {
     const start = (page - 1) * PAGE_SIZE;
@@ -165,6 +180,7 @@ export const TicketsSection = (_props: ITicketsSectionProps) => {
       <CreateTicketModal
         open={createOpen}
         onClose={() => setCreateOpen(false)}
+        onTicketCreated={fetchTickets}
       />
 
       {/* Source Modal */}

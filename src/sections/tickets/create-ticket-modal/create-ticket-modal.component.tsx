@@ -3,8 +3,10 @@ import { ETicketType } from '../ticket.type';
 import { useState } from 'react';
 import { X, Info, FileText, CheckCircle, ClipboardCheck, ArrowRight } from 'lucide-react';
 import { mockFaculties, mockStudentsByFaculty, mockDocumentTemplates } from '../ticket.mock';
+import { createTicketAPI } from 'api';
+import { toast } from 'react-toastify';
 
-export const CreateTicketModal = ({ open, onClose }: ICreateTicketModalProps) => {
+export const CreateTicketModal = ({ open, onClose, onTicketCreated }: ICreateTicketModalProps) => {
   const [ticketType, setTicketType] = useState<ETicketType>(ETicketType.CUNG_CAP_THONG_TIN);
   const [faculty, setFaculty] = useState('');
   const [studentId, setStudentId] = useState('');
@@ -32,10 +34,32 @@ export const CreateTicketModal = ({ open, onClose }: ICreateTicketModalProps) =>
     setDeliveryForm('ONLINE_KY_SO');
   };
 
-  const handleSubmit = () => {
-    // Demo only — no real submission
-    onClose();
-    handleReset();
+  const handleSubmit = async () => {
+    try {
+      await createTicketAPI({
+        title: title || 'Yêu cầu mới',
+        content,
+        type: ticketType,
+        processingForm: deliveryForm as any,
+        documentCode: selectedTemplate?.id || 'PVB-802',
+        hasFee: !!selectedTemplate?.id, // if a template is selected, it represents a document with fee
+        feeAmount: selectedTemplate?.id ? 50000 : 0,
+        student: selectedStudent ? {
+          id: selectedStudent.id,
+          name: selectedStudent.name,
+          mssv: selectedStudent.mssv || '',
+          role: selectedStudent.role || '',
+          department: selectedStudent.department || '',
+        } : undefined,
+      });
+
+      toast.success('Tạo ticket thành công!');
+      onTicketCreated?.();
+      onClose();
+      handleReset();
+    } catch {
+      toast.error('Không thể tạo ticket. Vui lòng thử lại.');
+    }
   };
 
   const isCCTT = ticketType === ETicketType.CUNG_CAP_THONG_TIN;

@@ -1,22 +1,20 @@
 import { useState, useEffect } from 'react';
 import type { ITicketDetailModalProps, ITicketStep } from '../ticket.type';
-import { ETicketType, ETicketStatus, EPaymentStatus, EProcessingForm } from '../ticket.type';
+import { ETicketType, ETicketStatus, EPaymentStatus, EProcessingForm, EStepStatus } from '../ticket.type';
 import { QRCodeSVG as QRCode } from 'qrcode.react';
 import { TicketStepCard } from '../ticket-step-card';
-import {
-  X,
-  FileText,
-  Paperclip,
-  CreditCard,
-  Calendar,
-  Clock,
-  Settings,
-} from 'lucide-react';
+import { X, FileText, Paperclip, CreditCard, Calendar, Clock, Settings } from 'lucide-react';
 
 const avatarColor = (name: string) => {
   const colors = [
-    'bg-blue-500', 'bg-emerald-500', 'bg-purple-500', 'bg-pink-500',
-    'bg-orange-500', 'bg-teal-500', 'bg-rose-500', 'bg-cyan-500',
+    'bg-blue-500',
+    'bg-emerald-500',
+    'bg-purple-500',
+    'bg-pink-500',
+    'bg-orange-500',
+    'bg-teal-500',
+    'bg-rose-500',
+    'bg-cyan-500',
   ];
   let hash = 0;
   for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
@@ -98,15 +96,14 @@ const formatDate = (d: string) => {
 export const MockQRCode = ({ size = 120, value = 'GDU Document Control' }: { size?: number; value?: string }) => (
   <div
     className="flex flex-col items-center justify-center gap-1.5 bg-white p-2.5 rounded-xl border border-slate-200/60 shadow-sm shrink-0"
-    style={{ width: size + 20, height: size + 38 }}
-  >
+    style={{ width: size + 20, height: size + 38 }}>
     <QRCode
       value={value}
       size={size}
       level="H"
       includeMargin={false}
       imageSettings={{
-        src: "/gdu/logo/logo-icon.png",
+        src: '/gdu/logo/logo-icon.png',
         x: undefined,
         y: undefined,
         height: Math.max(16, Math.floor(size * 0.18)),
@@ -123,28 +120,43 @@ export const TicketDetailModal = ({ ticket, open, onClose }: ITicketDetailModalP
   const [steps, setSteps] = useState<ITicketStep[]>([]);
   const [paymentBannerOpen, setPaymentBannerOpen] = useState(true);
   const [zoomedQR, setZoomedQR] = useState(false);
+  const [currentTicket, setCurrentTicket] = useState<typeof ticket>(null);
 
   useEffect(() => {
     if (ticket) {
+      setCurrentTicket(ticket);
       setSteps(ticket.steps);
       setPaymentBannerOpen(true);
       setZoomedQR(false);
     }
   }, [ticket]);
 
-  if (!open || !ticket) return null;
+  if (!open || !ticket || !currentTicket) return null;
 
   const showPaymentBanner =
     paymentBannerOpen &&
-    ticket.type === ETicketType.DICH_VU_HANH_CHINH &&
-    ticket.hasFee &&
-    ticket.paymentStatus === EPaymentStatus.CHUA_THANH_TOAN &&
-    ticket.status === ETicketStatus.MOI;
+    currentTicket.type === ETicketType.DICH_VU_HANH_CHINH &&
+    currentTicket.hasFee &&
+    currentTicket.paymentStatus === EPaymentStatus.CHUA_THANH_TOAN &&
+    currentTicket.status === ETicketStatus.MOI;
 
   const handleStepUpdate = (stepId: string, updatedFields: Partial<ITicketStep>) => {
-    setSteps((prev) =>
-      prev.map((s) => (s.id === stepId ? { ...s, ...updatedFields } : s))
-    );
+    setSteps((prev) => {
+      const newSteps = prev.map((s) => (s.id === stepId ? { ...s, ...updatedFields } : s));
+      // Check if this step is the payment step and is now marked as done
+      const updatedStep = newSteps.find((s) => s.id === stepId);
+      if (updatedStep && updatedStep.icon === 'credit-card' && updatedStep.status === EStepStatus.DA_XONG) {
+        // Update the ticket's payment status
+        setCurrentTicket((prevTicket) => {
+          if (!prevTicket) return prevTicket;
+          return {
+            ...prevTicket,
+            paymentStatus: EPaymentStatus.DA_THANH_TOAN,
+          };
+        });
+      }
+      return newSteps;
+    });
   };
 
   return (
@@ -153,9 +165,9 @@ export const TicketDetailModal = ({ ticket, open, onClose }: ITicketDetailModalP
         {/* Header */}
         <div className="flex shrink-0 items-center justify-between border-b border-slate-100 px-6 py-4">
           <div className="flex items-center gap-3">
-            <span className="text-lg font-bold text-blue-600">#{ticket.code}</span>
+            <span className="text-lg font-bold text-blue-600">#{currentTicket.code}</span>
             <span className="text-slate-300">—</span>
-            <span className="text-lg font-semibold text-slate-800">{ticket.title}</span>
+            <span className="text-lg font-semibold text-slate-800">{currentTicket.title}</span>
           </div>
           <div className="flex items-center gap-3">
             {/* Role switch simulation */}
@@ -164,23 +176,20 @@ export const TicketDetailModal = ({ ticket, open, onClose }: ITicketDetailModalP
                 onClick={() => setViewRole('staff')}
                 className={`rounded-full px-3 py-1 text-[11px] font-bold transition-all ${
                   viewRole === 'staff' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-800'
-                }`}
-              >
+                }`}>
                 Cán bộ
               </button>
               <button
                 onClick={() => setViewRole('student')}
                 className={`rounded-full px-3 py-1 text-[11px] font-bold transition-all ${
                   viewRole === 'student' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-800'
-                }`}
-              >
+                }`}>
                 Sinh viên
               </button>
             </div>
             <button
               onClick={onClose}
-              className="flex size-8 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
-            >
+              className="flex size-8 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600">
               <X className="size-5" />
             </button>
           </div>
@@ -196,8 +205,8 @@ export const TicketDetailModal = ({ ticket, open, onClose }: ITicketDetailModalP
                 <FileText className="size-3.5 text-slate-500" />
                 <span className="text-xs font-medium text-slate-600">Thông tin ticket</span>
               </div>
-              <span className={`rounded-full px-3 py-1 text-xs font-semibold ${typeBadge(ticket.type)}`}>
-                {typeLabel(ticket.type)}
+              <span className={`rounded-full px-3 py-1 text-xs font-semibold ${typeBadge(currentTicket.type)}`}>
+                {typeLabel(currentTicket.type)}
               </span>
             </div>
 
@@ -206,14 +215,13 @@ export const TicketDetailModal = ({ ticket, open, onClose }: ITicketDetailModalP
               <div className="mb-4 relative rounded-xl border border-amber-200 bg-amber-50 p-4">
                 <button
                   onClick={() => setPaymentBannerOpen(false)}
-                  className="absolute top-2 right-2 flex size-5 items-center justify-center rounded-full text-amber-500 hover:bg-amber-100 hover:text-amber-700"
-                >
+                  className="absolute top-2 right-2 flex size-5 items-center justify-center rounded-full text-amber-500 hover:bg-amber-100 hover:text-amber-700">
                   <X className="size-3" />
                 </button>
                 <div className="flex items-center gap-2 pr-6">
                   <CreditCard className="size-4 text-amber-600" />
                   <span className="text-xs font-semibold text-amber-700">
-                    Cần thanh toán {ticket.feeAmount?.toLocaleString('vi-VN')}đ để bắt đầu xử lý
+                    Cần thanh toán {currentTicket.feeAmount?.toLocaleString('vi-VN')}đ để bắt đầu xử lý
                   </span>
                 </div>
                 <p className="mt-1 text-[11px] text-amber-600 pr-6">
@@ -237,26 +245,27 @@ export const TicketDetailModal = ({ ticket, open, onClose }: ITicketDetailModalP
                   <div className="flex justify-between">
                     <span className="text-slate-400">Số tiền</span>
                     <span className="font-semibold text-slate-700">
-                      {ticket.feeAmount?.toLocaleString('vi-VN')}đ
+                      {currentTicket.feeAmount?.toLocaleString('vi-VN')}đ
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-400">Nội dung</span>
                     <span className="font-semibold text-blue-600">
-                      {ticket.code} {ticket.student.mssv}
+                      {currentTicket.code} {currentTicket.student.mssv}
                     </span>
                   </div>
                 </div>
 
                 {/* QR Display with Lightbox click trigger */}
                 <div className="mt-3 flex justify-center">
-                  <div 
+                  <div
                     onClick={() => setZoomedQR(true)}
-                    className="group relative cursor-pointer overflow-hidden rounded-xl border border-slate-200 bg-white p-1.5 shadow-sm transition-all hover:shadow-md"
-                  >
+                    className="group relative cursor-pointer overflow-hidden rounded-xl border border-slate-200 bg-white p-1.5 shadow-sm transition-all hover:shadow-md">
                     <MockQRCode size={110} />
                     <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
-                      <span className="rounded bg-white/95 px-2 py-1 text-[9px] font-bold text-slate-700">Phóng to</span>
+                      <span className="rounded bg-white/95 px-2 py-1 text-[9px] font-bold text-slate-700">
+                        Phóng to
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -271,18 +280,21 @@ export const TicketDetailModal = ({ ticket, open, onClose }: ITicketDetailModalP
               </h3>
               <div className="space-y-3 rounded-xl border border-slate-100 bg-slate-50/40 p-3">
                 <div>
-                  <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Trạng thái</div>
-                  <span className={`inline-flex rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${statusBadge(ticket.status)}`}>
-                    ● {statusLabel(ticket.status)}
+                  <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                    Trạng thái
+                  </div>
+                  <span
+                    className={`inline-flex rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${statusBadge(currentTicket.status)}`}>
+                    ● {statusLabel(currentTicket.status)}
                   </span>
                 </div>
                 <div>
                   <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Tiêu đề</div>
-                  <p className="text-sm font-medium text-slate-800">{ticket.title}</p>
+                  <p className="text-sm font-medium text-slate-800">{currentTicket.title}</p>
                 </div>
                 <div>
                   <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Nội dung</div>
-                  <p className="text-xs leading-relaxed text-slate-600">{ticket.content}</p>
+                  <p className="text-xs leading-relaxed text-slate-600">{currentTicket.content}</p>
                 </div>
               </div>
             </div>
@@ -296,26 +308,32 @@ export const TicketDetailModal = ({ ticket, open, onClose }: ITicketDetailModalP
               <div className="space-y-3 rounded-xl border border-slate-100 bg-slate-50/40 p-3">
                 {/* Người phụ trách */}
                 <div>
-                  <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Người phụ trách</div>
+                  <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                    Người phụ trách
+                  </div>
                   <div className="flex items-center gap-2">
-                    <div className={`flex size-8 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white ${avatarColor(ticket.assignee.name)}`}>
-                      {initials(ticket.assignee.name)}
+                    <div
+                      className={`flex size-8 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white ${avatarColor(currentTicket.assignee.name)}`}>
+                      {initials(currentTicket.assignee.name)}
                     </div>
                     <div>
-                      <div className="text-xs font-medium text-slate-800">{ticket.assignee.name}</div>
-                      <div className="text-[10px] text-slate-400">{ticket.assignee.role}</div>
+                      <div className="text-xs font-medium text-slate-800">{currentTicket.assignee.name}</div>
+                      <div className="text-[10px] text-slate-400">{currentTicket.assignee.role}</div>
                     </div>
                   </div>
                 </div>
 
                 {/* Người hỗ trợ */}
-                {ticket.supporters.length > 0 && (
+                {currentTicket.supporters.length > 0 && (
                   <div>
-                    <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Người hỗ trợ</div>
+                    <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                      Người hỗ trợ
+                    </div>
                     <div className="space-y-2">
-                      {ticket.supporters.map((s) => (
+                      {currentTicket.supporters.map((s) => (
                         <div key={s.id} className="flex items-center gap-2">
-                          <div className={`flex size-7 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white ${avatarColor(s.name)}`}>
+                          <div
+                            className={`flex size-7 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white ${avatarColor(s.name)}`}>
                             {initials(s.name)}
                           </div>
                           <div>
@@ -329,13 +347,16 @@ export const TicketDetailModal = ({ ticket, open, onClose }: ITicketDetailModalP
                 )}
 
                 {/* Người nhận thông báo */}
-                {ticket.notifyRecipients.length > 0 && (
+                {currentTicket.notifyRecipients.length > 0 && (
                   <div>
-                    <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Người nhận thông báo</div>
+                    <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                      Người nhận thông báo
+                    </div>
                     <div className="flex flex-wrap gap-1.5">
-                      {ticket.notifyRecipients.map((n) => (
+                      {currentTicket.notifyRecipients.map((n) => (
                         <div key={n.id} className="flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5">
-                          <div className={`flex size-5 shrink-0 items-center justify-center rounded-full text-[8px] font-bold text-white ${avatarColor(n.name)}`}>
+                          <div
+                            className={`flex size-5 shrink-0 items-center justify-center rounded-full text-[8px] font-bold text-white ${avatarColor(n.name)}`}>
                             {initials(n.name)}
                           </div>
                           <span className="text-[10px] text-slate-600">{n.name}</span>
@@ -358,23 +379,30 @@ export const TicketDetailModal = ({ ticket, open, onClose }: ITicketDetailModalP
               </h3>
               <div className="space-y-3 rounded-xl border border-slate-100 bg-slate-50/40 p-3">
                 <div>
-                  <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Sinh viên</div>
+                  <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                    Sinh viên
+                  </div>
                   <div className="flex items-center gap-2">
-                    <div className={`flex size-8 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white ${avatarColor(ticket.student.name)}`}>
-                      {initials(ticket.student.name)}
+                    <div
+                      className={`flex size-8 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white ${avatarColor(currentTicket.student.name)}`}>
+                      {initials(currentTicket.student.name)}
                     </div>
                     <div>
-                      <div className="text-xs font-medium text-slate-800">{ticket.student.name}</div>
-                      <div className="text-[10px] text-slate-400">{ticket.student.mssv}</div>
+                      <div className="text-xs font-medium text-slate-800">{currentTicket.student.name}</div>
+                      <div className="text-[10px] text-slate-400">{currentTicket.student.mssv}</div>
                     </div>
                   </div>
                 </div>
 
-                {ticket.attachments.length > 0 && (
+                {currentTicket.attachments.length > 0 && (
                   <div>
-                    <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Tệp đính kèm</div>
-                    {ticket.attachments.map((f) => (
-                      <div key={f} className="flex items-center gap-2 rounded-lg border border-slate-100 bg-white px-3 py-2">
+                    <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                      Tệp đính kèm
+                    </div>
+                    {currentTicket.attachments.map((f) => (
+                      <div
+                        key={f}
+                        className="flex items-center gap-2 rounded-lg border border-slate-100 bg-white px-3 py-2">
                         <Paperclip className="size-3.5 text-slate-400" />
                         <span className="text-xs text-blue-600">{f}</span>
                       </div>
@@ -382,12 +410,15 @@ export const TicketDetailModal = ({ ticket, open, onClose }: ITicketDetailModalP
                   </div>
                 )}
 
-                {ticket.hasFee && (
+                {currentTicket.hasFee && (
                   <div>
-                    <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Thanh toán</div>
-                    <span className={`inline-flex rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${paymentBadge(ticket.paymentStatus)}`}>
-                      {paymentLabel(ticket.paymentStatus)}
-                      {ticket.feeAmount ? ` · ${ticket.feeAmount.toLocaleString('vi-VN')}đ` : ''}
+                    <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                      Thanh toán
+                    </div>
+                    <span
+                      className={`inline-flex rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${paymentBadge(currentTicket.paymentStatus)}`}>
+                      {paymentLabel(currentTicket.paymentStatus)}
+                      {currentTicket.feeAmount ? ` · ${currentTicket.feeAmount.toLocaleString('vi-VN')}đ` : ''}
                     </span>
                   </div>
                 )}
@@ -406,21 +437,21 @@ export const TicketDetailModal = ({ ticket, open, onClose }: ITicketDetailModalP
                     <Calendar className="size-3" />
                     Ngày yêu cầu
                   </span>
-                  <span className="text-xs font-medium text-slate-700">{formatDate(ticket.createdAt)}</span>
+                  <span className="text-xs font-medium text-slate-700">{formatDate(currentTicket.createdAt)}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-1.5 text-xs text-slate-500">
                     <Clock className="size-3" />
                     Deadline
                   </span>
-                  <span className="text-xs font-medium text-slate-700">{formatDate(ticket.deadline)}</span>
+                  <span className="text-xs font-medium text-slate-700">{formatDate(currentTicket.deadline)}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-1.5 text-xs text-slate-500">
                     <Settings className="size-3" />
                     Hình thức
                   </span>
-                  <span className="text-xs font-medium text-slate-700">{formLabel(ticket.processingForm)}</span>
+                  <span className="text-xs font-medium text-slate-700">{formLabel(currentTicket.processingForm)}</span>
                 </div>
               </div>
             </div>
@@ -428,9 +459,7 @@ export const TicketDetailModal = ({ ticket, open, onClose }: ITicketDetailModalP
 
           {/* Right Column — Action Flow */}
           <div className="flex-1 md:overflow-y-auto p-6 bg-slate-50/20">
-            <h3 className="mb-4 text-sm font-bold text-slate-800">
-              Luồng xử lý ticket
-            </h3>
+            <h3 className="mb-4 text-sm font-bold text-slate-800">Luồng xử lý ticket</h3>
             <div className="pl-1">
               {steps.map((step, idx) => (
                 <TicketStepCard
@@ -449,26 +478,22 @@ export const TicketDetailModal = ({ ticket, open, onClose }: ITicketDetailModalP
         <div className="flex shrink-0 items-center justify-end border-t border-slate-100 px-6 py-3 bg-white">
           <button
             onClick={onClose}
-            className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50"
-          >
+            className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50">
             Đóng
           </button>
         </div>
 
         {/* Lightbox for large QR Code */}
         {zoomedQR && (
-          <div 
+          <div
             onClick={() => setZoomedQR(false)}
-            className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 cursor-zoom-out"
-          >
-            <div 
+            className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 cursor-zoom-out">
+            <div
               onClick={(e) => e.stopPropagation()}
-              className="relative flex flex-col items-center rounded-2xl bg-white p-6 shadow-2xl max-w-sm w-full cursor-default"
-            >
-              <button 
+              className="relative flex flex-col items-center rounded-2xl bg-white p-6 shadow-2xl max-w-sm w-full cursor-default">
+              <button
                 onClick={() => setZoomedQR(false)}
-                className="absolute top-3 right-3 flex size-8 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors"
-              >
+                className="absolute top-3 right-3 flex size-8 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors">
                 <X className="size-4" />
               </button>
               <h3 className="mb-4 text-base font-bold text-slate-800">Mã QR Thanh Toán</h3>
@@ -488,11 +513,15 @@ export const TicketDetailModal = ({ ticket, open, onClose }: ITicketDetailModalP
                 </div>
                 <div className="flex justify-between">
                   <span>Số tiền:</span>
-                  <span className="font-semibold text-slate-800">{ticket.feeAmount?.toLocaleString('vi-VN')}đ</span>
+                  <span className="font-semibold text-slate-800">
+                    {currentTicket.feeAmount?.toLocaleString('vi-VN')}đ
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span>Nội dung:</span>
-                  <span className="font-bold text-blue-600">{ticket.code} {ticket.student.mssv}</span>
+                  <span className="font-bold text-blue-600">
+                    {currentTicket.code} {currentTicket.student.mssv}
+                  </span>
                 </div>
               </div>
               <p className="mt-4 text-[10px] text-center text-slate-400">
