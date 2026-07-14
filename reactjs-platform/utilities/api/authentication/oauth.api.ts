@@ -1,4 +1,4 @@
-import type { ILoginResponseData } from './refresh-token.api';
+import type { ILoginResponseData } from '../../models/login-response.model';
 import { API } from '../api';
 
 export interface IMicrosoftOAuthUrlParams {

@@ -1,21 +1,18 @@
+import type { ILoginResponseData, ILoginResponse } from '../../models/login-response.model';
 import { pureAxios } from '../pure-axios';
 
-export interface ILoginResponseData {
-  access_token: string;
-  refresh_token: string;
-  expires_in?: number;
-  id_token?: string;
-  token_type?: string;
-}
 export const refreshTokenAPI = (refreshToken: string): Promise<ILoginResponseData> => {
+  const formData = new URLSearchParams();
+  formData.append('grant_type', 'refresh_token');
+  formData.append('refresh_token', refreshToken);
+
   return pureAxios
-    .post<{ data: ILoginResponseData }>(
-      '/api/v1/users/refresh-token',
-      { refresh_token: refreshToken },
+    .post<ILoginResponse>(
+      '/api/method/authen.get_token',
+      formData,
       {
         headers: {
-          'Content-Type': 'application/json',
-          'clean-request': 'no-clean',
+          'Content-Type': 'application/x-www-form-urlencoded',
         },
       },
     )

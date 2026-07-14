@@ -3,17 +3,19 @@ const getClientEnv = (value: string | undefined, fallback: string) => {
 };
 
 const getApiEndpoint = () => {
-  const configuredEndpoint = import.meta.env.VITE_API_ENDPOINT?.trim();
+  // In development, use empty string to leverage Vite proxy
+  // The proxy will forward /api requests to https://erpnext.aurora-tech.com
+  if (import.meta.env.DEV) {
+    return '';
+  }
 
+  // In production, use VITE_API_ENDPOINT or fallback to ERPNext
+  const configuredEndpoint = import.meta.env.VITE_API_ENDPOINT?.trim();
   if (configuredEndpoint) {
     return configuredEndpoint;
   }
 
-  if (import.meta.env.DEV) {
-    return 'http://localhost:4002';
-  }
-
-  throw new Error('Missing VITE_API_ENDPOINT at build time');
+  return 'https://erpnext.aurora-tech.com';
 };
 
 const API_ENDPOINT = getApiEndpoint();

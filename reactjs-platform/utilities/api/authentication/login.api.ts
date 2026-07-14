@@ -1,14 +1,18 @@
-import type { ILoginResponseData } from './refresh-token.api';
+import type { ILoginResponseData, ILoginResponse } from '../../models/login-response.model';
 import { API } from '../api';
 
 export const loginAPI = (username: string, password: string): Promise<ILoginResponseData> => {
-  return API.post<{ data: ILoginResponseData }>(
-    '/api/v1/auth/login',
-    { username, password },
+  const formData = new URLSearchParams();
+  formData.append('grant_type', 'password');
+  formData.append('username', username);
+  formData.append('password', password);
+
+  return API.post<ILoginResponse>(
+    '/api/method/authen.get_token',
+    formData,
     {
       headers: {
-        'Content-Type': 'application/json',
-        'clean-request': 'no-clean',
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
     },
   ).then((response) => response.data.data);

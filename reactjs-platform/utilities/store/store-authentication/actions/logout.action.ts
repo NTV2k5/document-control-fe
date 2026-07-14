@@ -1,9 +1,16 @@
+import { logoutAPI } from 'reactjs-platform/utilities/api';
 import { CONFIGURATION } from 'reactjs-platform/utilities/constants';
 import { CookieService } from 'reactjs-platform/utilities/cookie-storage';
 import { CoreUserProfileStore } from '../../store-user-profile';
 import { authenticationStore } from '../authentication.store';
 
-export const logoutAction = (): void => {
+export const logoutAction = async (): Promise<void> => {
+  try {
+    await logoutAPI();
+  } catch (error) {
+    console.error('Logout API call failed:', error);
+  }
+
   CookieService.removeItem(CONFIGURATION.ACCESS_TOKEN_LS_KEY);
 
   CookieService.removeItem(CONFIGURATION.REFRESH_TOKEN_LS_KEY);
