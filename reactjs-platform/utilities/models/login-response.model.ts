@@ -5,6 +5,7 @@ export interface ILoginResponseData {
   expires_in: number;
   is_first_login: boolean;
   token_type: string;
+  scope?: string;
 }
 
 export interface ILoginResponse {
