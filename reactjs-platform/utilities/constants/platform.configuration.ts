@@ -31,6 +31,10 @@ const DOCUMENT_DOCX_PREVIEW_EDITOR =
 
 const CURRENCY_ENABLE_COMPACT = true;
 const ALLOW_EDIT_ALL_STATUS = true;
+const ADMISSION_CRM_ENDPOINT = getClientEnv(
+  import.meta.env.VITE_ADMISSION_CRM_ENDPOINT?.trim(),
+  'https://admission-crm-dev.giadinh.edu.vn',
+);
 
 export {
   API_ENDPOINT,
@@ -40,4 +44,5 @@ export {
   DOCUMENT_DOCX_PREVIEW_EDITOR,
   CURRENCY_ENABLE_COMPACT,
   ALLOW_EDIT_ALL_STATUS,
+  ADMISSION_CRM_ENDPOINT,
 };

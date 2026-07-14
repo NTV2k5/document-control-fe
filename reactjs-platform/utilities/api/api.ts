@@ -1,6 +1,6 @@
 import type { ApiError } from '.';
 import axios, { type InternalAxiosRequestConfig } from 'axios';
-import { API_ENDPOINT, CONFIGURATION } from '../constants';
+import { API_ENDPOINT, CONFIGURATION, ADMISSION_CRM_ENDPOINT } from '../constants';
 import { LocalStorageService } from '../local-storage';
 import { CookieService, CoreAuthenticationStore } from 'reactjs-platform/utilities';
 
@@ -164,4 +164,11 @@ const ThrowApiError = (error: ApiError) => {
   throw error;
 };
 
-export { API, ThrowApiError };
+const admissionAPI = axios.create({
+  baseURL: ADMISSION_CRM_ENDPOINT,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+export { API, ThrowApiError, admissionAPI };
