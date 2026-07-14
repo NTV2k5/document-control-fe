@@ -12,7 +12,15 @@ export interface IExchangeTokenResponse {
 }
 
 export const exchangeTokenAPI = (token: string): Promise<IExchangeTokenResponse['data']> => {
-  return API.post<IExchangeTokenResponse>('/api/method/edu_frappe_api.api.authen.exchange_token', {
-    token,
-  }).then((response) => response.data.data);
+  return API.post<IExchangeTokenResponse>(
+    '/api/method/edu_frappe_api.api.authen.exchange_token',
+    {
+      token,
+    },
+    {
+      headers: {
+        'clean-request': 'no-clean',
+      },
+    },
+  ).then((response) => response.data.data);
 };

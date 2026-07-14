@@ -55,14 +55,17 @@ class CookieServiceFactory {
       return;
     }
 
-    const decoded = jwtDecode<{ exp?: number }>(token);
-    if (!decoded.exp) {
-      console.warn('No exp in token');
-      return;
-    }
+    let expiresInSeconds = 60 * 60 * 24; // Default to 1 day if not a JWT
 
-    const nowInSeconds = Math.floor(Date.now() / 1000);
-    const expiresInSeconds = decoded.exp - nowInSeconds;
+    try {
+      const decoded = jwtDecode<{ exp?: number }>(token);
+      if (decoded.exp) {
+        const nowInSeconds = Math.floor(Date.now() / 1000);
+        expiresInSeconds = decoded.exp - nowInSeconds;
+      }
+    } catch {
+      console.warn('Failed to decode access token as JWT');
+    }
 
     if (expiresInSeconds <= 0) {
       console.warn('Token expired already');
@@ -79,14 +82,17 @@ class CookieServiceFactory {
       return;
     }
 
-    const decoded = jwtDecode<{ exp?: number }>(refresh_token);
-    if (!decoded.exp) {
-      console.warn('No exp in refresh token');
-      return;
-    }
+    let expiresInSeconds = 60 * 60 * 24 * 30; // Default to 30 days if not a JWT
 
-    const nowInSeconds = Math.floor(Date.now() / 1000);
-    const expiresInSeconds = decoded.exp - nowInSeconds;
+    try {
+      const decoded = jwtDecode<{ exp?: number }>(refresh_token);
+      if (decoded.exp) {
+        const nowInSeconds = Math.floor(Date.now() / 1000);
+        expiresInSeconds = decoded.exp - nowInSeconds;
+      }
+    } catch {
+      console.warn('Failed to decode refresh token as JWT');
+    }
 
     if (expiresInSeconds <= 0) {
       console.warn('Token expired already');

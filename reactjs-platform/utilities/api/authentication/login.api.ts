@@ -13,6 +13,7 @@ export const loginAPI = (username: string, password: string): Promise<ILoginResp
     {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
+        'clean-request': 'no-clean',
       },
     },
   ).then((response) => response.data.data);

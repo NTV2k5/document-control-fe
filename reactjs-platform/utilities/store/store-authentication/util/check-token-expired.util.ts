@@ -5,6 +5,6 @@ export const checkTokenExpiredUtil = (token: string): boolean => {
     const jwtToken: any = jwtDecode(token);
     return jwtToken.exp && jwtToken.exp * 1000 < Date.now();
   } catch {
-    return true;
+    return false;
   }
 };
