@@ -1,13 +1,4 @@
-import axios from 'axios';
-
-const ADMISSION_CRM_ENDPOINT = 'https://admission-crm-dev.giadinh.edu.vn';
-
-const admissionAxios = axios.create({
-  baseURL: ADMISSION_CRM_ENDPOINT,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+import { admissionAPI } from '../api';
 
 export interface ICallProfile {
   ws_url: string;
@@ -45,8 +36,8 @@ export interface IProfileResponse {
   data: IProfileData;
 }
 
-export const getProfileAPI = (token: string): Promise<IProfileData> => {
-  return admissionAxios
+export const getProfileAPI = (token: string): Promise<IProfileResponse['data']> => {
+  return admissionAPI
     .get<IProfileResponse>('/api/method/authen.get_profile', {
       headers: {
         Authorization: `Bearer ${token}`,

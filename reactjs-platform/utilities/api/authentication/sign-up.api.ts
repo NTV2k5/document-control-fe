@@ -1,13 +1,4 @@
-import axios from 'axios';
-
-const ADMISSION_CRM_ENDPOINT = 'https://admission-crm-dev.giadinh.edu.vn';
-
-const admissionAxios = axios.create({
-  baseURL: ADMISSION_CRM_ENDPOINT,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+import { admissionAPI } from '../api';
 
 export interface ISignUpContact {
   full_name: string;
@@ -54,7 +45,7 @@ export interface ISignUpResponse {
   };
 }
 
-export const signUpAPI = (data: ISignUpData, token?: string): Promise<ISignUpResponse> => {
+export const signUpAPI = (data: ISignUpData, token?: string): Promise<ISignUpResponse['data']> => {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   };
@@ -63,7 +54,9 @@ export const signUpAPI = (data: ISignUpData, token?: string): Promise<ISignUpRes
     headers.Authorization = `Bearer ${token}`;
   }
 
-  return admissionAxios.post<ISignUpResponse>('/api/method/authen.sign_up', data, {
-    headers,
-  }).then((response) => response.data);
+  return admissionAPI
+    .post<ISignUpResponse>('/api/method/authen.sign_up', data, {
+      headers,
+    })
+    .then((response) => response.data.data);
 };
