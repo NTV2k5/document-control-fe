@@ -9,15 +9,21 @@ import { QuickAccess } from './quick-access';
 import { RecentlyInteracted } from './recently-interacted';
 import { StatsOverview } from './stats-overview';
 import {
-  trendingNow as mockTrendingNow,
-  statsOverview as mockStatsOverview,
-  dataBarMock,
-  dataPieMock,
-  latestPublished as mockLatestPublished,
-  recentlyInteracted as mockRecentlyInteracted,
-} from './home.mock';
-import { getDocumentReportSummaryAPI, listDocumentsAPI, listApprovalDashboardDocumentsAPI } from 'api';
-import type { IDocument, IEntityReportSummary, IApprovalDashboardRow } from 'api';
+  getTrendingNowAPI,
+  getSummaryStatsAPI,
+  getEngagementAPI,
+  getFileDistributionAPI,
+  getDocumentsLatestAPI,
+  listApprovalDashboardDocumentsAPI,
+} from 'api';
+import type {
+  IApprovalDashboardRow,
+  ITrendingNowItem,
+  ISummaryStats,
+  IEngagementItem,
+  IFileDistribution,
+  IDocumentLatestItem,
+} from 'api';
 import { profileStore } from 'reactjs-platform/utilities';
 import { Skeleton } from 'reactjs-platform/ui';
 import { useTranslation } from '../../i18n';
@@ -52,23 +58,13 @@ export const HomeSection = (_props: IHomeSectionProps) => {
   const profile = profileStore((state) => state.profile);
   const userId = profile?.id;
 
-  const [documentSummary, setDocumentSummary] = useState<IEntityReportSummary | null>(null);
-  const [myFilesCount, setMyFilesCount] = useState<number>(0);
-  const [latestDocs, setLatestDocs] = useState<IDocument[]>([]);
-  const [recentDocs, setRecentDocs] = useState<IDocument[]>([]);
+  const [trendingNowData, setTrendingNowData] = useState<ITrendingNowItem[]>([]);
+  const [summaryStats, setSummaryStats] = useState<ISummaryStats | null>(null);
+  const [engagementData, setEngagementData] = useState<IEngagementItem[]>([]);
+  const [fileDistribution, setFileDistribution] = useState<IFileDistribution | null>(null);
+  const [documentsLatest, setDocumentsLatest] = useState<IDocumentLatestItem[]>([]);
   const [todoDocs, setTodoDocs] = useState<IApprovalDashboardRow[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-
-  const reportParams = useMemo(() => {
-    const to = new Date();
-    const from = new Date();
-    from.setDate(to.getDate() - 365); // Last 365 days
-    return {
-      from: from.toISOString(),
-      to: to.toISOString(),
-      group_by: 'month' as const,
-    };
-  }, []);
 
   useEffect(() => {
     let active = true;
@@ -77,59 +73,50 @@ export const HomeSection = (_props: IHomeSectionProps) => {
       try {
         setLoading(true);
 
-        // Fetch report summary with date range
-        try {
-          const summary = await getDocumentReportSummaryAPI(reportParams);
-          if (active) setDocumentSummary(summary);
-        } catch (err) {
-          console.error('Error fetching document report summary:', err);
-        }
+        // Fetch all dashboard APIs and todo documents in parallel
+        await Promise.all([
+          // 1. Fetch trending now
+          getTrendingNowAPI()
+            .then((res) => {
+              if (active) setTrendingNowData(res);
+            })
+            .catch((err) => console.error('Error fetching trending now:', err)),
 
-        // Fetch latest published documents (no is_published: true)
-        try {
-          const latestResponse = await listDocumentsAPI({
-            page: 1,
-            page_size: 3,
-            sort: 'desc:created_at',
-          });
-          if (active) setLatestDocs(latestResponse.data);
-        } catch (err) {
-          console.error('Error fetching latest published documents:', err);
-        }
+          // 2. Fetch summary stats
+          getSummaryStatsAPI()
+            .then((res) => {
+              if (active) setSummaryStats(res);
+            })
+            .catch((err) => console.error('Error fetching summary stats:', err)),
 
-        // Fetch recently interacted documents
-        try {
-          const recentResponse = await listDocumentsAPI({
-            page: 1,
-            page_size: 6,
-            sort: 'desc:updated_at',
-          });
-          if (active) setRecentDocs(recentResponse.data);
-        } catch (err) {
-          console.error('Error fetching recently interacted documents:', err);
-        }
+          // 3. Fetch engagement
+          getEngagementAPI()
+            .then((res) => {
+              if (active) setEngagementData(res);
+            })
+            .catch((err) => console.error('Error fetching engagement:', err)),
 
-        // Fetch todo approval documents
-        try {
-          const todoResponse = await listApprovalDashboardDocumentsAPI('todo');
-          if (active) setTodoDocs(todoResponse);
-        } catch (err) {
-          console.error('Error fetching todo approval documents:', err);
-        }
+          // 4. Fetch file distribution
+          getFileDistributionAPI()
+            .then((res) => {
+              if (active) setFileDistribution(res);
+            })
+            .catch((err) => console.error('Error fetching file distribution:', err)),
 
-        // Fetch my files count
-        if (userId) {
-          try {
-            const myDocs = await listDocumentsAPI({
-              created_by: userId,
-              page: 1,
-              page_size: 1,
-            });
-            if (active) setMyFilesCount(myDocs.pagination.total);
-          } catch (err) {
-            console.error('Error fetching my files count:', err);
-          }
-        }
+          // 5. Fetch latest documents
+          getDocumentsLatestAPI()
+            .then((res) => {
+              if (active) setDocumentsLatest(res);
+            })
+            .catch((err) => console.error('Error fetching latest documents:', err)),
+
+          // 6. Fetch todo approval documents
+          listApprovalDashboardDocumentsAPI('todo')
+            .then((res) => {
+              if (active) setTodoDocs(res);
+            })
+            .catch((err) => console.error('Error fetching todo approval documents:', err)),
+        ]);
       } catch (error) {
         console.error('Error loading dashboard data:', error);
       } finally {
@@ -144,89 +131,143 @@ export const HomeSection = (_props: IHomeSectionProps) => {
     return () => {
       active = false;
     };
-  }, [userId, reportParams]);
+  }, []);
 
   // Mapping dynamic stats overview data
-  const statsOverviewData = mockStatsOverview;
+  const statsOverviewData = useMemo(() => {
+    return {
+      publishedFiles: {
+        label: locale === 'vi' ? 'Tài liệu đã xuất bản' : 'Published Files',
+        value: summaryStats ? String(summaryStats.published_files) : '0',
+        trend: '↗ +12% this month',
+        trendColor: 'text-green-600',
+      },
+      myFiles: {
+        label: locale === 'vi' ? 'Tài liệu của tôi' : 'My Files',
+        value: summaryStats ? String(summaryStats.my_files) : '0',
+        trend: '↗ +5% increase this month',
+        trendColor: 'text-green-600',
+      },
+      sharingFiles: {
+        label: locale === 'vi' ? 'Tài liệu chia sẻ' : 'Sharing Files',
+        value: summaryStats ? String(summaryStats.sharing_files) : '0',
+        trend: locale === 'vi' ? 'Đang chia sẻ' : 'Sharing',
+        trendColor: 'text-slate-500',
+      },
+    };
+  }, [summaryStats, locale]);
 
-  // Mapping Engagement Analytics (views last week or trend points)
+  // Mapping Engagement Analytics
   const analyticsData = useMemo(() => {
-    if (!documentSummary?.trend || documentSummary.trend.length === 0) return dataBarMock;
-    return documentSummary.trend.map((point) => ({
-      name: point.label,
-      views: point.count,
-    }));
-  }, [documentSummary]);
+    return engagementData.map((item) => {
+      let name = item.date;
+      try {
+        const d = new Date(item.date);
+        const day = d.getDate();
+        const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+        const month = months[d.getMonth()];
+        name = `${day} ${month}`;
+      } catch {
+        // fallback
+      }
+      return {
+        name: name.toUpperCase(),
+        views: item.views,
+      };
+    });
+  }, [engagementData]);
 
-  // Mapping File Distribution dynamically based on by_template_type counts
+  // Mapping File Distribution dynamically based on file_distribution counts
   const fileDistributionData = useMemo(() => {
-    if (!documentSummary?.by_template_type || Object.keys(documentSummary.by_template_type).length === 0) {
-      return dataPieMock;
-    }
-    const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
-    return Object.entries(documentSummary.by_template_type).map(([key, val], index) => ({
-      name: key.toUpperCase(),
-      value: val,
-      color: colors[index % colors.length],
-    }));
-  }, [documentSummary]);
+    if (!fileDistribution) return [];
+    const colors: Record<string, string> = {
+      DOCUMENTS: '#3b82f6',
+      IMAGES: '#10b981',
+      VIDEOS: '#f59e0b',
+      OTHERS: '#ef4444',
+    };
+    return Object.entries(fileDistribution).map(([key, val]) => {
+      const name = key.toUpperCase();
+      return {
+        name,
+        value: val,
+        color: colors[name] || '#8b5cf6',
+      };
+    });
+  }, [fileDistribution]);
 
   // Mapping Trending Data to Overview Banner
-  const trendingData = mockTrendingNow;
+  const trendingData = useMemo(() => {
+    return trendingNowData.map((item, index) => ({
+      rank: String(index + 1).padStart(2, '0'),
+      title: item.file_name,
+      dept: `${item.views} view${item.views !== 1 ? 's' : ''} • ${item.owner}`,
+    }));
+  }, [trendingNowData]);
 
   // Mapping Latest Published documents
   const latestPublishedDocs = useMemo(() => {
-    if (latestDocs.length === 0) return mockLatestPublished;
-    return latestDocs.map((doc) => ({
-      id: doc.id,
-      title: doc.title,
-      description: doc.description || '',
-      creator: doc.created_by || 'Admin Office',
-      date: doc.created_at ? new Date(doc.created_at).toLocaleDateString(locale === 'vi' ? 'vi-VN' : 'en-US', { day: 'numeric', month: 'short', year: 'numeric' }) : '',
-      type: doc.template?.template_type || 'POLICY',
+    return documentsLatest.slice(0, 3).map((doc) => ({
+      id: doc.name,
+      title: doc.file_name,
+      description: doc.content_doctype || doc.file_type || '',
+      creator: doc.owner_full_name || doc.owner || 'Admin Office',
+      date: doc.creation
+        ? new Date(doc.creation.replace(' ', 'T')).toLocaleDateString(locale === 'vi' ? 'vi-VN' : 'en-US', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric',
+          })
+        : '',
+      type: doc.file_type ? doc.file_type.toUpperCase() : 'POLICY',
     }));
-  }, [latestDocs, locale]);
+  }, [documentsLatest, locale]);
 
   // Mapping Recently Interacted documents
   const recentlyInteractedDocs = useMemo(() => {
-    if (recentDocs.length === 0) return mockRecentlyInteracted;
-    return recentDocs.slice(0, 6).map((doc) => {
+    return documentsLatest.slice(0, 6).map((doc) => {
       let docType = 'WORD';
-      const artifactType = doc.artifact_type as string;
-      if (artifactType === 'spreadsheet') docType = 'EXCEL';
-      else if (artifactType === 'pdf' || artifactType === 'presentation') docType = 'PDF';
-      else if (artifactType === 'image' || artifactType === 'image_form') docType = 'IMAGE';
-      else if (artifactType === 'video') docType = 'VIDEO';
-      else if (artifactType === 'txt') docType = 'TXT';
+      const fileType = (doc.file_type || '').toLowerCase();
+      if (fileType.includes('spreadsheet') || fileType.includes('excel')) docType = 'EXCEL';
+      else if (fileType.includes('pdf')) docType = 'PDF';
+      else if (fileType.includes('presentation') || fileType.includes('powerpoint')) docType = 'PDF';
+      else if (fileType.includes('image')) docType = 'IMAGE';
+      else if (fileType.includes('video')) docType = 'VIDEO';
+      else if (fileType.includes('text') || fileType.includes('txt')) docType = 'TXT';
 
-      const editedTime = doc.updated_at ? getRelativeTime(doc.updated_at, locale) : '';
+      const editedTime = doc.modified ? getRelativeTime(doc.modified.replace(' ', 'T'), locale) : '';
 
       return {
-        id: doc.id,
-        title: doc.title,
-        description: doc.description || '',
+        id: doc.name,
+        title: doc.file_name,
+        description: doc.content_doctype || doc.file_type || '',
         type: docType,
         edited: editedTime,
       };
     });
-  }, [recentDocs, locale]);
+  }, [documentsLatest, locale]);
 
   // Mapping Important - Unread alert details
   const latestUrgentDoc = useMemo(() => {
     if (todoDocs.length === 0) return null;
     const latest = todoDocs[0];
     const timeText = latest.updated_at
-      ? new Date(latest.updated_at).toLocaleDateString(locale === 'vi' ? 'vi-VN' : 'en-US', { hour: '2-digit', minute: '2-digit' })
+      ? new Date(latest.updated_at).toLocaleDateString(locale === 'vi' ? 'vi-VN' : 'en-US', {
+          hour: '2-digit',
+          minute: '2-digit',
+        })
       : '';
     return {
       id: latest.id,
       title: latest.title,
-      description: locale === 'vi'
-        ? `Yêu cầu: Đang chờ bạn phê duyệt ở bước "${latest.approval?.current_step?.label || ''}"`
-        : `Action Required: Waiting for your approval in step "${latest.approval?.current_step?.label || ''}"`,
+      description:
+        locale === 'vi'
+          ? `Yêu cầu: Đang chờ bạn phê duyệt ở bước "${latest.approval?.current_step?.label || ''}"`
+          : `Action Required: Waiting for your approval in step "${latest.approval?.current_step?.label || ''}"`,
       time: timeText,
     };
   }, [todoDocs, locale]);
+
 
   if (loading) {
     return (

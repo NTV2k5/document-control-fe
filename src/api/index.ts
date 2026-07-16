@@ -9,4 +9,5 @@ export * from './reports';
 export * from './hubs';
 export * from './my-hubs';
 export * from './tickets';
+export * from './dashboard';
 

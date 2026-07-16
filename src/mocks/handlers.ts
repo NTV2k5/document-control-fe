@@ -1004,4 +1004,262 @@ export const handlers = [
     mockTickets = [newTicket, ...mockTickets];
     return HttpResponse.json({ data: newTicket });
   }),
+
+  // --- DASHBOARD ---
+  http.get(getApiUrl('/api/method/drive_edms.api.dashboard.trending_now'), () => {
+    return HttpResponse.json({
+      message: [
+        {
+          name: "d2827383e9",
+          file_name: "CV_PhanPhamQuocKhanh.pdf",
+          mime_type: "application/pdf",
+          owner: "Administrator",
+          creation: "2026-07-16 13:50:48.537536",
+          views: 1
+        },
+        {
+          name: "f11d6ded4a",
+          file_name: "Screenshot 2026-07-15 152114.png",
+          mime_type: "image/png",
+          owner: "Administrator",
+          creation: "2026-07-16 13:51:13.230238",
+          views: 1
+        },
+        {
+          name: "70a7750e98",
+          file_name: "1. Luồng Cấu hình (Setup Workflow).txt",
+          mime_type: "text/plain",
+          owner: "Administrator",
+          creation: "2026-07-16 13:52:15.721598",
+          views: 1
+        }
+      ]
+    });
+  }),
+
+  http.get(getApiUrl('/api/method/drive_edms.api.dashboard.summary_stats'), () => {
+    return HttpResponse.json({
+      message: {
+        published_files: 6,
+        my_files: 6,
+        sharing_files: 0
+      }
+    });
+  }),
+
+  http.get(getApiUrl('/api/method/drive_edms.api.dashboard.engagement'), () => {
+    return HttpResponse.json({
+      message: [
+        {
+          date: "2026-07-16",
+          views: 3
+        }
+      ]
+    });
+  }),
+
+  http.get(getApiUrl('/api/method/drive_edms.api.dashboard.file_distribution'), () => {
+    return HttpResponse.json({
+      message: {
+        Documents: 3,
+        Images: 1,
+        Videos: 2,
+        Others: 0
+      }
+    });
+  }),
+
+  http.get(getApiUrl('/api/method/drive_edms.api.dashboard.documents_latest'), () => {
+    return HttpResponse.json({
+      message: [
+        {
+          name: "70a7750e98",
+          file_name: "1. Luồng Cấu hình (Setup Workflow).txt",
+          folder: "09f303b6bf",
+          file_url: null,
+          file_size: 3979,
+          file_type: "Text",
+          is_folder: 0,
+          content_doctype: null,
+          content_docname: null,
+          team: "evjem9pjqi",
+          creation: "2026-07-16 13:52:15.721598",
+          modified: "2026-07-16 04:41:49.808000",
+          owner: "Administrator",
+          attached_to_doctype: null,
+          attached_to_name: null,
+          shared_team: null,
+          owner_full_name: "Administrator",
+          owner_image: null,
+          is_favourite: null,
+          accessed: null,
+          child_count: 0,
+          share_count: 0,
+          kind: "native",
+          read: 1,
+          comment: 1,
+          share: 1,
+          upload: 1,
+          write: 1,
+          type: "admin"
+        },
+        {
+          name: "f11d6ded4a",
+          file_name: "Screenshot 2026-07-15 152114.png",
+          folder: "09f303b6bf",
+          file_url: null,
+          file_size: 163516,
+          file_type: "Image",
+          is_folder: 0,
+          content_doctype: null,
+          content_docname: null,
+          team: "evjem9pjqi",
+          creation: "2026-07-16 13:51:13.230238",
+          modified: "2025-03-02 13:46:43.407000",
+          owner: "Administrator",
+          attached_to_doctype: null,
+          attached_to_name: null,
+          shared_team: null,
+          owner_full_name: "Administrator",
+          owner_image: null,
+          is_favourite: null,
+          accessed: "2026-07-16 16:51:32.104088",
+          child_count: 0,
+          share_count: 0,
+          kind: "native",
+          read: 1,
+          comment: 1,
+          share: 1,
+          upload: 1,
+          write: 1,
+          type: "admin"
+        },
+        {
+          name: "d2827383e9",
+          file_name: "CV_PhanPhamQuocKhanh.pdf",
+          folder: "09f303b6bf",
+          file_url: null,
+          file_size: 112438,
+          file_type: "PDF",
+          is_folder: 0,
+          content_doctype: null,
+          content_docname: null,
+          team: "evjem9pjqi",
+          creation: "2026-07-16 13:50:48.537536",
+          modified: "2026-07-12 09:25:37.888000",
+          owner: "Administrator",
+          attached_to_doctype: null,
+          attached_to_name: null,
+          shared_team: null,
+          owner_full_name: "Administrator",
+          owner_image: null,
+          is_favourite: null,
+          accessed: "2026-07-16 14:19:52.112621",
+          child_count: 0,
+          share_count: 0,
+          kind: "native",
+          read: 1,
+          comment: 1,
+          share: 1,
+          upload: 1,
+          write: 1,
+          type: "admin"
+        },
+        {
+          name: "c013718b3f",
+          file_name: "travel.mp4",
+          folder: "d3c3e8e3c9",
+          file_url: null,
+          file_size: 17074788,
+          file_type: "Video",
+          is_folder: 0,
+          content_doctype: null,
+          content_docname: null,
+          team: "evjem9pjqi",
+          creation: "2026-07-16 13:28:42.697833",
+          modified: "2025-04-26 09:10:10.096000",
+          owner: "Administrator",
+          attached_to_doctype: null,
+          attached_to_name: null,
+          shared_team: null,
+          owner_full_name: "Administrator",
+          owner_image: null,
+          is_favourite: null,
+          accessed: null,
+          child_count: 0,
+          share_count: 0,
+          kind: "native",
+          read: 1,
+          comment: 1,
+          share: 1,
+          upload: 1,
+          write: 1,
+          type: "admin"
+        },
+        {
+          name: "85d4052ca2",
+          file_name: "LESSON 5 - Listening (1).pptx",
+          folder: "d3c3e8e3c9",
+          file_url: "/api/method/drive.api.s3.fetch?path=Administrator%20%28Administrator%29/Ti%E1%BA%BFng%20Anh/LESSON%205%20-%20Listening%20%281%29.pptx",
+          file_size: 3034273,
+          file_type: "Presentation",
+          is_folder: 0,
+          content_doctype: null,
+          content_docname: null,
+          team: "evjem9pjqi",
+          creation: "2026-07-16 13:28:10.757303",
+          modified: "2025-09-27 09:32:16.948000",
+          owner: "Administrator",
+          attached_to_doctype: null,
+          attached_to_name: null,
+          shared_team: null,
+          owner_full_name: "Administrator",
+          owner_image: null,
+          is_favourite: null,
+          accessed: null,
+          child_count: 0,
+          share_count: 0,
+          kind: "native",
+          read: 1,
+          comment: 1,
+          share: 1,
+          upload: 1,
+          write: 1,
+          type: "admin"
+        },
+        {
+          name: "11803bffec",
+          file_name: "6366630160986.mp4",
+          folder: "09f303b6bf",
+          file_url: null,
+          file_size: 10401906,
+          file_type: "Video",
+          is_folder: 0,
+          content_doctype: null,
+          content_docname: null,
+          team: "evjem9pjqi",
+          creation: "2026-07-16 10:46:44.769656",
+          modified: "2025-03-02 13:46:43.407000",
+          owner: "Administrator",
+          attached_to_doctype: null,
+          attached_to_name: null,
+          shared_team: null,
+          owner_full_name: "Administrator",
+          owner_image: null,
+          is_favourite: null,
+          accessed: null,
+          child_count: 0,
+          share_count: 0,
+          kind: "native",
+          read: 1,
+          comment: 1,
+          share: 1,
+          upload: 1,
+          write: 1,
+          type: "admin"
+        }
+      ]
+    });
+  }),
 ];
+
