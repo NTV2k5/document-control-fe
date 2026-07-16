@@ -1,5 +1,5 @@
-import { admissionAPI } from '../api';
-import type { IExchangeTokenResponse } from './exchange-token.api';
+import type { ILoginResponseData } from '../../models/login-response.model';
+import { API } from '../api';
 
 export interface IMicrosoftOAuthUrlParams {
   redirect_uri: string;
@@ -19,21 +19,19 @@ export interface IMicrosoftOAuthTokenPayload {
 }
 
 export const getMicrosoftOAuthUrlAPI = (params: IMicrosoftOAuthUrlParams): Promise<IMicrosoftOAuthUrlResponse> => {
-  return admissionAPI
-    .get<{ message: string; data: IMicrosoftOAuthUrlResponse }>('/api/method/authen.microsoft_oauth_url', {
-      params,
-    })
-    .then((response) => response.data.data);
+  return API.get<{ data: IMicrosoftOAuthUrlResponse }>('/api/v1/auth/oauth/microsoft/url', {
+    params,
+    headers: {
+      'clean-request': 'no-clean',
+    },
+  }).then((response) => response.data.data);
 };
 
-export const exchangeMicrosoftOAuthCodeAPI = (
-  payload: IMicrosoftOAuthTokenPayload,
-): Promise<IExchangeTokenResponse['data']> => {
-  return admissionAPI
-    .post<IExchangeTokenResponse>('/api/method/authen.microsoft_exchange_token', payload, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-    .then((response) => response.data.data);
+export const exchangeMicrosoftOAuthCodeAPI = (payload: IMicrosoftOAuthTokenPayload): Promise<ILoginResponseData> => {
+  return API.post<{ data: ILoginResponseData }>('/api/v1/auth/oauth/microsoft/token', payload, {
+    headers: {
+      'Content-Type': 'application/json',
+      'clean-request': 'no-clean',
+    },
+  }).then((response) => response.data.data);
 };
