@@ -35,6 +35,18 @@ const ADMISSION_CRM_ENDPOINT = getClientEnv(
   import.meta.env.VITE_ADMISSION_CRM_ENDPOINT?.trim(),
   'https://admission-crm-dev.giadinh.edu.vn',
 );
+const MSAL_CLIENT_ID = getClientEnv(
+  import.meta.env.VITE_MSAL_CLIENT_ID?.trim(),
+  'dbe680fc-2a36-4946-832b-dc9d15f28a5d',
+);
+const MSAL_TENANT_ID = getClientEnv(
+  import.meta.env.VITE_MSAL_TENANT_ID?.trim(),
+  '33feb0af-7bc8-4dde-af23-96e8c35bcf45',
+);
+const MSAL_REDIRECT_URI = getClientEnv(
+  import.meta.env.VITE_MSAL_REDIRECT_URI?.trim(),
+  'auth://druce.merchant',
+);
 
 export {
   API_ENDPOINT,
@@ -45,4 +57,7 @@ export {
   CURRENCY_ENABLE_COMPACT,
   ALLOW_EDIT_ALL_STATUS,
   ADMISSION_CRM_ENDPOINT,
+  MSAL_CLIENT_ID,
+  MSAL_TENANT_ID,
+  MSAL_REDIRECT_URI,
 };

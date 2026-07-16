@@ -192,11 +192,12 @@ export const HomeSection = (_props: IHomeSectionProps) => {
     if (recentDocs.length === 0) return mockRecentlyInteracted;
     return recentDocs.slice(0, 6).map((doc) => {
       let docType = 'WORD';
-      if (doc.artifact_type === 'spreadsheet') docType = 'EXCEL';
-      else if (doc.artifact_type === 'pdf' || doc.artifact_type === 'presentation') docType = 'PDF';
-      else if (doc.artifact_type === 'image' || doc.artifact_type === 'image_form') docType = 'IMAGE';
-      else if (doc.artifact_type === 'video') docType = 'VIDEO';
-      else if (doc.artifact_type === 'txt') docType = 'TXT';
+      const artifactType = doc.artifact_type as string;
+      if (artifactType === 'spreadsheet') docType = 'EXCEL';
+      else if (artifactType === 'pdf' || artifactType === 'presentation') docType = 'PDF';
+      else if (artifactType === 'image' || artifactType === 'image_form') docType = 'IMAGE';
+      else if (artifactType === 'video') docType = 'VIDEO';
+      else if (artifactType === 'txt') docType = 'TXT';
 
       const editedTime = doc.updated_at ? getRelativeTime(doc.updated_at, locale) : '';
 

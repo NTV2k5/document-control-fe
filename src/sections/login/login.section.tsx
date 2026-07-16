@@ -2,8 +2,10 @@ import type { ILoginFormModel, ISignInSearchParams, ISignInSectionProps } from '
 import {
   CoreAuthenticationStore,
   exchangeMicrosoftOAuthCodeAPI,
-  getMicrosoftOAuthUrlAPI,
   useLogin,
+  msalInstance,
+  initMsal,
+  MSAL_REDIRECT_URI,
 } from 'reactjs-platform/utilities';
 import { useNavigate, useSearch } from '@tanstack/react-router';
 import { Eye, EyeOff } from 'lucide-react';
@@ -46,13 +48,6 @@ const createRandomString = () => {
   return base64UrlEncode(bytes);
 };
 
-const createCodeChallenge = async (codeVerifier: string) => {
-  const data = new TextEncoder().encode(codeVerifier);
-  const digest = await window.crypto.subtle.digest('SHA-256', data);
-  return base64UrlEncode(new Uint8Array(digest));
-};
-
-const getSignInRedirectUri = () => `${window.location.origin}/sign-in`;
 
 const readMicrosoftOAuthSession = (): IMicrosoftOAuthSession | null => {
   const rawValue = window.sessionStorage.getItem(MICROSOFT_OAUTH_STATE_STORAGE_KEY);
@@ -60,7 +55,7 @@ const readMicrosoftOAuthSession = (): IMicrosoftOAuthSession | null => {
 
   try {
     const parsed = JSON.parse(rawValue) as Partial<IMicrosoftOAuthSession>;
-    if (!parsed.state || !parsed.codeVerifier) return null;
+    if (!parsed.state || parsed.codeVerifier === undefined) return null;
     return {
       backUrl: parsed.backUrl,
       codeVerifier: parsed.codeVerifier,
@@ -77,6 +72,38 @@ const clearOAuthCallbackParams = () => {
     url.searchParams.delete(key);
   });
   window.history.replaceState(window.history.state, '', `${url.pathname}${url.search}${url.hash}`);
+};
+
+const getMsalCodeVerifier = (): string | null => {
+  if (typeof window === 'undefined') return null;
+  try {
+    for (let i = 0; i < window.sessionStorage.length; i++) {
+      const key = window.sessionStorage.key(i);
+      if (key && key.includes('pkce.verifier')) {
+        const val = window.sessionStorage.getItem(key);
+        if (val) return val;
+      }
+    }
+  } catch (error) {
+    console.error('Error reading MSAL verifier from sessionStorage:', error);
+  }
+  return null;
+};
+
+const clearMsalStorage = () => {
+  if (typeof window === 'undefined') return;
+  try {
+    const keysToRemove: string[] = [];
+    for (let i = 0; i < window.sessionStorage.length; i++) {
+      const key = window.sessionStorage.key(i);
+      if (key && (key.includes('msal.') || key.includes('cc.msal.'))) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach((key) => window.sessionStorage.removeItem(key));
+  } catch (error) {
+    console.error('Error clearing MSAL storage:', error);
+  }
 };
 
 export const SignInSection: React.FC<ISignInSectionProps> = () => {
@@ -132,30 +159,27 @@ export const SignInSection: React.FC<ISignInSectionProps> = () => {
     setIsOAuthLoading(true);
 
     try {
+      await initMsal();
+
       const state = createRandomString();
-      const codeVerifier = createRandomString();
-      const codeChallenge = await createCodeChallenge(codeVerifier);
 
       window.sessionStorage.setItem(
         MICROSOFT_OAUTH_STATE_STORAGE_KEY,
         JSON.stringify({
           backUrl: search?.backUrl,
-          codeVerifier,
+          codeVerifier: '',
           state,
         } satisfies IMicrosoftOAuthSession),
       );
 
-      const { authorization_url } = await getMicrosoftOAuthUrlAPI({
-        code_challenge: codeChallenge,
-        code_challenge_method: 'S256',
-        redirect_uri: getSignInRedirectUri(),
+      await msalInstance.loginRedirect({
+        scopes: ['openid', 'profile', 'user.read'],
         state,
       });
-
-      window.location.assign(authorization_url);
     } catch (error) {
       console.error(t('auth.login.oauthStartFailed'), error);
       window.sessionStorage.removeItem(MICROSOFT_OAUTH_STATE_STORAGE_KEY);
+      clearMsalStorage();
       toast.error(t('auth.login.oauthStartFailed'));
       setIsOAuthLoading(false);
     }
@@ -187,10 +211,17 @@ export const SignInSection: React.FC<ISignInSectionProps> = () => {
           return;
         }
 
+        const msalVerifier = getMsalCodeVerifier();
+        if (!msalVerifier) {
+          console.error('MSAL code verifier not found in storage');
+          toast.error(t('auth.login.oauthStateInvalid'));
+          return;
+        }
+
         const tokens = await exchangeMicrosoftOAuthCodeAPI({
           code: search.code,
-          code_verifier: session.codeVerifier,
-          redirect_uri: getSignInRedirectUri(),
+          code_verifier: msalVerifier,
+          redirect_uri: MSAL_REDIRECT_URI,
         });
 
         const loginSuccess = await CoreAuthenticationStore.loginActionNoAPI({
@@ -209,6 +240,7 @@ export const SignInSection: React.FC<ISignInSectionProps> = () => {
         toast.error(t('auth.login.oauthFailed'));
       } finally {
         window.sessionStorage.removeItem(MICROSOFT_OAUTH_STATE_STORAGE_KEY);
+        clearMsalStorage();
         clearOAuthCallbackParams();
         setIsOAuthLoading(false);
       }
