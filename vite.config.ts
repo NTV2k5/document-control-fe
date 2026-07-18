@@ -16,6 +16,16 @@ export default defineConfig(({ mode }) => {
     server: {
       host: true,
       proxy: {
+        '/api/method/authen': {
+          target: env.VITE_API_ENDPOINT || 'https://erpnext.aurora-tech.com',
+          changeOrigin: true,
+          secure: false,
+          configure: (proxy) => {
+            proxy.on('proxyReq', (proxyReq) => {
+              proxyReq.removeHeader('Expect');
+            });
+          },
+        },
         '/api': {
           target: targetUrl,
           changeOrigin: true,
