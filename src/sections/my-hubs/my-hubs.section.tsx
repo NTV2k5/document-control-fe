@@ -591,6 +591,7 @@ export const MyHubsSection = ({
               </Button>
             </DialogFooter>
           </form>
+        </DialogContent>
       </Dialog>
 
       {/* Folder Contents Dialog */}

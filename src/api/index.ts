@@ -8,6 +8,7 @@ export * from './notifications';
 export * from './reports';
 export * from './hubs';
 export * from './my-hubs';
+export { type ICategoryStat } from './hubs';
 export * from './tickets';
 export * from './dashboard';
 export * from './profile';
