@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import {
   Landmark,
   SlidersHorizontal,
@@ -17,6 +17,8 @@ import {
   Scan,
   MoreVertical,
   Atom,
+  Image as ImageIcon,
+  Clapperboard,
 } from 'lucide-react';
 import type { IUniversityHubsSectionProps, IDepartmentItem, IProjectItem } from './university-hubs.type';
 import { HubStats, HubRecentActivity } from '../../components/hubs';
@@ -32,7 +34,11 @@ import {
   listDepartmentsAPI,
   archiveDepartmentAPI,
   listProjectsAPI,
-  archiveProjectAPI
+  archiveProjectAPI,
+  getHubStatsAPI,
+  getHubRecentActivityAPI,
+  formatBytes,
+  mapFileType,
 } from 'api';
 
 
@@ -40,89 +46,14 @@ export const UniversityHubsSection = ({
   initialDepartments,
   initialProjects,
 }: IUniversityHubsSectionProps) => {
-  const defaultDepts: IDepartmentItem[] = [
-    {
-      id: 'dept-1',
-      name: 'Computer Science',
-      size: '45.2 GB',
-      filesCount: 1500,
-      iconKey: 'code',
-    },
-
-    {
-      id: 'dept-2',
-      name: 'Information Technology',
-      size: '32.4 GB',
-      filesCount: 1100,
-      iconKey: 'folder',
-    },
-    {
-      id: 'dept-3',
-      name: 'Faculty of Arts',
-      size: '12.8 GB',
-      filesCount: 840,
-      iconKey: 'paint',
-    },
-    {
-      id: 'dept-4',
-      name: 'Molecular Biology',
-      size: '89.4 GB',
-      filesCount: 2100,
-      iconKey: 'biology',
-    },
-    {
-      id: 'dept-5',
-      name: 'Mathematics',
-      size: '4.2 GB',
-      filesCount: 420,
-      iconKey: 'math',
-    },
-  ];
-
-  const defaultProjects: IProjectItem[] = [
-    {
-      id: 'proj-1',
-      name: 'AI Research Lab',
-      size: '2.02 GB',
-      partnersCount: 12,
-      iconKey: 'brain',
-    },
-    {
-      id: 'proj-2',
-      name: 'Campus Sustainability',
-      size: '856 MB',
-      filesCount: 5,
-      iconKey: 'leaf',
-    },
-    {
-      id: 'proj-3',
-      name: 'Smart Campus Project',
-      size: '856 MB',
-      filesCount: 5,
-      iconKey: 'leaf',
-    },
-    {
-      id: 'proj-4',
-      name: 'Deep Space Initiative',
-      size: '15.4 GB',
-      membersCount: 24,
-      iconKey: 'rocket',
-    },
-    {
-      id: 'proj-5',
-      name: 'Archival Digitization',
-      size: '3.1 GB',
-      filesCount: 8,
-      iconKey: 'scan',
-    },
-  ];
-
   const [departments, setDepartments] = useState<IDepartmentItem[]>(
     initialDepartments ?? []
   );
   const [projects, setProjects] = useState<IProjectItem[]>(
     initialProjects ?? []
   );
+  const [stats, setStats] = useState<any[]>([]);
+  const [activities, setActivities] = useState<any[]>([]);
 
   useEffect(() => {
     listDepartmentsAPI().then(setDepartments).catch(err => {
@@ -133,7 +64,91 @@ export const UniversityHubsSection = ({
       console.error('Failed to fetch projects:', err);
       toast.error('Failed to fetch projects.');
     });
+    getHubStatsAPI().then((statsData) => {
+      const totalSize = statsData.Images.size + statsData.Videos.size + statsData.Documents.size + statsData.Other.size;
+      const mappedStats = [
+        {
+          id: 'images',
+          label: 'IMAGES',
+          itemsCount: statsData.Images.count,
+          usedSpace: `${formatBytes(statsData.Images.size)} used`,
+          percentage: totalSize > 0 ? (statsData.Images.size / totalSize) * 100 : 0,
+          icon: <ImageIcon className="size-5" />,
+          iconBgColor: 'bg-red-50',
+          iconColor: 'text-red-500',
+          barColor: 'bg-red-500',
+        },
+        {
+          id: 'videos',
+          label: 'VIDEOS',
+          itemsCount: statsData.Videos.count,
+          usedSpace: `${formatBytes(statsData.Videos.size)} used`,
+          percentage: totalSize > 0 ? (statsData.Videos.size / totalSize) * 100 : 0,
+          icon: <Clapperboard className="size-5" />,
+          iconBgColor: 'bg-blue-50',
+          iconColor: 'text-blue-500',
+          barColor: 'bg-blue-500',
+        },
+        {
+          id: 'documents',
+          label: 'DOCUMENTS',
+          itemsCount: statsData.Documents.count,
+          usedSpace: `${formatBytes(statsData.Documents.size)} used`,
+          percentage: totalSize > 0 ? (statsData.Documents.size / totalSize) * 100 : 0,
+          icon: <FileText className="size-5" />,
+          iconBgColor: 'bg-emerald-50',
+          iconColor: 'text-emerald-500',
+          barColor: 'bg-emerald-500',
+        },
+        {
+          id: 'other',
+          label: 'OTHER',
+          itemsCount: statsData.Other.count,
+          usedSpace: `${formatBytes(statsData.Other.size)} used`,
+          percentage: totalSize > 0 ? (statsData.Other.size / totalSize) * 100 : 0,
+          icon: <Archive className="size-5" />,
+          iconBgColor: 'bg-amber-50',
+          iconColor: 'text-amber-500',
+          barColor: 'bg-amber-500',
+        },
+      ];
+      setStats(mappedStats);
+    }).catch(err => {
+      console.error('Failed to fetch stats:', err);
+    });
+
+    getHubRecentActivityAPI().then((data) => {
+      const mapped = data.map((item) => ({
+        id: item.name,
+        name: item.file_name,
+        fileType: mapFileType(item.mime_type, item.file_name),
+        lastModified: item.modified,
+        folderId: item.folder,
+        owners: [
+          {
+            name: item.owner_fullname || item.owner || 'Administrator',
+            avatarUrl: item.owner_image ? (item.owner_image.startsWith('http') ? item.owner_image : `${import.meta.env.VITE_API_ENDPOINT || ''}${item.owner_image}`) : undefined,
+            initials: (item.owner_fullname || item.owner || 'A').charAt(0).toUpperCase()
+          }
+        ]
+      }));
+      setActivities(mapped);
+    }).catch(err => {
+      console.error('Failed to fetch recent activities:', err);
+    });
   }, []);
+
+  const displayActivities = useMemo(() => {
+    return activities.map((item) => {
+      const foundDept = departments.find((d) => d.id === item.folderId);
+      const foundProj = projects.find((p) => p.id === item.folderId);
+      const directory = foundDept?.name || foundProj?.name || item.folderId || 'Root';
+      return {
+        ...item,
+        directory,
+      };
+    });
+  }, [activities, departments, projects]);
 
   const handleArchiveDept = async (id: string, name: string) => {
     try {
@@ -154,6 +169,7 @@ export const UniversityHubsSection = ({
       toast.error(`Failed to archive project: ${name}`);
     }
   };
+
 
 
   const renderDeptIcon = (iconKey: string) => {
@@ -242,7 +258,7 @@ export const UniversityHubsSection = ({
       </div>
 
       {/* Stats row */}
-      <HubStats />
+      <HubStats stats={stats} />
 
       {/* Departments Section */}
       <div className="flex flex-col gap-4">
@@ -421,7 +437,7 @@ export const UniversityHubsSection = ({
       </div>
 
       {/* Recent Activity */}
-      <HubRecentActivity />
+      <HubRecentActivity activities={displayActivities} />
     </div>
   );
 };

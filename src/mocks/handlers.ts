@@ -880,6 +880,113 @@ export const handlers = [
   }),
 
   // --- UNIVERSITY HUBS ---
+  http.get(getApiUrl('/api/method/drive_edms.api.university_hub.get_hub_stats'), () => {
+    return HttpResponse.json({
+      message: {
+        Images: { count: 0, size: 0 },
+        Videos: { count: 1, size: 17074788.0 },
+        Documents: { count: 1, size: 516773.0 },
+        Other: { count: 0, size: 0 }
+      }
+    });
+  }),
+
+  http.get(getApiUrl('/api/method/drive_edms.api.university_hub.get_hub_folders'), async ({ request }) => {
+    let category = 'Department';
+    try {
+      const body = await request.clone().json() as any;
+      if (body && body.category) {
+        category = body.category;
+      }
+    } catch {
+      // ignore
+    }
+
+    if (category === 'Project') {
+      return HttpResponse.json({
+        message: {
+          data: [
+            {
+              name: "fb64643df8",
+              file_name: "Document1.docx",
+              modified: "2026-07-16 17:56:21.455920",
+              folder: "748bd378e2",
+              owner: "Administrator",
+              mime_type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+              owner_fullname: "Administrator",
+              owner_image: null
+            }
+          ],
+          total: 1,
+          page_size: 10,
+          start: 0
+        }
+      });
+    }
+
+    return HttpResponse.json({
+      message: {
+        data: [
+          {
+            name: "fb64643df8",
+            file_name: "Document1.docx",
+            modified: "2026-07-16 17:56:21.455920",
+            folder: "748bd378e2",
+            owner: "Administrator",
+            mime_type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            owner_fullname: "Administrator",
+            owner_image: null
+          },
+          {
+            name: "c013718b3f",
+            file_name: "travel.mp4",
+            modified: "2026-07-16 13:41:59.725212",
+            folder: "d3c3e8e3c9",
+            owner: "Administrator",
+            mime_type: "video/mp4",
+            owner_fullname: "Administrator",
+            owner_image: null
+          }
+        ],
+        total: 2,
+        page_size: 10,
+        start: 0
+      }
+    });
+  }),
+
+  http.get(getApiUrl('/api/method/drive_edms.api.university_hub.get_recent_activity'), () => {
+    return HttpResponse.json({
+      message: {
+        data: [
+          {
+            name: "fb64643df8",
+            file_name: "Document1.docx",
+            modified: "2026-07-16 17:56:21.455920",
+            folder: "748bd378e2",
+            owner: "Administrator",
+            mime_type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            owner_fullname: "Administrator",
+            owner_image: null
+          },
+          {
+            name: "c013718b3f",
+            file_name: "travel.mp4",
+            modified: "2026-07-16 13:41:59.725212",
+            folder: "d3c3e8e3c9",
+            owner: "Administrator",
+            mime_type: "video/mp4",
+            owner_fullname: "Administrator",
+            owner_image: null
+          }
+        ],
+        total: 2,
+        page_size: 10,
+        start: 0
+      }
+    });
+  }),
+
   http.get(getApiUrl('/api/v1/hubs/departments'), () => {
     return HttpResponse.json({ data: mockDepartments });
   }),
