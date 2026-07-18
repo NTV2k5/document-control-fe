@@ -1,7 +1,7 @@
 import { X, FileText, Download, Edit3, UserPlus, Folder } from 'lucide-react';
-import { type IDocument, exportOfficeArtifactAPI } from 'api';
+import { type IDocument, exportOfficeArtifactAPI, getFileVersionsAPI, type IFileVersion } from 'api';
 import { formatDate } from '../../lib';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 
 interface IDocumentSidePanelProps {
@@ -14,6 +14,19 @@ export const DocumentSidePanel = ({ document, onClose, inline = false }: IDocume
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'detail' | 'activity' | 'version'>('detail');
   const [downloading, setDownloading] = useState(false);
+  const [versions, setVersions] = useState<IFileVersion[]>([]);
+  const [loadingVersions, setLoadingVersions] = useState(false);
+
+  useEffect(() => {
+    if (activeTab === 'version' && document?.id) {
+      setLoadingVersions(true);
+      getFileVersionsAPI(document.id)
+        .then(setVersions)
+        .catch((err) => console.error('Failed to load file versions:', err))
+        .finally(() => setLoadingVersions(false));
+    }
+  }, [activeTab, document?.id]);
+
 
   if (!document) {
     if (inline) {
@@ -217,8 +230,49 @@ export const DocumentSidePanel = ({ document, onClose, inline = false }: IDocume
         )}
 
         {activeTab === 'version' && (
-          <div className="py-8 text-center text-xs text-slate-400">
-            Version 1.0 (Current)
+          <div className="flex flex-col gap-4 mt-4">
+            {loadingVersions ? (
+              <div className="py-8 text-center text-xs text-slate-400">Loading versions...</div>
+            ) : versions.length === 0 ? (
+              <div className="py-8 text-center text-xs text-slate-400">No versions recorded for this document.</div>
+            ) : (
+              <div className="flex flex-col gap-3">
+                {versions.map((ver) => (
+                  <div key={ver.name} className="flex flex-col gap-1.5 p-3 rounded-2xl bg-slate-50/50 border border-slate-100">
+                    <div className="flex items-center justify-between">
+                      <span className="inline-flex items-center rounded-lg bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-600 border border-blue-100/50">
+                        {ver.version_number}
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-medium">
+                        {formatDate(ver.creation)}
+                      </span>
+                    </div>
+                    <div className="text-xs font-bold text-slate-700 mt-1">
+                      Updated by {ver.full_name || ver.owner}
+                    </div>
+                    {ver.data && (() => {
+                      try {
+                        const parsed = JSON.parse(ver.data);
+                        if (parsed.changed && parsed.changed.length > 0) {
+                          return (
+                            <div className="text-[10px] text-slate-500 bg-white p-2 rounded-xl mt-1 border border-slate-100/60 flex flex-col gap-0.5">
+                              {parsed.changed.map((change: any, idx: number) => (
+                                <div key={idx}>
+                                  Changed <strong className="text-slate-600">{change[0]}</strong> from <span className="line-through text-slate-400">{String(change[1])}</span> to <span className="font-semibold text-slate-600">{String(change[2])}</span>
+                                </div>
+                              ))}
+                            </div>
+                          );
+                        }
+                      } catch {
+                        // ignore
+                      }
+                      return null;
+                    })()}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>

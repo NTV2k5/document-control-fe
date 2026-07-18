@@ -683,6 +683,142 @@ export const handlers = [
   }),
 
   // --- DOCUMENTS ---
+  http.get(getApiUrl('/api/method/drive_edms.api.published.get_published_documents'), () => {
+    return HttpResponse.json({
+      message: {
+        data: [
+          {
+            name: "70a7750e98",
+            file_name: "1. Luồng Cấu hình (Setup Workflow).txt",
+            mime_type: "text/plain",
+            owner: "Administrator",
+            creation: "2026-07-16 13:52:15.721598",
+            modified: "2026-07-16 13:52:15.763100",
+            file_size: 3979,
+            file_url: "/api/method/drive.api.s3.fetch?path=Administrator%20%28Administrator%29/1.%20Lu%E1%BB%93ng%20C%E1%BA%A5u%20h%C3%ACnh%20%28Setup%20Workflow%29.txt",
+            status: "Active",
+            folder: "09f303b6bf",
+            views: 1,
+            recipients: [],
+            tags: []
+          },
+          {
+            name: "f11d6ded4a",
+            file_name: "Screenshot 2026-07-15 152114.png",
+            mime_type: "image/png",
+            owner: "Administrator",
+            creation: "2026-07-16 13:51:13.230238",
+            modified: "2026-07-16 13:51:13.352771",
+            file_size: 163516,
+            file_url: "/api/method/drive.api.s3.fetch?path=Administrator%20%28Administrator%29/Screenshot%202026-07-15%20152114.png",
+            status: "Active",
+            folder: "09f303b6bf",
+            views: 1,
+            recipients: [],
+            tags: []
+          },
+          {
+            name: "d2827383e9",
+            file_name: "CV_PhanPhamQuocKhanh.pdf",
+            mime_type: "application/pdf",
+            owner: "Administrator",
+            creation: "2026-07-16 13:50:48.537536",
+            modified: "2026-07-16 13:50:50.874084",
+            file_size: 112438,
+            file_url: "/api/method/drive.api.s3.fetch?path=Administrator%20%28Administrator%29/CV_PhanPhamQuocKhanh.pdf",
+            status: "Active",
+            folder: "09f303b6bf",
+            views: 1,
+            recipients: [],
+            tags: []
+          },
+          {
+            name: "c013718b3f",
+            file_name: "travel.mp4",
+            mime_type: "video/mp4",
+            owner: "Administrator",
+            creation: "2026-07-16 13:28:42.697833",
+            modified: "2026-07-16 13:41:59.725212",
+            file_size: 17074788,
+            file_url: "/api/method/drive.api.s3.fetch?path=Administrator%20%28Administrator%29/Ti%E1%BA%BFng%20Anh/travel.mp4",
+            status: "Active",
+            folder: "d3c3e8e3c9",
+            views: 0,
+            recipients: [],
+            tags: []
+          },
+          {
+            name: "85d4052ca2",
+            file_name: "LESSON 5 - Listening (1).pptx",
+            mime_type: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+            owner: "Administrator",
+            creation: "2026-07-16 13:28:10.757303",
+            modified: "2026-07-16 13:28:10.892488",
+            file_size: 3034273,
+            file_url: "/api/method/drive.api.s3.fetch?path=Administrator%20%28Administrator%29/Ti%E1%BA%BFng%20Anh/LESSON%205%20-%20Listening%20%281%29.pptx",
+            status: "Active",
+            folder: "d3c3e8e3c9",
+            views: 0,
+            recipients: [],
+            tags: []
+          },
+          {
+            name: "11803bffec",
+            file_name: "6366630160986.mp4",
+            mime_type: "video/mp4",
+            owner: "Administrator",
+            creation: "2026-07-16 10:46:44.769656",
+            modified: "2026-07-16 10:46:48.797724",
+            file_size: 10401906,
+            file_url: "/api/method/drive.api.s3.fetch?path=Administrator%20%28Administrator%29/6366630160986.mp4",
+            status: "Active",
+            folder: "09f303b6bf",
+            views: 0,
+            recipients: [],
+            tags: []
+          }
+        ],
+        total: 6,
+        page_size: 10,
+        start: 0
+      }
+    });
+  }),
+
+  http.get(getApiUrl('/api/method/drive_edms.api.published.get_file_versions'), () => {
+    return HttpResponse.json({
+      message: [
+        {
+          name: "p1he7li9g0",
+          creation: "2026-07-16 13:42:00.112890",
+          owner: "Administrator",
+          data: "{\"added\":[],\"changed\":[[\"is_private\",1,0]],\"data_import\":null,\"removed\":[],\"row_changed\":[],\"updater_reference\":null}",
+          version_number: "V3",
+          full_name: "Administrator",
+          user_image: null
+        },
+        {
+          name: "h8ql95b9u4",
+          creation: "2026-07-16 13:28:44.255053",
+          owner: "Administrator",
+          data: "{\"added\":[],\"changed\":[[\"file_url\",\"/private/files/Administrator (Administrator)/Ti\\u1ebfng Anh/travel.mp4\",\"/api/method/drive.api.s3.fetch?path=Administrator%20%28Administrator%29/Ti%E1%BA%BFng%20Anh/travel.mp4\"]],\"data_import\":null,\"removed\":[],\"row_changed\":[],\"updater_reference\":null}",
+          version_number: "V2",
+          full_name: "Administrator",
+          user_image: null
+        },
+        {
+          name: "h8brmrcamp",
+          creation: "2026-07-16 13:28:42.709828",
+          owner: "Administrator",
+          data: "{\"added\":[],\"changed\":[[\"file_url\",null,\"/private/files/Administrator (Administrator)/Ti\\u1ebfng Anh/travel.mp4\"]],\"data_import\":null,\"removed\":[],\"row_changed\":[],\"updater_reference\":null}",
+          version_number: "V1",
+          full_name: "Administrator",
+          user_image: null
+        }
+      ]
+    });
+  }),
+
   http.get(getApiUrl('/api/v1/documents'), ({ request }) => {
     const url = new URL(request.url);
     const search = url.searchParams.get('search') || '';

@@ -342,3 +342,91 @@ export const extractWordDocumentAPI = async (id: string, file: File): Promise<IE
     },
   }).then((response) => response.data.data);
 };
+
+export interface IFileVersion {
+  name: string;
+  creation: string;
+  owner: string;
+  data: string;
+  version_number: string;
+  full_name: string;
+  user_image: string | null;
+}
+
+export const listPublishedDocumentsAPI = async (
+  params?: IListDocumentsParams,
+): Promise<{ data: IDocument[]; pagination: IPagination }> => {
+  const API_COMMON = import.meta.env.VITE_API_COMMON || 'drive_edms.api';
+  return API.get<{ message: { data: any[]; total: number; page_size: number; start: number } }>(
+    `/api/method/${API_COMMON}.published.get_published_documents`
+  ).then((response) => {
+    const raw = response.data.message.data;
+    const mapped: IDocument[] = raw.map((item) => {
+      const typeLower = item.mime_type?.toLowerCase() || '';
+      let artifact_type: TemplateArtifactType = 'rich_text';
+      let template_type = 'ACADEMIC';
+      if (typeLower.includes('pdf')) {
+        artifact_type = 'image_form';
+      } else if (typeLower.includes('sheet') || typeLower.includes('excel')) {
+        artifact_type = 'spreadsheet';
+        template_type = 'FINANCIAL';
+      }
+      return {
+        id: item.name,
+        template_id: 'default-template',
+        title: item.file_name,
+        artifact_type,
+        visibility: 'PUBLIC',
+        status: 'APPROVED',
+        is_published: item.status === 'Active',
+        created_by: item.owner,
+        created_at: item.creation,
+        updated_at: item.modified,
+        template: {
+          id: 'default-template',
+          name: 'Default Template',
+          version: 1,
+          status: 'APPROVED',
+          template_type,
+          artifact_type,
+          visibility: 'PUBLIC',
+          organization_unit_id: 'default-unit',
+          source_file_name: item.file_name,
+          template_metadata: null,
+        },
+        permissions: {
+          can_edit: false,
+          can_delete: true,
+          can_submit: false,
+          can_approve: false,
+          can_reject: false,
+          can_publish: false,
+          can_unpublish: true,
+          can_reset_to_draft: false,
+        },
+      };
+    });
+    return {
+      data: mapped,
+      pagination: {
+        page: 1,
+        page_size: response.data.message.page_size || 10,
+        total: response.data.message.total || mapped.length,
+        total_pages: Math.ceil((response.data.message.total || mapped.length) / (response.data.message.page_size || 10)),
+      },
+    };
+  });
+};
+
+export const getFileVersionsAPI = async (fileName: string): Promise<IFileVersion[]> => {
+  const API_COMMON = import.meta.env.VITE_API_COMMON || 'drive_edms.api';
+  return API.request<{ message: IFileVersion[] }>({
+    method: 'GET',
+    url: `/api/method/${API_COMMON}.published.get_file_versions`,
+    data: { file_name: fileName },
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  }).then((response) => response.data.message);
+};
+

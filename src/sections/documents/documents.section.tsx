@@ -51,7 +51,7 @@ import {
   deleteDocumentAPI,
   getDocumentByIdAPI,
   getTemplateByIdAPI,
-  listDocumentsAPI,
+  listPublishedDocumentsAPI,
   publishDocumentAPI,
   returnDocumentToDraftAPI,
   unpublishDocumentAPI,
@@ -460,7 +460,7 @@ export const DocumentsSection: React.FC<IDocumentsSectionProps> = () => {
   const fetchDocuments = useCallback(async () => {
     try {
       setIsLoading(true);
-      const res = await listDocumentsAPI(documentListParams);
+      const res = await listPublishedDocumentsAPI(documentListParams);
 
       setDocuments(res.data);
       
