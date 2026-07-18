@@ -1723,5 +1723,211 @@ export const handlers = [
       ]
     });
   }),
+
+  // --- PROFILE ---
+  http.get(getApiUrl('/api/method/drive_edms.api.profile.get_profile_dashboard'), () => {
+    return HttpResponse.json({
+      message: {
+        user_info: {
+          first_name: "Administrator",
+          last_name: null,
+          full_name: "Administrator",
+          email: "admin@example.com",
+          phone: null,
+          employee_id: "EMP-XXXXX",
+          department: "Information Management",
+          bio: null,
+          campus: "Main Campus",
+          role: null,
+          user_image: null
+        },
+        storage: {
+          used_bytes: 15999084.0,
+          limit_bytes: 10737418240,
+          percentage_used: 0,
+          categories: {
+            documents: {
+              bytes: 3555025.0,
+              percentage: 22
+            },
+            media: {
+              bytes: 12444059.0,
+              percentage: 78
+            }
+          }
+        },
+        recent_activity: [
+          {
+            title: "Administrator logged in",
+            type: "Security",
+            time: "2026-07-17 11:47:02.503190",
+            icon: "security"
+          },
+          {
+            title: "Accessed '6366630160986.mp4'",
+            type: "Document",
+            time: "2026-07-17 10:52:03.244889",
+            icon: "document"
+          },
+          {
+            title: "Administrator logged in",
+            type: "Security",
+            time: "2026-07-17 08:42:11.213255",
+            icon: "security"
+          },
+          {
+            title: "Accessed '1. Luồng Cấu hình (Setup Workflow).txt'",
+            type: "Document",
+            time: "2026-07-16 17:43:55.362297",
+            icon: "document"
+          },
+          {
+            title: "Accessed 'Screenshot 2026-07-15 152114.png'",
+            type: "Document",
+            time: "2026-07-16 16:51:32.104165",
+            icon: "document"
+          }
+        ]
+      }
+    });
+  }),
+
+  http.put(getApiUrl('/api/method/drive_edms.api.profile.update_profile'), async ({ request }) => {
+    const body = (await request.json()) as any;
+    return HttpResponse.json({
+      message: {
+        status: "success",
+        message: "Profile updated successfully",
+        data_received: {
+          phone: body.phone,
+          bio: body.bio
+        }
+      }
+    });
+  }),
+
+  // --- DRIVE ACTIONS ---
+  http.get(getApiUrl('/api/method/drive.api.list.files'), () => {
+    return HttpResponse.json({
+      message: [
+        {
+          name: "b947899c1e",
+          file_name: "áds",
+          folder: "d3c3e8e3c9",
+          file_url: null,
+          file_size: 0,
+          file_type: "Folder",
+          is_folder: 1,
+          content_doctype: null,
+          content_docname: null,
+          team: "evjem9pjqi",
+          creation: "2026-07-16 16:03:12.626853",
+          modified: "2026-07-16 16:25:54.108683",
+          owner: "Administrator",
+          attached_to_doctype: null,
+          attached_to_name: null,
+          shared_team: null,
+          owner_full_name: "Administrator",
+          owner_image: null,
+          is_favourite: null,
+          accessed: null,
+          child_count: 0,
+          share_count: 0,
+          kind: "native",
+          read: 1,
+          comment: 1,
+          share: 1,
+          upload: 1,
+          write: 1,
+          type: "admin"
+        },
+        {
+          name: "c013718b3f",
+          file_name: "travel.mp4",
+          folder: "d3c3e8e3c9",
+          file_url: null,
+          file_size: 17074788,
+          file_type: "Video",
+          is_folder: 0,
+          content_doctype: null,
+          content_docname: null,
+          team: "evjem9pjqi",
+          creation: "2026-07-16 13:28:42.697833",
+          modified: "2025-04-26 09:10:10.096000",
+          owner: "Administrator",
+          attached_to_doctype: null,
+          attached_to_name: null,
+          shared_team: null,
+          owner_full_name: "Administrator",
+          owner_image: null,
+          is_favourite: null,
+          accessed: null,
+          child_count: 0,
+          share_count: 0,
+          kind: "native",
+          read: 1,
+          comment: 1,
+          share: 1,
+          upload: 1,
+          write: 1,
+          type: "admin"
+        },
+        {
+          name: "85d4052ca2",
+          file_name: "LESSON 5 - Listening (1).pptx",
+          folder: "d3c3e8e3c9",
+          file_url: "/api/method/drive.api.s3.fetch?path=Administrator%20%28Administrator%29/Ti%E1%BA%BFng%20Anh/LESSON%205%20-%20Listening%20%281%29.pptx",
+          file_size: 3034273,
+          file_type: "Presentation",
+          is_folder: 0,
+          content_doctype: null,
+          content_docname: null,
+          team: "evjem9pjqi",
+          creation: "2026-07-16 13:28:10.757303",
+          modified: "2025-09-27 09:32:16.948000",
+          owner: "Administrator",
+          attached_to_doctype: null,
+          attached_to_name: null,
+          shared_team: null,
+          owner_full_name: "Administrator",
+          owner_image: null,
+          is_favourite: null,
+          accessed: null,
+          child_count: 0,
+          share_count: 0,
+          kind: "native",
+          read: 1,
+          comment: 1,
+          share: 1,
+          upload: 1,
+          write: 1,
+          type: "admin"
+        }
+      ]
+    });
+  }),
+
+  http.post(getApiUrl('/api/method/drive.api.files.rename'), () => {
+    return HttpResponse.json({});
+  }),
+
+  http.post(getApiUrl('/api/method/drive.api.files.move'), () => {
+    return HttpResponse.json({
+      message: {
+        file_name: "Tiếng Anh",
+        team: "evjem9pjqi",
+        name: "d3c3e8e3c9",
+        folder: "09f303b6bf"
+      }
+    });
+  }),
+
+  http.post(getApiUrl('/api/method/drive.api.files.update_access'), () => {
+    return HttpResponse.json({});
+  }),
+
+  http.post(getApiUrl('/api/method/drive.api.files.remove_or_restore'), () => {
+    return HttpResponse.json({});
+  }),
 ];
 

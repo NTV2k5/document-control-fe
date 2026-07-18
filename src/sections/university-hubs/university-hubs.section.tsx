@@ -19,6 +19,7 @@ import {
   Atom,
   Image as ImageIcon,
   Clapperboard,
+  FileText
 } from 'lucide-react';
 import type { IUniversityHubsSectionProps, IDepartmentItem, IProjectItem } from './university-hubs.type';
 import { HubStats, HubRecentActivity } from '../../components/hubs';

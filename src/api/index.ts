@@ -10,4 +10,4 @@ export * from './hubs';
 export * from './my-hubs';
 export * from './tickets';
 export * from './dashboard';
-
+export * from './profile';
