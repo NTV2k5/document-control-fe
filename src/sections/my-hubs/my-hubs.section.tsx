@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 
 import {
   Folder,
@@ -12,6 +12,9 @@ import {
   Trash2,
   MoreVertical,
   FileText,
+  Image as ImageIcon,
+  Clapperboard,
+  Archive,
 } from 'lucide-react';
 import type { IMyHubsSectionProps, IFolderItem, IFileItem } from './my-hubs.type';
 import { HubStats, HubRecentActivity } from '../../components/hubs';
@@ -36,7 +39,11 @@ import {
   deleteFolderAPI,
   listFilesAPI,
   createFileAPI,
-  deleteFileAPI
+  deleteFileAPI,
+  getMyStatsAPI,
+  getMyRecentActivityAPI,
+  formatBytes,
+  mapFileType,
 } from 'api';
 
 
@@ -44,102 +51,14 @@ export const MyHubsSection = ({
   initialFolders,
   initialFiles,
 }: IMyHubsSectionProps) => {
-  const defaultFolders: IFolderItem[] = [
-    {
-      id: 'folder-1',
-      name: 'Computer Science',
-      size: '23.80 MB',
-      filesCount: 6,
-    },
-    {
-      id: 'folder-2',
-      name: 'Academic Archive',
-      size: '63.46 MB',
-      filesCount: 13,
-    },
-    {
-      id: 'folder-3',
-      name: 'Course Materials',
-      size: '1.39 GB',
-      filesCount: 14,
-    },
-    {
-      id: 'folder-4',
-      name: 'Research Papers',
-      size: '128 MB',
-      filesCount: 32,
-    },
-    {
-      id: 'folder-5',
-      name: 'Personal Project',
-      size: '45.2 MB',
-      filesCount: 4,
-    },
-    {
-      id: 'folder-6',
-      name: 'Submission Inbox',
-      size: '12.1 GB',
-      filesCount: 150,
-    },
-  ];
-
-  const defaultFiles: IFileItem[] = [
-    {
-      id: 'file-1',
-      name: 'MHAdmin_Enrollment_Form_Final_2025',
-      size: '2.4 MB',
-      fileType: 'pdf',
-    },
-    {
-      id: 'file-2',
-      name: 'MHAdmin_Enrollment_Form_Final_2025',
-      size: '1.2 MB',
-      fileType: 'pdf',
-    },
-    {
-      id: 'file-3',
-      name: 'MHAdmin_Enrollment_Form_Final_2025',
-      size: '3.1 MB',
-      fileType: 'pdf',
-    },
-    {
-      id: 'file-4',
-      name: 'MHAdmin_Enrollment_Form_Final_2025',
-      size: '950 KB',
-      fileType: 'pdf',
-    },
-    {
-      id: 'file-5',
-      name: 'MHAdmin_Enrollment_Form_Final_2025',
-      size: '4.5 MB',
-      fileType: 'pdf',
-    },
-    {
-      id: 'file-6',
-      name: 'MHAdmin_Enrollment_Form_Final_2025',
-      size: '2.8 MB',
-      fileType: 'pdf',
-    },
-    {
-      id: 'file-7',
-      name: 'MHAdmin_Enrollment_Form_Final_2025',
-      size: '1.9 MB',
-      fileType: 'pdf',
-    },
-    {
-      id: 'file-8',
-      name: 'MHAdmin_Enrollment_Form_Final_2025',
-      size: '3.6 MB',
-      fileType: 'pdf',
-    },
-  ];
-
   const [folders, setFolders] = useState<IFolderItem[]>(
     initialFolders ?? []
   );
   const [files, setFiles] = useState<IFileItem[]>(
     initialFiles ?? []
   );
+  const [stats, setStats] = useState<any[]>([]);
+  const [activities, setActivities] = useState<any[]>([]);
 
   const [isOpenFolderDialog, setIsOpenFolderDialog] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
@@ -154,7 +73,86 @@ export const MyHubsSection = ({
       console.error('Failed to fetch files:', err);
       toast.error('Failed to fetch files.');
     });
+    getMyStatsAPI().then((statsData) => {
+      const totalSize = statsData.Images.size + statsData.Videos.size + statsData.Documents.size + statsData.Other.size;
+      const mappedStats = [
+        {
+          id: 'images',
+          label: 'IMAGES',
+          itemsCount: statsData.Images.count,
+          usedSpace: `${formatBytes(statsData.Images.size)} used`,
+          percentage: totalSize > 0 ? (statsData.Images.size / totalSize) * 100 : 0,
+          icon: <ImageIcon className="size-5" />,
+          iconBgColor: 'bg-red-50',
+          iconColor: 'text-red-500',
+          barColor: 'bg-red-500',
+        },
+        {
+          id: 'videos',
+          label: 'VIDEOS',
+          itemsCount: statsData.Videos.count,
+          usedSpace: `${formatBytes(statsData.Videos.size)} used`,
+          percentage: totalSize > 0 ? (statsData.Videos.size / totalSize) * 100 : 0,
+          icon: <Clapperboard className="size-5" />,
+          iconBgColor: 'bg-blue-50',
+          iconColor: 'text-blue-500',
+          barColor: 'bg-blue-500',
+        },
+        {
+          id: 'documents',
+          label: 'DOCUMENTS',
+          itemsCount: statsData.Documents.count,
+          usedSpace: `${formatBytes(statsData.Documents.size)} used`,
+          percentage: totalSize > 0 ? (statsData.Documents.size / totalSize) * 100 : 0,
+          icon: <FileText className="size-5" />,
+          iconBgColor: 'bg-emerald-50',
+          iconColor: 'text-emerald-500',
+          barColor: 'bg-emerald-500',
+        },
+        {
+          id: 'other',
+          label: 'OTHER',
+          itemsCount: statsData.Other.count,
+          usedSpace: `${formatBytes(statsData.Other.size)} used`,
+          percentage: totalSize > 0 ? (statsData.Other.size / totalSize) * 100 : 0,
+          icon: <Archive className="size-5" />,
+          iconBgColor: 'bg-amber-50',
+          iconColor: 'text-amber-500',
+          barColor: 'bg-amber-500',
+        },
+      ];
+      setStats(mappedStats);
+    }).catch(err => {
+      console.error('Failed to fetch stats:', err);
+    });
+
+    getMyRecentActivityAPI().then((data) => {
+      const mapped = data.map((item) => ({
+        id: item.name,
+        name: item.file_name,
+        fileType: mapFileType(item.mime_type, item.file_name),
+        lastModified: item.modified,
+        folderId: item.folder,
+        owners: [
+          {
+            name: item.owner_fullname || item.owner || 'Administrator',
+            avatarUrl: item.owner_image ? (item.owner_image.startsWith('http') ? item.owner_image : `${import.meta.env.VITE_API_ENDPOINT || ''}${item.owner_image}`) : undefined,
+            initials: (item.owner_fullname || item.owner || 'A').charAt(0).toUpperCase()
+          }
+        ]
+      }));
+      setActivities(mapped);
+    }).catch(err => {
+      console.error('Failed to fetch recent activities:', err);
+    });
   }, []);
+
+  const displayActivities = useMemo(() => {
+    return activities.map((item) => ({
+      ...item,
+      directory: folders.find((f) => f.id === item.folderId)?.name || item.folderId || 'Root',
+    }));
+  }, [activities, folders]);
 
   const handleDeleteFolder = async (id: string, name: string) => {
     try {
@@ -175,6 +173,7 @@ export const MyHubsSection = ({
       toast.error(`Failed to delete file: ${name}`);
     }
   };
+
 
   const handleCreateFolderSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -278,7 +277,7 @@ export const MyHubsSection = ({
       </div>
 
       {/* Stats row */}
-      <HubStats />
+      <HubStats stats={stats} />
 
       {/* Folders Section */}
       <div className="flex flex-col gap-4">
@@ -453,7 +452,7 @@ export const MyHubsSection = ({
       </div>
 
       {/* Recent Activity */}
-      <HubRecentActivity />
+      <HubRecentActivity activities={displayActivities} />
 
       {/* Create Folder Dialog */}
       <Dialog open={isOpenFolderDialog} onOpenChange={setIsOpenFolderDialog}>

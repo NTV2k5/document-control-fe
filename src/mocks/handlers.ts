@@ -899,6 +899,225 @@ export const handlers = [
   }),
 
   // --- MY HUBS ---
+  http.get(getApiUrl('/api/method/drive_edms.api.my_hubs.get_my_folders'), () => {
+    return HttpResponse.json({
+      message: {
+        data: [
+          {
+            name: "b947899c1e",
+            file_name: "áds",
+            folder: "d3c3e8e3c9",
+            creation: "2026-07-16 16:03:12.626853",
+            total_files: 0,
+            total_size: 0
+          },
+          {
+            name: "d3c3e8e3c9",
+            file_name: "Tiếng Anh",
+            folder: "09f303b6bf",
+            creation: "2026-07-16 13:27:40.689495",
+            total_files: 2,
+            total_size: 20109061.0
+          },
+          {
+            name: "09f303b6bf",
+            file_name: "Drive - evjem9pjqi",
+            folder: null,
+            creation: "2026-07-16 10:40:59.753247",
+            total_files: 5,
+            total_size: 10699093.0
+          },
+          {
+            name: "Home/Attachments",
+            file_name: "Attachments",
+            folder: "Home",
+            creation: "2026-07-16 08:49:47.302227",
+            total_files: 0,
+            total_size: 0
+          },
+          {
+            name: "Home",
+            file_name: "Home",
+            folder: null,
+            creation: "2026-07-16 08:49:47.300288",
+            total_files: 0,
+            total_size: 0
+          }
+        ],
+        total: 5,
+        page_size: 20,
+        start: 0
+      }
+    });
+  }),
+
+  http.get(getApiUrl('/api/method/drive_edms.api.my_hubs.get_my_files'), () => {
+    return HttpResponse.json({
+      message: {
+        data: [
+          {
+            name: "70a7750e98",
+            file_name: "1. Luồng Cấu hình (Setup Workflow).txt",
+            modified: "2026-07-16 13:52:15.763100",
+            creation: "2026-07-16 13:52:15.721598",
+            folder: "09f303b6bf",
+            owner: "Administrator",
+            mime_type: "text/plain",
+            file_size: 3979
+          },
+          {
+            name: "f11d6ded4a",
+            file_name: "Screenshot 2026-07-15 152114.png",
+            modified: "2026-07-16 13:51:13.352771",
+            creation: "2026-07-16 13:51:13.230238",
+            folder: "09f303b6bf",
+            owner: "Administrator",
+            mime_type: "image/png",
+            file_size: 163516
+          },
+          {
+            name: "d2827383e9",
+            file_name: "CV_PhanPhamQuocKhanh.pdf",
+            modified: "2026-07-16 13:50:50.874084",
+            creation: "2026-07-16 13:50:48.537536",
+            folder: "09f303b6bf",
+            owner: "Administrator",
+            mime_type: "application/pdf",
+            file_size: 112438
+          },
+          {
+            name: "c013718b3f",
+            file_name: "travel.mp4",
+            modified: "2026-07-16 13:41:59.725212",
+            creation: "2026-07-16 13:28:42.697833",
+            folder: "d3c3e8e3c9",
+            owner: "Administrator",
+            mime_type: "video/mp4",
+            file_size: 17074788
+          },
+          {
+            name: "85d4052ca2",
+            file_name: "LESSON 5 - Listening (1).pptx",
+            modified: "2026-07-16 13:28:10.892488",
+            creation: "2026-07-16 13:28:10.757303",
+            folder: "d3c3e8e3c9",
+            owner: "Administrator",
+            mime_type: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+            file_size: 3034273
+          },
+          {
+            name: "11803bffec",
+            file_name: "6366630160986.mp4",
+            modified: "2026-07-16 10:46:48.797724",
+            creation: "2026-07-16 10:46:44.769656",
+            folder: "09f303b6bf",
+            owner: "Administrator",
+            mime_type: "video/mp4",
+            file_size: 10401906
+          }
+        ],
+        total: 6,
+        page_size: 10,
+        start: 0
+      }
+    });
+  }),
+
+  http.get(getApiUrl('/api/method/drive_edms.api.my_hubs.get_my_recent_activity'), () => {
+    return HttpResponse.json({
+      message: {
+        data: [
+          {
+            name: "70a7750e98",
+            file_name: "1. Luồng Cấu hình (Setup Workflow).txt",
+            modified: "2026-07-16 13:52:15.763100",
+            folder: "09f303b6bf",
+            owner: "Administrator",
+            mime_type: "text/plain",
+            owner_fullname: "Administrator",
+            owner_image: null
+          },
+          {
+            name: "f11d6ded4a",
+            file_name: "Screenshot 2026-07-15 152114.png",
+            modified: "2026-07-16 13:51:13.352771",
+            folder: "09f303b6bf",
+            owner: "Administrator",
+            mime_type: "image/png",
+            owner_fullname: "Administrator",
+            owner_image: null
+          },
+          {
+            name: "d2827383e9",
+            file_name: "CV_PhanPhamQuocKhanh.pdf",
+            modified: "2026-07-16 13:50:50.874084",
+            folder: "09f303b6bf",
+            owner: "Administrator",
+            mime_type: "application/pdf",
+            owner_fullname: "Administrator",
+            owner_image: null
+          },
+          {
+            name: "c013718b3f",
+            file_name: "travel.mp4",
+            modified: "2026-07-16 13:41:59.725212",
+            folder: "d3c3e8e3c9",
+            owner: "Administrator",
+            mime_type: "video/mp4",
+            owner_fullname: "Administrator",
+            owner_image: null
+          },
+          {
+            name: "85d4052ca2",
+            file_name: "LESSON 5 - Listening (1).pptx",
+            modified: "2026-07-16 13:28:10.892488",
+            folder: "d3c3e8e3c9",
+            owner: "Administrator",
+            mime_type: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+            owner_fullname: "Administrator",
+            owner_image: null
+          },
+          {
+            name: "11803bffec",
+            file_name: "6366630160986.mp4",
+            modified: "2026-07-16 10:46:48.797724",
+            folder: "09f303b6bf",
+            owner: "Administrator",
+            mime_type: "video/mp4",
+            owner_fullname: "Administrator",
+            owner_image: null
+          }
+        ],
+        total: 6,
+        page_size: 10,
+        start: 0
+      }
+    });
+  }),
+
+  http.get(getApiUrl('/api/method/drive_edms.api.my_hubs.get_my_stats'), () => {
+    return HttpResponse.json({
+      message: {
+        Images: {
+          count: 1,
+          size: 163516.0
+        },
+        Videos: {
+          count: 2,
+          size: 27476694.0
+        },
+        Documents: {
+          count: 3,
+          size: 3150690.0
+        },
+        Other: {
+          count: 0,
+          size: 0
+        }
+      }
+    });
+  }),
+
   http.get(getApiUrl('/api/v1/my-hubs/folders'), () => {
     return HttpResponse.json({ data: mockFolders });
   }),
