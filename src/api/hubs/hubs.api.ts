@@ -5,6 +5,12 @@ import type {
   IHubStatsAPIResponse,
   IHubFoldersAPIResponse,
   IHubRecentActivityAPIResponse,
+  IListDriveFilesPayload,
+  IDriveFileItem,
+  IRenameDriveFilePayload,
+  IMoveDriveFilesPayload,
+  IShareDriveFilePayload,
+  IDeleteDriveFilesPayload,
 } from './hubs.type';
 
 const API_COMMON = import.meta.env.VITE_API_COMMON || 'drive_edms.api';
@@ -90,3 +96,53 @@ export const getHubRecentActivityAPI = async (): Promise<IHubRecentActivityAPIRe
     },
   }).then((response) => response.data.message.data);
 };
+
+export const listDriveFilesAPI = async (
+  payload: IListDriveFilesPayload,
+): Promise<IDriveFileItem[]> => {
+  return API.request<{ message: IDriveFileItem[] }>({
+    method: 'GET',
+    url: '/api/method/drive.api.list.files',
+    data: payload,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  }).then((response) => response.data.message);
+};
+
+export const renameDriveFileAPI = async (
+  payload: IRenameDriveFilePayload,
+): Promise<void> => {
+  return API.post(
+    '/api/method/drive.api.files.rename',
+    payload,
+  ).then(() => undefined);
+};
+
+export const moveDriveFilesAPI = async (
+  payload: IMoveDriveFilesPayload,
+): Promise<void> => {
+  return API.post(
+    '/api/method/drive.api.files.move',
+    payload,
+  ).then(() => undefined);
+};
+
+export const shareDriveFileAPI = async (
+  payload: IShareDriveFilePayload,
+): Promise<void> => {
+  return API.post(
+    '/api/method/drive.api.files.update_access',
+    payload,
+  ).then(() => undefined);
+};
+
+export const deleteDriveFilesAPI = async (
+  payload: IDeleteDriveFilesPayload,
+): Promise<void> => {
+  return API.post(
+    '/api/method/drive.api.files.remove_or_restore',
+    payload,
+  ).then(() => undefined);
+};
+

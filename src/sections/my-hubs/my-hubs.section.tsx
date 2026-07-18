@@ -44,6 +44,12 @@ import {
   getMyRecentActivityAPI,
   formatBytes,
   mapFileType,
+  listDriveFilesAPI,
+  renameDriveFileAPI,
+  moveDriveFilesAPI,
+  shareDriveFileAPI,
+  deleteDriveFilesAPI,
+  type IDriveFileItem,
 } from 'api';
 
 
@@ -154,9 +160,99 @@ export const MyHubsSection = ({
     }));
   }, [activities, folders]);
 
-  const handleDeleteFolder = async (id: string, name: string) => {
+  const [selectedFolder, setSelectedFolder] = useState<{ id: string; name: string } | null>(null);
+  const [folderFiles, setFolderFiles] = useState<IDriveFileItem[]>([]);
+  const [loadingFolderFiles, setLoadingFolderFiles] = useState(false);
+
+  const handleOpenFolder = async (id: string, name: string) => {
+    setSelectedFolder({ id, name });
+    setLoadingFolderFiles(true);
     try {
-      await deleteFolderAPI(id);
+      const data = await listDriveFilesAPI({
+        team: 'evjem9pjqi',
+        entity_name: id,
+        order_by: 'modified',
+        ascending: 0,
+        start: 0,
+        limit: 50,
+      });
+      setFolderFiles(data);
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to load folder files.');
+    } finally {
+      setLoadingFolderFiles(false);
+    }
+  };
+
+  const handleRename = async (id: string, currentName: string, isFolder: boolean) => {
+    const newName = window.prompt(`Rename ${isFolder ? 'folder' : 'file'}:`, currentName);
+    if (newName === null) return;
+    if (!newName.trim()) {
+      toast.error('Name cannot be empty.');
+      return;
+    }
+    try {
+      await renameDriveFileAPI({ entity_name: id, new_title: newName });
+      toast.success(`Renamed successfully to: ${newName}`);
+      if (isFolder) {
+        setFolders((prev) => prev.map((f) => (f.id === id ? { ...f, name: newName } : f)));
+      } else {
+        setFiles((prev) => prev.map((f) => (f.id === id ? { ...f, name: newName } : f)));
+      }
+    } catch {
+      toast.error('Failed to rename.');
+    }
+  };
+
+  const handleMove = async (id: string, currentName: string, isFolder: boolean) => {
+    const targetFolderId = window.prompt(
+      `Enter target folder ID to move ${currentName} to (Available folders:\n` +
+        folders.map((f) => `${f.name} (${f.id})`).join('\n') +
+        '\nOr type "root" to move to top level):'
+    );
+    if (targetFolderId === null) return;
+    const parentId = targetFolderId.trim().toLowerCase() === 'root' ? '' : targetFolderId.trim();
+    try {
+      await moveDriveFilesAPI({
+        entity_names: [id],
+        new_parent: parentId,
+        team: 'evjem9pjqi',
+      });
+      toast.success(`Moved ${currentName} successfully.`);
+      const updatedFolders = await listFoldersAPI();
+      setFolders(updatedFolders);
+      const updatedFiles = await listFilesAPI();
+      setFiles(updatedFiles);
+    } catch {
+      toast.error('Failed to move.');
+    }
+  };
+
+  const handleShare = async (id: string, currentName: string) => {
+    const email = window.prompt(`Enter user email to share access to ${currentName}:`);
+    if (email === null) return;
+    if (!email.trim()) {
+      toast.error('Email cannot be empty.');
+      return;
+    }
+    try {
+      await shareDriveFileAPI({
+        entity_name: id,
+        method: 'share',
+        user: email,
+        read: 1,
+      });
+      toast.success(`Shared ${currentName} with ${email} successfully.`);
+    } catch {
+      toast.error('Failed to share.');
+    }
+  };
+
+  const handleDeleteFolder = async (id: string, name: string) => {
+    if (!window.confirm(`Are you sure you want to delete folder: ${name}?`)) return;
+    try {
+      await deleteDriveFilesAPI({ entity_names: [id] });
       setFolders((prev) => prev.filter((f) => f.id !== id));
       toast.success(`Deleted folder: ${name}`);
     } catch {
@@ -165,8 +261,9 @@ export const MyHubsSection = ({
   };
 
   const handleDeleteFile = async (id: string, name: string) => {
+    if (!window.confirm(`Are you sure you want to delete file: ${name}?`)) return;
     try {
-      await deleteFileAPI(id);
+      await deleteDriveFilesAPI({ entity_names: [id] });
       setFiles((prev) => prev.filter((f) => f.id !== id));
       toast.success(`Deleted file: ${name}`);
     } catch {
@@ -314,7 +411,8 @@ export const MyHubsSection = ({
           {folders.map((folder) => (
             <div
               key={folder.id}
-              className="relative flex flex-col justify-between rounded-3xl border border-slate-100 bg-white p-5 shadow-sm transition-all duration-200 hover:shadow-md"
+              onClick={() => handleOpenFolder(folder.id, folder.name)}
+              className="cursor-pointer relative flex flex-col justify-between rounded-3xl border border-slate-100 bg-white p-5 shadow-sm transition-all duration-200 hover:shadow-md"
             >
               <div className="flex items-start justify-between">
                 <div className="flex size-11 items-center justify-center rounded-2xl bg-blue-50 text-blue-500">
@@ -326,14 +424,15 @@ export const MyHubsSection = ({
                     <Button
                       variant="ghost"
                       size="icon"
+                      onClick={(e) => e.stopPropagation()}
                       className="size-7 rounded-full text-slate-400 hover:bg-slate-55 hover:text-slate-65 focus-visible:ring-0 focus-visible:ring-offset-0"
                     >
                       <MoreVertical className="size-4" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-44">
+                  <DropdownMenuContent align="end" className="w-44" onClick={(e) => e.stopPropagation()}>
                     <DropdownMenuItem
-                      onClick={() => toast.info(`Renaming folder ${folder.name}`)}
+                      onClick={() => handleRename(folder.id, folder.name, true)}
                     >
                       <Pencil className="mr-2 size-4 text-slate-500" />
                       Rename
@@ -345,13 +444,13 @@ export const MyHubsSection = ({
                       Download
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      onClick={() => toast.info(`Moving folder ${folder.name}`)}
+                      onClick={() => handleMove(folder.id, folder.name, true)}
                     >
                       <FolderInput className="mr-2 size-4 text-slate-500" />
                       Move
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      onClick={() => toast.success(`Shared link for ${folder.name}`)}
+                      onClick={() => handleShare(folder.id, folder.name)}
                     >
                       <Share2 className="mr-2 size-4 text-slate-500" />
                       Share
@@ -414,7 +513,7 @@ export const MyHubsSection = ({
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-44">
                   <DropdownMenuItem
-                    onClick={() => toast.info(`Renaming file ${file.name}`)}
+                    onClick={() => handleRename(file.id, file.name, false)}
                   >
                     <Pencil className="mr-2 size-4 text-slate-500" />
                     Rename
@@ -426,13 +525,13 @@ export const MyHubsSection = ({
                     Download
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    onClick={() => toast.info(`Moving file ${file.name}`)}
+                    onClick={() => handleMove(file.id, file.name, false)}
                   >
                     <FolderInput className="mr-2 size-4 text-slate-500" />
                     Move
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    onClick={() => toast.success(`Shared link for ${file.name}`)}
+                    onClick={() => handleShare(file.id, file.name)}
                   >
                     <Share2 className="mr-2 size-4 text-slate-500" />
                     Share
@@ -492,9 +591,55 @@ export const MyHubsSection = ({
               </Button>
             </DialogFooter>
           </form>
-        </DialogContent>
       </Dialog>
 
+      {/* Folder Contents Dialog */}
+      <Dialog open={selectedFolder !== null} onOpenChange={(open) => !open && setSelectedFolder(null)}>
+        <DialogContent className="max-w-lg bg-white rounded-3xl p-6">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold text-slate-800">
+              Folder Contents: {selectedFolder?.name}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="my-4 max-h-[300px] overflow-y-auto space-y-3">
+            {loadingFolderFiles ? (
+              <div className="text-center py-6 text-sm text-slate-400 font-medium">
+                Loading files...
+              </div>
+            ) : folderFiles.length === 0 ? (
+              <div className="text-center py-6 text-sm text-slate-400 font-medium">
+                This folder is empty.
+              </div>
+            ) : (
+              folderFiles.map((file) => (
+                <div key={file.name} className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-slate-100/50 transition">
+                  <div className="flex items-center gap-3">
+                    <FileText className="size-5 text-blue-600" />
+                    <div className="flex flex-col">
+                      <span className="text-xs font-bold text-slate-700 leading-tight">
+                        {file.file_name}
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-medium mt-0.5">
+                        {formatBytes(file.file_size)} • {file.file_type}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button
+              onClick={() => setSelectedFolder(null)}
+              className="rounded-xl bg-blue-600 hover:bg-blue-700 font-bold px-5 text-xs text-white"
+            >
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
     </div>
   );
