@@ -13,9 +13,9 @@ export default defineConfig({
     host: true,
     proxy: {
       '/api': {
-        target: 'https://erpnext.aurora-tech.com',
+        target: process.env.VITE_API_URL || 'http://100.106.138.47:8000',
         changeOrigin: true,
-        secure: true,
+        secure: false,
         configure: (proxy) => {
           proxy.on('proxyReq', (proxyReq) => {
             proxyReq.removeHeader('Expect');
@@ -23,9 +23,9 @@ export default defineConfig({
         },
       },
       '/notifications': {
-        target: 'https://erpnext.aurora-tech.com',
+        target: process.env.VITE_API_URL || 'http://100.106.138.47:8000',
         changeOrigin: true,
-        secure: true,
+        secure: false,
         configure: (proxy) => {
           proxy.on('proxyReq', (proxyReq) => {
             proxyReq.removeHeader('Expect');
