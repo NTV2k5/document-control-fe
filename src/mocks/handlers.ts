@@ -32,6 +32,9 @@ import {
 // };
 
 const getApiUrl = (path: string) => {
+  if (import.meta.env.DEV) {
+    return path;
+  }
   const endpoint = import.meta.env.VITE_API_ENDPOINT || '';
   // Đảm bảo endpoint không thừa dấu / ở cuối
   const cleanEndpoint = endpoint.endsWith('/') ? endpoint.slice(0, -1) : endpoint;
@@ -620,6 +623,42 @@ let mockFiles = [
     fileType: 'pdf',
   },
 ];
+
+let mockAgentSettings: any = {
+  model: 'gpt-4o',
+  model_options: ['gpt-4o', 'gpt-4o-mini', 'o1', 'o1-mini', 'o3-mini'],
+  reasoning_effort: 'medium',
+  reasoning_effort_options: ['none', 'low', 'medium', 'high'],
+  document_input_agent_enabled: true,
+  document_input_agent_widget_enabled: true,
+  template_agent_enabled: true,
+  use_global_llm_config: true,
+  llm_config_scope: 'user',
+  active_llm_config_scope: 'user',
+  can_manage_global_settings: true,
+  can_update_user_llm_config: true,
+  open_ai_api_key: {
+    masked_value: '••••••••••••••••',
+    is_configured: true,
+    source: 'user',
+  },
+  proxy_url_llm: {
+    value: '',
+    is_configured: false,
+    source: 'user',
+  },
+};
+
+let mockVariableSettings: any = {
+  render_mode: 'snapshot',
+  live_config_draft_only: true,
+  editor_style: {
+    font_family: 'Times New Roman, Times, serif',
+    font_size: '13pt',
+    line_height: '1.25',
+    color: '#000000',
+  },
+};
 
 export const handlers = [
   // --- AUTH & PROFILE ---
@@ -1928,6 +1967,33 @@ export const handlers = [
 
   http.post(getApiUrl('/api/method/drive.api.files.remove_or_restore'), () => {
     return HttpResponse.json({});
+  }),
+
+  // --- TEMPLATES ---
+  http.get(getApiUrl('/api/v1/templates/document-input-agent/settings'), () => {
+    return HttpResponse.json({ data: mockAgentSettings });
+  }),
+
+  http.patch(getApiUrl('/api/v1/templates/document-input-agent/settings'), async ({ request }) => {
+    const payload = (await request.json()) as any;
+    mockAgentSettings = {
+      ...mockAgentSettings,
+      ...payload,
+    };
+    return HttpResponse.json({ data: mockAgentSettings });
+  }),
+
+  http.get(getApiUrl('/api/v1/templates/template-variables/settings'), () => {
+    return HttpResponse.json({ data: mockVariableSettings });
+  }),
+
+  http.patch(getApiUrl('/api/v1/templates/template-variables/settings'), async ({ request }) => {
+    const payload = (await request.json()) as any;
+    mockVariableSettings = {
+      ...mockVariableSettings,
+      ...payload,
+    };
+    return HttpResponse.json({ data: mockVariableSettings });
   }),
 ];
 
