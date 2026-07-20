@@ -88,6 +88,7 @@ export const Route = createRootRoute({
       },
     ],
     links: [
+      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
       { rel: 'apple-touch-icon', href: '/gdu/logo/logo-icon.png' },
       { rel: 'icon', type: 'image/png', href: '/gdu/logo/logo-icon.png' },
       { rel: 'stylesheet', href: appCss },

@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import {
   Landmark,
   SlidersHorizontal,
@@ -34,6 +34,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  Input,
+  Label,
 } from 'reactjs-platform/ui';
 import { toast } from 'react-toastify';
 import {
@@ -50,8 +52,11 @@ import {
   moveDriveFilesAPI,
   shareDriveFileAPI,
   deleteDriveFilesAPI,
+  getDocumentByIdAPI,
   type IDriveFileItem,
+  type IDocument,
 } from 'api';
+import { DocumentSidePanel } from '../documents/document-side-panel.component';
 
 
 export const UniversityHubsSection = ({
@@ -67,16 +72,18 @@ export const UniversityHubsSection = ({
   const [stats, setStats] = useState<any[]>([]);
   const [activities, setActivities] = useState<any[]>([]);
 
-  useEffect(() => {
-    listDepartmentsAPI().then(setDepartments).catch(err => {
-      console.error('Failed to fetch departments:', err);
-      toast.error('Failed to fetch departments.');
-    });
-    listProjectsAPI().then(setProjects).catch(err => {
-      console.error('Failed to fetch projects:', err);
-      toast.error('Failed to fetch projects.');
-    });
-    getHubStatsAPI().then((statsData) => {
+  const [selectedDocument, setSelectedDocument] = useState<IDocument | null>(null);
+  const [loadingDocument, setLoadingDocument] = useState(false);
+
+  const fetchDepartmentsAndProjects = useCallback(async () => {
+    try {
+      const deptsData = await listDepartmentsAPI();
+      setDepartments(deptsData);
+      
+      const projsData = await listProjectsAPI();
+      setProjects(projsData);
+      
+      const statsData = await getHubStatsAPI();
       const totalSize = statsData.Images.size + statsData.Videos.size + statsData.Documents.size + statsData.Other.size;
       const mappedStats = [
         {
@@ -125,12 +132,9 @@ export const UniversityHubsSection = ({
         },
       ];
       setStats(mappedStats);
-    }).catch(err => {
-      console.error('Failed to fetch stats:', err);
-    });
-
-    getHubRecentActivityAPI().then((data) => {
-      const mapped = data.map((item) => ({
+      
+      const activityData = await getHubRecentActivityAPI();
+      const mapped = activityData.map((item) => ({
         id: item.name,
         name: item.file_name,
         fileType: mapFileType(item.mime_type, item.file_name),
@@ -145,10 +149,58 @@ export const UniversityHubsSection = ({
         ]
       }));
       setActivities(mapped);
-    }).catch(err => {
-      console.error('Failed to fetch recent activities:', err);
-    });
+    } catch (err) {
+      console.error('Failed to load university-hub stats/activities:', err);
+    }
   }, []);
+
+  const handleFileClick = useCallback(async (id: string) => {
+    try {
+      setLoadingDocument(true);
+      const doc = await getDocumentByIdAPI(id);
+      setSelectedDocument(doc);
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to load file details.');
+    } finally {
+      setLoadingDocument(false);
+    }
+  }, []);
+
+  const handleRecentActivityAction = useCallback(async (action: 'view' | 'download' | 'delete', activity: any) => {
+    if (action === 'view') {
+      handleFileClick(activity.id);
+    } else if (action === 'download') {
+      try {
+        const doc = await getDocumentByIdAPI(activity.id);
+        if (doc.file_url) {
+          const fullUrl = doc.file_url.startsWith('http') ? doc.file_url : `${import.meta.env.VITE_API_ENDPOINT || ''}${doc.file_url}`;
+          window.open(fullUrl, '_blank');
+        } else {
+          toast.error("Download URL not available.");
+        }
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to download.");
+      }
+    } else if (action === 'delete') {
+      if (confirm(`Are you sure you want to delete ${activity.name}?`)) {
+        try {
+          await deleteDriveFilesAPI({ entity_names: [activity.id] });
+          toast.success("File deleted successfully.");
+          void fetchDepartmentsAndProjects();
+          window.dispatchEvent(new Event('drive-updated'));
+        } catch (err) {
+          console.error(err);
+          toast.error("Failed to delete.");
+        }
+      }
+    }
+  }, [fetchDepartmentsAndProjects, handleFileClick]);
+
+  useEffect(() => {
+    void fetchDepartmentsAndProjects();
+  }, [fetchDepartmentsAndProjects]);
 
   const displayActivities = useMemo(() => {
     return activities.map((item) => {
@@ -187,11 +239,46 @@ export const UniversityHubsSection = ({
     }
   };
 
-  const handleRename = async (id: string, currentName: string, isDept: boolean) => {
-    const label = isDept ? 'department' : 'project';
-    const newName = window.prompt(`Rename ${label}:`, currentName);
-    if (newName === null) return;
-    if (!newName.trim()) {
+  const [activeModal, setActiveModal] = useState<{
+    type: 'rename' | 'move' | 'share' | 'archive';
+    id: string;
+    name: string;
+    isDept: boolean;
+  } | null>(null);
+
+  const [renameValue, setRenameValue] = useState('');
+  const [moveValue, setMoveValue] = useState('root');
+  const [shareEmail, setShareEmail] = useState('');
+
+  const handleRename = (id: string, currentName: string, isDept: boolean) => {
+    setRenameValue(currentName);
+    setActiveModal({ type: 'rename', id, name: currentName, isDept });
+  };
+
+  const handleMove = (id: string, currentName: string) => {
+    setMoveValue('root');
+    setActiveModal({ type: 'move', id, name: currentName, isDept: false });
+  };
+
+  const handleShare = (id: string, currentName: string) => {
+    setShareEmail('');
+    setActiveModal({ type: 'share', id, name: currentName, isDept: false });
+  };
+
+  const handleArchiveDept = (id: string, name: string) => {
+    setActiveModal({ type: 'archive', id, name, isDept: true });
+  };
+
+  const handleArchiveProject = (id: string, name: string) => {
+    setActiveModal({ type: 'archive', id, name, isDept: false });
+  };
+
+  const handleRenameSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activeModal) return;
+    const { id, isDept } = activeModal;
+    const newName = renameValue.trim();
+    if (!newName) {
       toast.error('Name cannot be empty.');
       return;
     }
@@ -203,39 +290,40 @@ export const UniversityHubsSection = ({
       } else {
         setProjects((prev) => prev.map((p) => (p.id === id ? { ...p, name: newName } : p)));
       }
+      setActiveModal(null);
     } catch {
       toast.error('Failed to rename.');
     }
   };
 
-  const handleMove = async (id: string, currentName: string) => {
-    const targetFolderId = window.prompt(
-      `Enter target folder ID to move ${currentName} to (Available departments/projects:\n` +
-        [...departments, ...projects].map((f) => `${f.name} (${f.id})`).join('\n') +
-        '\nOr type "root" to move to top level):'
-    );
-    if (targetFolderId === null) return;
-    const parentId = targetFolderId.trim().toLowerCase() === 'root' ? '' : targetFolderId.trim();
+  const handleMoveSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activeModal) return;
+    const { id, name } = activeModal;
+    const parentId = moveValue === 'root' ? '' : moveValue;
     try {
       await moveDriveFilesAPI({
         entity_names: [id],
         new_parent: parentId,
         team: 'evjem9pjqi',
       });
-      toast.success(`Moved ${currentName} successfully.`);
+      toast.success(`Moved ${name} successfully.`);
       const updatedDepts = await listDepartmentsAPI();
       setDepartments(updatedDepts);
       const updatedProjects = await listProjectsAPI();
       setProjects(updatedProjects);
+      setActiveModal(null);
     } catch {
       toast.error('Failed to move.');
     }
   };
 
-  const handleShare = async (id: string, currentName: string) => {
-    const email = window.prompt(`Enter user email to share access to ${currentName}:`);
-    if (email === null) return;
-    if (!email.trim()) {
+  const handleShareSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activeModal) return;
+    const { id, name } = activeModal;
+    const email = shareEmail.trim();
+    if (!email) {
       toast.error('Email cannot be empty.');
       return;
     }
@@ -246,31 +334,30 @@ export const UniversityHubsSection = ({
         user: email,
         read: 1,
       });
-      toast.success(`Shared ${currentName} with ${email} successfully.`);
+      toast.success(`Shared ${name} with ${email} successfully.`);
+      setActiveModal(null);
     } catch {
       toast.error('Failed to share.');
     }
   };
 
-  const handleArchiveDept = async (id: string, name: string) => {
-    if (!window.confirm(`Are you sure you want to archive department: ${name}?`)) return;
+  const handleConfirmArchive = async () => {
+    if (!activeModal) return;
+    const { id, name, isDept } = activeModal;
     try {
       await deleteDriveFilesAPI({ entity_names: [id] });
-      setDepartments((prev) => prev.filter((d) => d.id !== id));
-      toast.success(`Archived department: ${name}`);
+      if (isDept) {
+        setDepartments((prev) => prev.filter((d) => d.id !== id));
+        toast.success(`Archived department: ${name}`);
+      } else {
+        setProjects((prev) => prev.filter((p) => p.id !== id));
+        toast.success(`Archived project: ${name}`);
+      }
+      setActiveModal(null);
+      void fetchDepartmentsAndProjects();
+      window.dispatchEvent(new Event('drive-updated'));
     } catch {
-      toast.error(`Failed to archive department: ${name}`);
-    }
-  };
-
-  const handleArchiveProject = async (id: string, name: string) => {
-    if (!window.confirm(`Are you sure you want to archive project: ${name}?`)) return;
-    try {
-      await deleteDriveFilesAPI({ entity_names: [id] });
-      setProjects((prev) => prev.filter((p) => p.id !== id));
-      toast.success(`Archived project: ${name}`);
-    } catch {
-      toast.error(`Failed to archive project: ${name}`);
+      toast.error(`Failed to archive ${isDept ? 'department' : 'project'}: ${name}`);
     }
   };
 
@@ -545,7 +632,7 @@ export const UniversityHubsSection = ({
       </div>
 
       {/* Recent Activity */}
-      <HubRecentActivity activities={displayActivities} />
+      <HubRecentActivity activities={displayActivities} onActionClick={handleRecentActivityAction} />
 
       {/* Folder Contents Dialog */}
       <Dialog open={selectedFolder !== null} onOpenChange={(open) => !open && setSelectedFolder(null)}>
@@ -567,7 +654,14 @@ export const UniversityHubsSection = ({
               </div>
             ) : (
               folderFiles.map((file) => (
-                <div key={file.name} className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-slate-100/50 transition">
+                <div
+                  key={file.name}
+                  onClick={() => {
+                    setSelectedFolder(null);
+                    handleFileClick(file.name);
+                  }}
+                  className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-slate-100/50 transition cursor-pointer"
+                >
                   <div className="flex items-center gap-3">
                     <FileText className="size-5 text-blue-600" />
                     <div className="flex flex-col">
@@ -594,6 +688,202 @@ export const UniversityHubsSection = ({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Rename Dialog */}
+      <Dialog open={activeModal?.type === 'rename'} onOpenChange={(open) => !open && setActiveModal(null)}>
+        <DialogContent className="max-w-md bg-white rounded-3xl p-6">
+          <form onSubmit={handleRenameSubmit}>
+            <DialogHeader>
+              <DialogTitle className="text-[17px] font-bold text-slate-800">
+                Rename {activeModal?.isDept ? 'Department' : 'Project'}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="py-6 flex flex-col gap-2">
+              <Label htmlFor="rename-input" className="text-xs font-bold text-slate-500">
+                New Name
+              </Label>
+              <Input
+                id="rename-input"
+                value={renameValue}
+                onChange={(e) => setRenameValue(e.target.value)}
+                placeholder="Enter new name..."
+                className="h-11 rounded-xl border-slate-200 text-sm focus-visible:ring-blue-600"
+                autoFocus
+              />
+            </div>
+            <DialogFooter className="flex items-center justify-end gap-3">
+              <Button
+                type="button"
+                variant="ghost"
+                className="h-10 rounded-xl px-4 text-xs font-bold text-slate-500"
+                onClick={() => setActiveModal(null)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="h-10 rounded-xl bg-blue-600 px-4 text-xs font-bold text-white shadow-md hover:bg-blue-700"
+              >
+                Save
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Move Dialog */}
+      <Dialog open={activeModal?.type === 'move'} onOpenChange={(open) => !open && setActiveModal(null)}>
+        <DialogContent className="max-w-md bg-white rounded-3xl p-6">
+          <form onSubmit={handleMoveSubmit}>
+            <DialogHeader>
+              <DialogTitle className="text-[17px] font-bold text-slate-800">
+                Move {activeModal?.name}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="py-6 flex flex-col gap-2">
+              <Label htmlFor="move-select" className="text-xs font-bold text-slate-500">
+                Select Destination Folder
+              </Label>
+              <select
+                id="move-select"
+                value={moveValue}
+                onChange={(e) => setMoveValue(e.target.value)}
+                className="w-full h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-700 focus:border-blue-600 focus:outline-none"
+              >
+                <option value="root">Root</option>
+                <optgroup label="Departments">
+                  {departments
+                    .filter((d) => d.id !== activeModal?.id)
+                    .map((d) => (
+                      <option key={d.id} value={d.id}>
+                        {d.name}
+                      </option>
+                    ))}
+                </optgroup>
+                <optgroup label="Projects">
+                  {projects
+                    .filter((p) => p.id !== activeModal?.id)
+                    .map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name}
+                      </option>
+                    ))}
+                </optgroup>
+              </select>
+            </div>
+            <DialogFooter className="flex items-center justify-end gap-3">
+              <Button
+                type="button"
+                variant="ghost"
+                className="h-10 rounded-xl px-4 text-xs font-bold text-slate-500"
+                onClick={() => setActiveModal(null)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="h-10 rounded-xl bg-blue-600 px-4 text-xs font-bold text-white shadow-md hover:bg-blue-700"
+              >
+                Move
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Share Dialog */}
+      <Dialog open={activeModal?.type === 'share'} onOpenChange={(open) => !open && setActiveModal(null)}>
+        <DialogContent className="max-w-md bg-white rounded-3xl p-6">
+          <form onSubmit={handleShareSubmit}>
+            <DialogHeader>
+              <DialogTitle className="text-[17px] font-bold text-slate-800">
+                Share Access
+              </DialogTitle>
+            </DialogHeader>
+            <div className="py-6 flex flex-col gap-2">
+              <Label htmlFor="share-email" className="text-xs font-bold text-slate-500">
+                User Email
+              </Label>
+              <Input
+                id="share-email"
+                type="email"
+                value={shareEmail}
+                onChange={(e) => setShareEmail(e.target.value)}
+                placeholder="Enter user email..."
+                className="h-11 rounded-xl border-slate-200 text-sm focus-visible:ring-blue-600"
+                required
+                autoFocus
+              />
+            </div>
+            <DialogFooter className="flex items-center justify-end gap-3">
+              <Button
+                type="button"
+                variant="ghost"
+                className="h-10 rounded-xl px-4 text-xs font-bold text-slate-500"
+                onClick={() => setActiveModal(null)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="h-10 rounded-xl bg-blue-600 px-4 text-xs font-bold text-white shadow-md hover:bg-blue-700"
+              >
+                Share
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Archive Confirmation Dialog */}
+      <Dialog open={activeModal?.type === 'archive'} onOpenChange={(open) => !open && setActiveModal(null)}>
+        <DialogContent className="max-w-md bg-white rounded-3xl p-6">
+          <DialogHeader>
+            <DialogTitle className="text-[17px] font-bold text-slate-800">
+              Confirm Archive
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-6 text-sm text-slate-600">
+            Are you sure you want to archive {activeModal?.isDept ? 'department' : 'project'}: <strong>{activeModal?.name}</strong>?
+          </div>
+          <DialogFooter className="flex items-center justify-end gap-3">
+            <Button
+              type="button"
+              variant="ghost"
+              className="h-10 rounded-xl px-4 text-xs font-bold text-slate-500"
+              onClick={() => setActiveModal(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={handleConfirmArchive}
+              className="h-10 rounded-xl bg-red-600 px-4 text-xs font-bold text-white shadow-md hover:bg-red-700"
+            >
+              Archive
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* File Detail Drawer overlay */}
+      {selectedDocument && (
+        <div className="fixed inset-y-0 right-0 z-50 flex" onClick={(e) => e.stopPropagation()}>
+          <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" onClick={() => setSelectedDocument(null)} />
+          <div className="relative w-screen max-w-md bg-white shadow-2xl flex flex-col h-full animate-in slide-in-from-right duration-300">
+            <DocumentSidePanel
+              document={selectedDocument}
+              onClose={() => setSelectedDocument(null)}
+              inline={false}
+              onDocumentUpdated={(doc) => {
+                setSelectedDocument(doc);
+                void fetchDepartmentsAndProjects();
+                window.dispatchEvent(new Event('drive-updated'));
+              }}
+            />
+          </div>
+        </div>
+      )}
 
     </div>
   );
