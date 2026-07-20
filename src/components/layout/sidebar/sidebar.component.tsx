@@ -33,6 +33,7 @@ import {
   DOCUMENT_INPUT_AGENT_SETTINGS_UPDATED_EVENT,
   getDocumentInputAgentSettingsAPI,
   type IDocumentInputAgentSettings,
+  getMyStatsAPI,
 } from 'api';
 import { SidebarItem } from '../sidebar-item';
 import {
@@ -102,12 +103,36 @@ const pickAgentSidebarSettings = (settings: TAgentSidebarSettings): TAgentSideba
   use_global_llm_config: settings.use_global_llm_config,
 });
 
-// Mock storage data – replace with real API when available
-const STORAGE_USED_GB = 4.2;
-const STORAGE_TOTAL_GB = 10;
-const STORAGE_PERCENT = Math.round((STORAGE_USED_GB / STORAGE_TOTAL_GB) * 100);
+const STORAGE_BASE_TB = 4.2;
+const STORAGE_TOTAL_TB = 10;
 
 export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProps) => {
+  const [storageUsed, setStorageUsed] = useState(STORAGE_BASE_TB);
+  const storageTotal = STORAGE_TOTAL_TB;
+  const storagePercent = Math.round((storageUsed / storageTotal) * 100);
+
+  useEffect(() => {
+    const updateStorage = () => {
+      getMyStatsAPI()
+        .then((stats) => {
+          const totalBytes =
+            stats.Images.size +
+            stats.Videos.size +
+            stats.Documents.size +
+            stats.Other.size;
+          const bytesToTb = totalBytes / (1024 * 1024 * 1024 * 1024);
+          setStorageUsed(STORAGE_BASE_TB + bytesToTb);
+        })
+        .catch((err) => console.error('Failed to fetch sidebar storage stats:', err));
+    };
+
+    updateStorage();
+
+    window.addEventListener('drive-updated', updateStorage);
+    return () => {
+      window.removeEventListener('drive-updated', updateStorage);
+    };
+  }, []);
   const { t, locale, toggleLocale } = useTranslation();
 
   const { logout } = useAuth();
@@ -477,12 +502,12 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
                 Storage Usage
               </div>
               <div className="text-sm font-bold">
-                {STORAGE_USED_GB} TB / {STORAGE_TOTAL_GB} TB
+                {storageUsed.toFixed(2)} TB / {storageTotal} TB
               </div>
               <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/20">
                 <div
                   className="h-full bg-blue-400 transition-all"
-                  style={{ width: `${STORAGE_PERCENT}%` }}
+                  style={{ width: `${storagePercent}%` }}
                 />
               </div>
             </div>

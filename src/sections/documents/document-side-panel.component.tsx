@@ -1,5 +1,5 @@
 import { X, FileText, Download, Edit3, UserPlus, Folder } from 'lucide-react';
-import { type IDocument, exportOfficeArtifactAPI, getFileVersionsAPI, type IFileVersion } from 'api';
+import { type IDocument, exportOfficeArtifactAPI, getFileVersionsAPI, type IFileVersion, updateDocumentAPI } from 'api';
 import { formatDate } from '../../lib';
 import { useState, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
@@ -8,9 +8,19 @@ interface IDocumentSidePanelProps {
   document: IDocument | null;
   onClose: () => void;
   inline?: boolean;
+  onFolderClick?: (folder: string) => void;
+  onTagClick?: (tag: string) => void;
+  onDocumentUpdated?: (doc: IDocument) => void;
 }
 
-export const DocumentSidePanel = ({ document, onClose, inline = false }: IDocumentSidePanelProps) => {
+export const DocumentSidePanel = ({
+  document,
+  onClose,
+  inline = false,
+  onFolderClick,
+  onTagClick,
+  onDocumentUpdated,
+}: IDocumentSidePanelProps) => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'detail' | 'activity' | 'version'>('detail');
   const [downloading, setDownloading] = useState(false);
@@ -26,6 +36,56 @@ export const DocumentSidePanel = ({ document, onClose, inline = false }: IDocume
         .finally(() => setLoadingVersions(false));
     }
   }, [activeTab, document?.id]);
+
+  const handleAddRecipientClick = async () => {
+    if (!document) return;
+    const email = window.prompt("Enter recipient's email address:");
+    if (!email) return;
+    const trimmed = email.trim();
+    if (!trimmed) return;
+    try {
+      const currentRecipients = document.recipients || [];
+      if (currentRecipients.includes(trimmed)) {
+        alert("Recipient already added.");
+        return;
+      }
+      const updatedRecipients = [...currentRecipients, trimmed];
+      
+      const updatedDoc = await updateDocumentAPI(document.id, {
+        recipients: updatedRecipients
+      });
+      
+      onDocumentUpdated?.(updatedDoc);
+    } catch (err) {
+      console.error("Failed to add recipient:", err);
+      alert("Failed to add recipient.");
+    }
+  };
+
+  const handleAddTagClick = async () => {
+    if (!document) return;
+    const tag = window.prompt("Enter new tag name (without #):");
+    if (!tag) return;
+    const trimmed = tag.trim();
+    if (!trimmed) return;
+    try {
+      const currentTags = document.tags || [];
+      if (currentTags.includes(trimmed)) {
+        alert("Tag already exists.");
+        return;
+      }
+      const updatedTags = [...currentTags, trimmed];
+      
+      const updatedDoc = await updateDocumentAPI(document.id, {
+        tags: updatedTags
+      });
+      
+      onDocumentUpdated?.(updatedDoc);
+    } catch (err) {
+      console.error("Failed to add tag:", err);
+      alert("Failed to add tag.");
+    }
+  };
 
 
   if (!document) {
@@ -73,10 +133,43 @@ export const DocumentSidePanel = ({ document, onClose, inline = false }: IDocume
     return 'bg-blue-50 border border-blue-100/50';
   };
 
+  const getStatusBadge = (status: string) => {
+    const s = (status || '').toUpperCase();
+    if (s === 'APPROVED' || s === 'PUBLISHED') {
+      return {
+        bg: 'bg-emerald-500',
+        text: 'text-emerald-600',
+        label: s === 'PUBLISHED' ? 'Published' : 'Approved'
+      };
+    }
+    if (s === 'REJECTED') {
+      return {
+        bg: 'bg-red-500',
+        text: 'text-red-600',
+        label: 'Rejected'
+      };
+    }
+    return {
+      bg: 'bg-amber-500',
+      text: 'text-amber-600',
+      label: s || 'Draft'
+    };
+  };
+
   const handleDownload = async () => {
     if (!document) return;
     try {
       setDownloading(true);
+      if (document.file_url) {
+        const fullUrl = document.file_url.startsWith('http') ? document.file_url : `${import.meta.env.VITE_API_ENDPOINT || ''}${document.file_url}`;
+        const a = window.document.createElement('a');
+        a.href = fullUrl;
+        a.download = document.title || 'download';
+        a.target = '_blank';
+        a.click();
+        return;
+      }
+      
       const isSpreadsheet = document.artifact_type === 'spreadsheet';
       const isPresentation = document.artifact_type === 'presentation';
       const format = isSpreadsheet ? 'xlsx' : isPresentation ? 'pptx' : 'pdf';
@@ -174,13 +267,29 @@ export const DocumentSidePanel = ({ document, onClose, inline = false }: IDocume
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-[#A3AED0] mb-2.5">Recipients</p>
                 <div className="flex items-center gap-2">
-                  <div className="flex -space-x-1.5">
-                    <img src="https://i.pravatar.cc/100?img=33" alt="A" className="size-7 rounded-full ring-2 ring-white bg-slate-200" />
-                    <img src="https://i.pravatar.cc/100?img=12" alt="B" className="size-7 rounded-full ring-2 ring-white bg-slate-200" />
+                  <div className="flex -space-x-1.5 flex-wrap">
+                    {(document.recipients || []).length === 0 ? (
+                      <span className="text-xs text-[#A3AED0] italic">No recipients added</span>
+                    ) : (
+                      (document.recipients || []).map((email, idx) => {
+                        const initial = email.charAt(0).toUpperCase();
+                        return (
+                          <div
+                            key={email}
+                            title={email}
+                            className="size-7 rounded-full ring-2 ring-white bg-blue-100 flex items-center justify-center text-[10px] font-bold text-blue-700"
+                            style={{ zIndex: 10 - idx }}
+                          >
+                            {initial}
+                          </div>
+                        );
+                      })
+                    )}
                   </div>
                   <button
                     type="button"
-                    className="flex size-7 items-center justify-center rounded-full border border-dashed border-slate-300 text-slate-400 hover:text-slate-600 hover:border-slate-400">
+                    onClick={handleAddRecipientClick}
+                    className="flex size-7 items-center justify-center rounded-full border border-dashed border-slate-300 text-slate-400 hover:text-slate-600 hover:border-slate-400 cursor-pointer">
                     <UserPlus className="size-3.5" />
                   </button>
                 </div>
@@ -194,29 +303,58 @@ export const DocumentSidePanel = ({ document, onClose, inline = false }: IDocume
                 </div>
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-[#A3AED0] mb-1.5">Status</p>
-                  <div className="flex items-center gap-1.5 mt-0.5">
-                    <div className="size-2 rounded-full bg-emerald-500"></div>
-                    <span className="text-xs font-bold text-emerald-600 uppercase">Active</span>
-                  </div>
+                  {(() => {
+                    const badge = getStatusBadge(document.status || '');
+                    return (
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        <div className={`size-2 rounded-full ${badge.bg}`}></div>
+                        <span className={`text-xs font-bold ${badge.text} uppercase`}>{badge.label}</span>
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
 
               {/* Folder */}
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-[#A3AED0] mb-2.5">Folder</p>
-                <div className="inline-flex items-center gap-2 rounded-lg bg-[#F4F7FE] px-3 py-1.5 text-xs font-bold text-[#1B2559]">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (document.folder && onFolderClick) {
+                      onFolderClick(document.folder);
+                    }
+                  }}
+                  disabled={!document.folder || !onFolderClick}
+                  className={`inline-flex items-center gap-2 rounded-lg bg-[#F4F7FE] px-3 py-1.5 text-xs font-bold text-[#1B2559] transition ${onFolderClick && document.folder ? 'hover:bg-slate-200/80 cursor-pointer' : 'cursor-default'}`}>
                   <Folder className="size-3.5 text-[#A3AED0]" />
-                  Nhân sự (Human Resources)
-                </div>
+                  {document.folder || 'None'}
+                </button>
               </div>
 
               {/* Tags */}
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-[#A3AED0] mb-2.5">Tags</p>
-                <div className="flex flex-wrap gap-2">
-                  <span className="text-xs font-bold text-blue-500 bg-blue-50 px-3 py-1 rounded-full border border-blue-100/50">#Company Docs</span>
-                  <span className="text-xs font-bold text-blue-500 bg-blue-50 px-3 py-1 rounded-full border border-blue-100/50">#Internal</span>
-                  <span className="text-xs font-bold text-blue-500 bg-blue-50 px-3 py-1 rounded-full border border-blue-100/50">#2025</span>
+                <div className="flex flex-wrap gap-2 items-center">
+                  {(document.tags || []).length === 0 ? (
+                    <span className="text-xs text-[#A3AED0] italic">No tags</span>
+                  ) : (
+                    (document.tags || []).map((t) => (
+                      <button
+                        key={t}
+                        type="button"
+                        onClick={() => onTagClick?.(t)}
+                        className="text-xs font-bold text-blue-500 bg-blue-50 px-3 py-1 rounded-full border border-blue-100/50 hover:bg-blue-100 transition cursor-pointer">
+                        #{t}
+                      </button>
+                    ))
+                  )}
+                  <button
+                    type="button"
+                    onClick={handleAddTagClick}
+                    className="flex size-7 items-center justify-center rounded-full border border-dashed border-slate-300 text-slate-400 hover:text-slate-600 hover:border-slate-400 cursor-pointer">
+                    <UserPlus className="size-3.5" />
+                  </button>
                 </div>
               </div>
             </div>
@@ -238,7 +376,7 @@ export const DocumentSidePanel = ({ document, onClose, inline = false }: IDocume
             ) : (
               <div className="flex flex-col gap-3">
                 {versions.map((ver) => (
-                  <div key={ver.name} className="flex flex-col gap-1.5 p-3 rounded-2xl bg-slate-50/50 border border-slate-100">
+                  <div key={ver.name} className="flex flex-col gap-1.5 p-3 rounded-2xl bg-slate-50/50 border border-slate-100 break-all whitespace-normal">
                     <div className="flex items-center justify-between">
                       <span className="inline-flex items-center rounded-lg bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-600 border border-blue-100/50">
                         {ver.version_number}
@@ -247,7 +385,7 @@ export const DocumentSidePanel = ({ document, onClose, inline = false }: IDocume
                         {formatDate(ver.creation)}
                       </span>
                     </div>
-                    <div className="text-xs font-bold text-slate-700 mt-1">
+                    <div className="text-xs font-bold text-slate-700 mt-1 break-all whitespace-normal">
                       Updated by {ver.full_name || ver.owner}
                     </div>
                     {ver.data && (() => {
@@ -255,10 +393,10 @@ export const DocumentSidePanel = ({ document, onClose, inline = false }: IDocume
                         const parsed = JSON.parse(ver.data);
                         if (parsed.changed && parsed.changed.length > 0) {
                           return (
-                            <div className="text-[10px] text-slate-500 bg-white p-2 rounded-xl mt-1 border border-slate-100/60 flex flex-col gap-0.5">
+                            <div className="text-[10px] text-slate-500 bg-white p-2 rounded-xl mt-1 border border-slate-100/60 flex flex-col gap-0.5 break-all whitespace-normal">
                               {parsed.changed.map((change: any, idx: number) => (
-                                <div key={idx}>
-                                  Changed <strong className="text-slate-600">{change[0]}</strong> from <span className="line-through text-slate-400">{String(change[1])}</span> to <span className="font-semibold text-slate-600">{String(change[2])}</span>
+                                <div key={idx} className="break-all whitespace-normal">
+                                  Changed <strong className="text-slate-600 break-all">{change[0]}</strong> from <span className="line-through text-slate-400 break-all">{String(change[1])}</span> to <span className="font-semibold text-slate-600 break-all">{String(change[2])}</span>
                                 </div>
                               ))}
                             </div>

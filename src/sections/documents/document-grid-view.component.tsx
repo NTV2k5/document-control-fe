@@ -81,13 +81,13 @@ export const DocumentGridView = ({ documents, selectedDocument, onSelectDocument
                 </h3>
                 
                 {/* Status & Recipients */}
-                <div className="flex items-center justify-between gap-2 mb-2">
-                  <span className="flex items-center gap-1 rounded-full bg-[#eef2ff] px-2.5 py-0.5 text-[10px] font-bold text-[#2563eb] border border-blue-100">
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                  <span className="flex shrink-0 items-center gap-1 rounded-full bg-[#eef2ff] px-2.5 py-0.5 text-[10px] font-bold text-[#2563eb] border border-blue-100">
                     <BadgeCheck className="size-4 text-white fill-[#2563eb]" />
                     {doc.status === 'APPROVED' ? 'APPROVED' : doc.status}
                   </span>
 
-                  <div className="flex items-center gap-1.5 text-[10px] font-bold text-[#a3aed0] uppercase">
+                  <div className="flex shrink-0 items-center gap-1.5 text-[10px] font-bold text-[#a3aed0] uppercase">
                     <span>RECIPIENTS:</span>
                     <div className="flex -space-x-1.5 ml-0.5">
                       <img src={`https://i.pravatar.cc/100?u=u${idx}a`} alt="avatar" className="size-5 rounded-full ring-2 ring-white bg-slate-200" />
@@ -119,7 +119,7 @@ export const DocumentGridView = ({ documents, selectedDocument, onSelectDocument
                 #{doc.template?.template_type || 'ACADEMIC'}
               </span>
               <div className="flex items-center gap-1 text-[11px] text-[#a3aed0] font-bold">
-                <Eye className="size-4" /> 12 views
+                <Eye className="size-4" /> {doc.views ?? 0} views
               </div>
             </div>
 

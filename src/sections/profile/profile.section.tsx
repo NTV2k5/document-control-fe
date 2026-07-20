@@ -41,6 +41,8 @@ export const ProfileSection = () => {
     try {
       await updateProfileAPI({
         bio: formData.bio,
+        first_name: formData.first_name,
+        last_name: formData.last_name,
       });
 
       const updatedDashboard = await getProfileDashboardAPI();

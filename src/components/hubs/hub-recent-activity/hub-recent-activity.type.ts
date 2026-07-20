@@ -15,5 +15,5 @@ export interface IHubActivityItem {
 
 export interface IHubRecentActivityProps {
   activities?: IHubActivityItem[];
-  onActionClick?: (activity: IHubActivityItem) => void;
+  onActionClick?: (action: 'view' | 'download' | 'delete', activity: IHubActivityItem) => void;
 }

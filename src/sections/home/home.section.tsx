@@ -15,7 +15,10 @@ import {
   getFileDistributionAPI,
   getDocumentsLatestAPI,
   listApprovalDashboardDocumentsAPI,
+  getDocumentByIdAPI,
+  type IDocument,
 } from 'api';
+import { DocumentSidePanel } from '../documents/document-side-panel.component';
 import type {
   IApprovalDashboardRow,
   ITrendingNowItem,
@@ -65,6 +68,21 @@ export const HomeSection = (_props: IHomeSectionProps) => {
   const [documentsLatest, setDocumentsLatest] = useState<IDocumentLatestItem[]>([]);
   const [todoDocs, setTodoDocs] = useState<IApprovalDashboardRow[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [selectedDocument, setSelectedDocument] = useState<IDocument | null>(null);
+  const [loadingDocument, setLoadingDocument] = useState(false);
+  
+  const handleFileClick = async (id: string) => {
+    try {
+      setLoadingDocument(true);
+      const doc = await getDocumentByIdAPI(id);
+      setSelectedDocument(doc);
+    } catch (err) {
+      console.error('Failed to fetch document detail:', err);
+      alert('Failed to load document details.');
+    } finally {
+      setLoadingDocument(false);
+    }
+  };
 
   useEffect(() => {
     let active = true;
@@ -202,6 +220,7 @@ export const HomeSection = (_props: IHomeSectionProps) => {
       rank: String(index + 1).padStart(2, '0'),
       title: item.file_name,
       dept: `${item.views} view${item.views !== 1 ? 's' : ''} • ${item.owner}`,
+      id: item.name,
     }));
   }, [trendingNowData]);
 
@@ -341,9 +360,9 @@ export const HomeSection = (_props: IHomeSectionProps) => {
   }
 
   return (
-    <div className="space-y-6 pb-10">
+    <div className="space-y-6 pb-10 relative">
       {/* Hero Banner & Trending Now */}
-      <OverviewBanner trendingData={trendingData} />
+      <OverviewBanner trendingData={trendingData} onItemClick={handleFileClick} />
 
       {/* Stats Cards */}
       <StatsOverview data={statsOverviewData} />
@@ -358,13 +377,33 @@ export const HomeSection = (_props: IHomeSectionProps) => {
       <ImportantAlert urgentCount={todoDocs.length} latestUrgentDoc={latestUrgentDoc} />
 
       {/* Latest Published */}
-      <LatestPublished docs={latestPublishedDocs} />
+      <LatestPublished docs={latestPublishedDocs} onItemClick={handleFileClick} />
 
       {/* Recently Interacted */}
-      <RecentlyInteracted docs={recentlyInteractedDocs} />
+      <RecentlyInteracted docs={recentlyInteractedDocs} onItemClick={handleFileClick} />
 
       {/* Quick Access */}
       <QuickAccess />
+
+      {/* File Detail Drawer */}
+      {selectedDocument && (
+        <div className="fixed inset-y-0 right-0 z-50 flex">
+          <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" onClick={() => setSelectedDocument(null)} />
+          <div className="relative w-screen max-w-md bg-white shadow-2xl flex flex-col h-full animate-in slide-in-from-right duration-300">
+            <DocumentSidePanel
+              document={selectedDocument}
+              onClose={() => setSelectedDocument(null)}
+              inline={false}
+              onDocumentUpdated={(doc) => {
+                setSelectedDocument(doc);
+                getTrendingNowAPI().then(setTrendingNowData).catch(console.error);
+                getDocumentsLatestAPI().then(setDocumentsLatest).catch(console.error);
+                window.dispatchEvent(new Event('drive-updated'));
+              }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -3,10 +3,11 @@ import { Button, Card, CardContent } from 'reactjs-platform/ui';
 import { useNavigate } from '@tanstack/react-router';
 
 type OverviewBannerProps = {
-  trendingData: { rank: string | number; title: string; dept: string }[];
+  trendingData: { rank: string | number; title: string; dept: string; id: string }[];
+  onItemClick?: (id: string) => void;
 };
 
-export function OverviewBanner({ trendingData }: OverviewBannerProps) {
+export function OverviewBanner({ trendingData, onItemClick }: OverviewBannerProps) {
   const navigate = useNavigate();
 
   return (
@@ -95,6 +96,7 @@ export function OverviewBanner({ trendingData }: OverviewBannerProps) {
                 <button
                   key={i}
                   type="button"
+                  onClick={() => onItemClick?.(item.id)}
                   className="flex w-full cursor-pointer items-center gap-3 rounded-xl border border-blue-500/30 bg-blue-700/40 p-3 text-left transition-colors hover:bg-blue-700/70"
                 >
                   <span className="w-10 shrink-0 text-3xl font-extrabold text-blue-200/70">

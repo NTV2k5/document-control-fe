@@ -140,6 +140,11 @@ export interface IDocument {
   audit_logs?: IDocumentAuditLog[];
   permissions?: IDocumentPermissions;
   approval?: IDocumentApprovalSummary | null;
+  views?: number;
+  recipients?: string[];
+  tags?: string[];
+  file_url?: string | null;
+  folder?: string | null;
 }
 
 export interface IListDocumentsParams {
@@ -180,6 +185,10 @@ export interface IUpdateDocumentPayload {
   data?: unknown;
   artifact_state?: unknown;
   document_metadata?: ITemplateMetadata | Record<string, unknown> | null;
+  recipients?: string[];
+  tags?: string[];
+  file_url?: string | null;
+  folder?: string | null;
 }
 
 export interface IExtractWordResponse {
@@ -382,6 +391,7 @@ export const listPublishedDocumentsAPI = async (
         created_by: item.owner,
         created_at: item.creation,
         updated_at: item.modified,
+        views: item.views,
         template: {
           id: 'default-template',
           name: 'Default Template',

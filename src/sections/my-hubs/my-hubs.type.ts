@@ -10,6 +10,7 @@ export interface IFileItem {
   name: string;
   size: string;
   fileType: 'pdf' | 'docx' | 'xlsx' | 'other';
+  fileUrl?: string | null;
 }
 
 export interface IMyHubsSectionProps {

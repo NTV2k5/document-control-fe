@@ -43,6 +43,8 @@ export interface IProfileDashboardData {
 export interface IUpdateProfilePayload {
   phone?: string;
   bio?: string;
+  first_name?: string;
+  last_name?: string;
 }
 
 export interface IUpdateProfileResponse {

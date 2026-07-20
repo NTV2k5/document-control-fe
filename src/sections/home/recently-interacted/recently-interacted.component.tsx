@@ -17,6 +17,7 @@ type RecentlyInteractedProps = {
     description: string;
     edited: string;
   }[];
+  onItemClick?: (id: string) => void;
 };
 
 const getDocTypeStyle = (type: string) => {
@@ -70,10 +71,10 @@ export function RecentlyInteracted({ docs }: RecentlyInteractedProps) {
           return (
             <div
               key={doc.id}
-              onClick={() => navigate({ to: '/documents' })}
+              onClick={() => onItemClick?.(String(doc.id))}
               role="button"
               tabIndex={0}
-              onKeyDown={(e) => e.key === 'Enter' && navigate({ to: '/documents' })}
+              onKeyDown={(e) => e.key === 'Enter' && onItemClick?.(String(doc.id))}
               className="group relative w-[250px] min-w-[190px] shrink-0 cursor-pointer overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
             >
               {/* Colored top area with badge + icon inside */}

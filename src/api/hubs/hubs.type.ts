@@ -37,6 +37,8 @@ export interface IHubFoldersAPIResponse {
   mime_type: string;
   owner_fullname: string;
   owner_image: string | null;
+  total_files?: number;
+  total_size?: number;
 }
 
 export interface IHubRecentActivityAPIResponse {
