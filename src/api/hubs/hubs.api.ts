@@ -1,4 +1,5 @@
 import { API } from 'reactjs-platform/utilities';
+import { formatBytes } from '../my-hubs/my-hubs.api';
 import type {
   IDepartmentItem,
   IProjectItem,
@@ -41,8 +42,8 @@ export const listDepartmentsAPI = async (): Promise<IDepartmentItem[]> => {
       return {
         id: item.name,
         name: item.file_name,
-        size: '1.2 MB',
-        filesCount: 1,
+        size: formatBytes(item.total_size || 0),
+        filesCount: item.total_files || 0,
         iconKey,
       };
     })
@@ -68,8 +69,8 @@ export const listProjectsAPI = async (): Promise<IProjectItem[]> => {
       return {
         id: item.name,
         name: item.file_name,
-        size: '17.07 MB',
-        filesCount: 1,
+        size: formatBytes(item.total_size || 0),
+        filesCount: item.total_files || 0,
         iconKey,
       };
     })

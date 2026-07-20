@@ -109,7 +109,10 @@ export const HubRecentActivity = ({ activities, onActionClick }: IHubRecentActiv
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       {renderFileIcon(activity.fileType)}
-                      <span className="font-semibold text-slate-700 hover:text-blue-600 cursor-pointer transition-colors">
+                      <span
+                        onClick={() => onActionClick?.('view', activity)}
+                        className="font-semibold text-slate-700 hover:text-blue-600 cursor-pointer transition-colors"
+                      >
                         {activity.name}
                       </span>
                     </div>
@@ -147,12 +150,19 @@ export const HubRecentActivity = ({ activities, onActionClick }: IHubRecentActiv
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-40">
                         <DropdownMenuItem
-                          onClick={() => onActionClick?.(activity)}
+                          onClick={() => onActionClick?.('view', activity)}
                         >
                           View Details
                         </DropdownMenuItem>
-                        <DropdownMenuItem>Download</DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-600 focus:text-red-600 focus:bg-red-50">
+                        <DropdownMenuItem
+                          onClick={() => onActionClick?.('download', activity)}
+                        >
+                          Download
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => onActionClick?.('delete', activity)}
+                          className="text-red-600 focus:text-red-600 focus:bg-red-50"
+                        >
                           Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>

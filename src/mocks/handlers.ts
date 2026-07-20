@@ -456,6 +456,266 @@ const extraDocs = Array.from({ length: 15 }, (_, index) => {
 
 let mockDocuments = [...mockDocumentsList, ...extraDocs];
 
+let mockDriveFolders = [
+  // Departments
+  {
+    name: "fb64643df8",
+    file_name: "Tài liệu đào tạo (Training Docs)",
+    modified: "2026-07-16 17:56:21.455920",
+    folder: "748bd378e2",
+    owner: "Administrator",
+    mime_type: "Folder",
+    owner_fullname: "Administrator",
+    owner_image: null,
+    category: "Department",
+    total_files: 1,
+    total_size: 3034273
+  },
+  {
+    name: "d3c3e8e3c9",
+    file_name: "Tiếng Anh (English)",
+    modified: "2026-07-16 13:41:59.725212",
+    folder: "09f303b6bf",
+    owner: "Administrator",
+    mime_type: "Folder",
+    owner_fullname: "Administrator",
+    owner_image: null,
+    category: "Department",
+    total_files: 2,
+    total_size: 20109061
+  },
+  
+  // Projects
+  {
+    name: "748bd378e2",
+    file_name: "Dự án Công nghệ (Tech Project)",
+    modified: "2026-07-16 17:56:21.455920",
+    folder: "root",
+    owner: "Administrator",
+    mime_type: "Folder",
+    owner_fullname: "Administrator",
+    owner_image: null,
+    category: "Project",
+    total_files: 1,
+    total_size: 3034273
+  },
+
+  // My Hub Folders
+  {
+    name: "b947899c1e",
+    file_name: "áds",
+    folder: "d3c3e8e3c9",
+    creation: "2026-07-16 16:03:12.626853",
+    modified: "2026-07-16 16:03:12.626853",
+    owner: "Administrator",
+    mime_type: "Folder",
+    owner_fullname: "Administrator",
+    owner_image: null,
+    category: "MyHub"
+  },
+  {
+    name: "Home/Attachments",
+    file_name: "Attachments",
+    folder: "Home",
+    creation: "2026-07-16 08:49:47.302227",
+    modified: "2026-07-16 08:49:47.302227",
+    owner: "Administrator",
+    mime_type: "Folder",
+    owner_fullname: "Administrator",
+    owner_image: null,
+    category: "MyHub"
+  },
+  {
+    name: "Home",
+    file_name: "Home",
+    folder: null,
+    creation: "2026-07-16 08:49:47.300288",
+    modified: "2026-07-16 08:49:47.300288",
+    owner: "Administrator",
+    mime_type: "Folder",
+    owner_fullname: "Administrator",
+    owner_image: null,
+    category: "MyHub"
+  },
+  {
+    name: "09f303b6bf",
+    file_name: "Drive - evjem9pjqi",
+    folder: null,
+    creation: "2026-07-16 10:40:59.753247",
+    modified: "2026-07-16 10:40:59.753247",
+    owner: "Administrator",
+    mime_type: "Folder",
+    owner_fullname: "Administrator",
+    owner_image: null,
+    category: "MyHub"
+  }
+];
+
+let mockDriveFiles = [
+  {
+    name: "70a7750e98",
+    file_name: "1. Luồng Cấu hình (Setup Workflow).txt",
+    folder: "09f303b6bf",
+    file_url: "/api/method/drive.api.s3.fetch?path=Administrator%20%28Administrator%29/1.%20Lu%E1%BB%93ng%20C%E1%BA%A5u%20h%C3%ACnh%20%28Setup%20Workflow%29.txt",
+    file_size: 3979,
+    file_type: "Text",
+    mime_type: "text/plain",
+    is_folder: 0,
+    creation: "2026-07-16 13:52:15.721598",
+    modified: "2026-07-16 13:52:15.763100",
+    owner: "Administrator",
+    owner_fullname: "Sarah Chen",
+    owner_image: null,
+    views: 1,
+    status: "Active",
+    recipients: ["dean.is@giadinh.edu.vn"],
+    tags: ["Workflow", "Setup"]
+  },
+  {
+    name: "f11d6ded4a",
+    file_name: "Screenshot 2026-07-15 152114.png",
+    folder: "09f303b6bf",
+    file_url: "/api/method/drive.api.s3.fetch?path=Administrator%20%28Administrator%29/Screenshot%202026-07-15%20152114.png",
+    file_size: 163516,
+    file_type: "Image",
+    mime_type: "image/png",
+    is_folder: 0,
+    creation: "2026-07-16 13:51:13.230238",
+    modified: "2026-07-16 13:51:13.352771",
+    owner: "Administrator",
+    owner_fullname: "David Wilson",
+    owner_image: null,
+    views: 1,
+    status: "Active",
+    recipients: [],
+    tags: ["UI", "Config"]
+  },
+  {
+    name: "d2827383e9",
+    file_name: "CV_PhanPhamQuocKhanh.pdf",
+    folder: "09f303b6bf",
+    file_url: "/api/method/drive.api.s3.fetch?path=Administrator%20%28Administrator%29/CV_PhanPhamQuocKhanh.pdf",
+    file_size: 112438,
+    file_type: "Document",
+    mime_type: "application/pdf",
+    is_folder: 0,
+    creation: "2026-07-16 13:50:48.537536",
+    modified: "2026-07-16 13:50:50.874084",
+    owner: "Administrator",
+    owner_fullname: "Sarah Jenkins",
+    owner_image: null,
+    views: 1,
+    status: "Active",
+    recipients: ["recruitment@giadinh.edu.vn"],
+    tags: ["CV", "HR"]
+  },
+  {
+    name: "c013718b3f",
+    file_name: "travel.mp4",
+    folder: "d3c3e8e3c9",
+    file_url: "/api/method/drive.api.s3.fetch?path=Administrator%20%28Administrator%29/Ti%E1%BA%BFng%20Anh/travel.mp4",
+    file_size: 17074788,
+    file_type: "Video",
+    mime_type: "video/mp4",
+    is_folder: 0,
+    creation: "2026-07-16 13:28:42.697833",
+    modified: "2026-07-16 13:41:59.725212",
+    owner: "Administrator",
+    owner_fullname: "Administrator",
+    owner_image: null,
+    views: 0,
+    status: "Active",
+    recipients: [],
+    tags: ["Video", "Asset"]
+  },
+  {
+    name: "85d4052ca2",
+    file_name: "LESSON 5 - Listening (1).pptx",
+    folder: "d3c3e8e3c9",
+    file_url: "/api/method/drive.api.s3.fetch?path=Administrator%20%28Administrator%29/Ti%E1%BA%BFng%20Anh/LESSON%205%20-%20Listening%20%281%29.pptx",
+    file_size: 3034273,
+    file_type: "Presentation",
+    mime_type: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    is_folder: 0,
+    creation: "2026-07-16 13:28:10.757303",
+    modified: "2026-07-16 13:28:10.892488",
+    owner: "Administrator",
+    owner_fullname: "Administrator",
+    owner_image: null,
+    views: 0,
+    status: "Active",
+    recipients: [],
+    tags: ["English", "Lesson"]
+  },
+  {
+    name: "11803bffec",
+    file_name: "6366630160986.mp4",
+    folder: "09f303b6bf",
+    file_url: "/api/method/drive.api.s3.fetch?path=Administrator%20%28Administrator%29/6366630160986.mp4",
+    file_size: 10401906,
+    file_type: "Video",
+    mime_type: "video/mp4",
+    is_folder: 0,
+    creation: "2026-07-16 10:46:44.769656",
+    modified: "2026-07-16 10:46:48.797724",
+    owner: "Administrator",
+    owner_fullname: "Administrator",
+    owner_image: null,
+    views: 0,
+    status: "Active",
+    recipients: [],
+    tags: ["Video", "Lecture"]
+  }
+];
+
+const calculateDriveStats = (filesList: typeof mockDriveFiles) => {
+  let imagesCount = 0;
+  let imagesSize = 0;
+  let videosCount = 0;
+  let videosSize = 0;
+  let documentsCount = 0;
+  let documentsSize = 0;
+  let otherCount = 0;
+  let otherSize = 0;
+
+  filesList.forEach((file) => {
+    const typeLower = (file.file_type || '').toLowerCase();
+    const mimeLower = (file.mime_type || '').toLowerCase();
+    const size = file.file_size || 0;
+
+    if (typeLower === 'image' || mimeLower.includes('image')) {
+      imagesCount++;
+      imagesSize += size;
+    } else if (typeLower === 'video' || mimeLower.includes('video')) {
+      videosCount++;
+      videosSize += size;
+    } else if (
+      typeLower === 'document' ||
+      typeLower === 'text' ||
+      typeLower === 'presentation' ||
+      mimeLower.includes('pdf') ||
+      mimeLower.includes('word') ||
+      mimeLower.includes('document') ||
+      mimeLower.includes('sheet') ||
+      mimeLower.includes('excel') ||
+      mimeLower.includes('text/plain')
+    ) {
+      documentsCount++;
+      documentsSize += size;
+    } else {
+      otherCount++;
+      otherSize += size;
+    }
+  });
+
+  return {
+    Images: { count: imagesCount, size: imagesSize },
+    Videos: { count: videosCount, size: videosSize },
+    Documents: { count: documentsCount, size: documentsSize },
+    Other: { count: otherCount, size: otherSize },
+  };
+};
+
 let mockTickets = [...initialTickets];
 
 let mockDepartments = [
@@ -723,101 +983,28 @@ export const handlers = [
 
   // --- DOCUMENTS ---
   http.get(getApiUrl('/api/method/drive_edms.api.published.get_published_documents'), () => {
+    const data = mockDriveFiles.map(file => ({
+      name: file.name,
+      file_name: file.file_name,
+      mime_type: file.mime_type,
+      owner: file.owner,
+      creation: file.creation,
+      modified: file.modified,
+      file_size: file.file_size,
+      file_url: file.file_url,
+      status: file.status || 'Active',
+      folder: file.folder,
+      views: file.views || 0,
+      recipients: file.recipients || [],
+      tags: file.tags || [],
+      template_type: file.tags.includes('Workflow') ? 'REGULATION' : file.tags.includes('UI') ? 'POLICY' : 'GUIDELINE',
+      owner_fullname: file.owner_fullname || file.owner || 'Administrator',
+      description: file.file_name.includes('Workflow') ? "Quy trình hướng dẫn thiết lập cấu hình và phê duyệt tài liệu trên hệ thống EDMS." : file.file_name.includes('Screenshot') ? "Hình ảnh chụp màn hình giao diện cấu hình và các bước thực hiện thao tác." : "Sơ yếu lý lịch và hồ sơ năng lực của nhân sự Phan Phạm Quốc Khánh."
+    }));
     return HttpResponse.json({
       message: {
-        data: [
-          {
-            name: "70a7750e98",
-            file_name: "1. Luồng Cấu hình (Setup Workflow).txt",
-            mime_type: "text/plain",
-            owner: "Administrator",
-            creation: "2026-07-16 13:52:15.721598",
-            modified: "2026-07-16 13:52:15.763100",
-            file_size: 3979,
-            file_url: "/api/method/drive.api.s3.fetch?path=Administrator%20%28Administrator%29/1.%20Lu%E1%BB%93ng%20C%E1%BA%A5u%20h%C3%ACnh%20%28Setup%20Workflow%29.txt",
-            status: "Active",
-            folder: "09f303b6bf",
-            views: 1,
-            recipients: [],
-            tags: []
-          },
-          {
-            name: "f11d6ded4a",
-            file_name: "Screenshot 2026-07-15 152114.png",
-            mime_type: "image/png",
-            owner: "Administrator",
-            creation: "2026-07-16 13:51:13.230238",
-            modified: "2026-07-16 13:51:13.352771",
-            file_size: 163516,
-            file_url: "/api/method/drive.api.s3.fetch?path=Administrator%20%28Administrator%29/Screenshot%202026-07-15%20152114.png",
-            status: "Active",
-            folder: "09f303b6bf",
-            views: 1,
-            recipients: [],
-            tags: []
-          },
-          {
-            name: "d2827383e9",
-            file_name: "CV_PhanPhamQuocKhanh.pdf",
-            mime_type: "application/pdf",
-            owner: "Administrator",
-            creation: "2026-07-16 13:50:48.537536",
-            modified: "2026-07-16 13:50:50.874084",
-            file_size: 112438,
-            file_url: "/api/method/drive.api.s3.fetch?path=Administrator%20%28Administrator%29/CV_PhanPhamQuocKhanh.pdf",
-            status: "Active",
-            folder: "09f303b6bf",
-            views: 1,
-            recipients: [],
-            tags: []
-          },
-          {
-            name: "c013718b3f",
-            file_name: "travel.mp4",
-            mime_type: "video/mp4",
-            owner: "Administrator",
-            creation: "2026-07-16 13:28:42.697833",
-            modified: "2026-07-16 13:41:59.725212",
-            file_size: 17074788,
-            file_url: "/api/method/drive.api.s3.fetch?path=Administrator%20%28Administrator%29/Ti%E1%BA%BFng%20Anh/travel.mp4",
-            status: "Active",
-            folder: "d3c3e8e3c9",
-            views: 0,
-            recipients: [],
-            tags: []
-          },
-          {
-            name: "85d4052ca2",
-            file_name: "LESSON 5 - Listening (1).pptx",
-            mime_type: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-            owner: "Administrator",
-            creation: "2026-07-16 13:28:10.757303",
-            modified: "2026-07-16 13:28:10.892488",
-            file_size: 3034273,
-            file_url: "/api/method/drive.api.s3.fetch?path=Administrator%20%28Administrator%29/Ti%E1%BA%BFng%20Anh/LESSON%205%20-%20Listening%20%281%29.pptx",
-            status: "Active",
-            folder: "d3c3e8e3c9",
-            views: 0,
-            recipients: [],
-            tags: []
-          },
-          {
-            name: "11803bffec",
-            file_name: "6366630160986.mp4",
-            mime_type: "video/mp4",
-            owner: "Administrator",
-            creation: "2026-07-16 10:46:44.769656",
-            modified: "2026-07-16 10:46:48.797724",
-            file_size: 10401906,
-            file_url: "/api/method/drive.api.s3.fetch?path=Administrator%20%28Administrator%29/6366630160986.mp4",
-            status: "Active",
-            folder: "09f303b6bf",
-            views: 0,
-            recipients: [],
-            tags: []
-          }
-        ],
-        total: 6,
+        data,
+        total: data.length,
         page_size: 10,
         start: 0
       }
@@ -900,11 +1087,68 @@ export const handlers = [
   }),
 
   http.get(getApiUrl('/api/v1/documents/:id'), ({ params }) => {
-    const doc = mockDocuments.find((d) => d.id === params.id);
-    if (!doc) {
-      return new HttpResponse(null, { status: 404 });
+    const existingDoc = mockDocuments.find((d) => d.id === params.id) as any;
+    if (existingDoc) {
+      existingDoc.views = (existingDoc.views || 0) + 1;
+      const driveFile = mockDriveFiles.find(f => f.name === params.id);
+      if (driveFile) {
+        driveFile.views = existingDoc.views;
+      }
+      return HttpResponse.json({ data: existingDoc });
     }
-    return HttpResponse.json({ data: doc });
+
+    const driveFile = mockDriveFiles.find(f => f.name === params.id);
+    if (driveFile) {
+      driveFile.views = (driveFile.views || 0) + 1;
+      
+      const newDoc = {
+        id: driveFile.name,
+        title: driveFile.file_name,
+        created_by: driveFile.owner_fullname || driveFile.owner || 'Administrator',
+        created_at: driveFile.creation,
+        updated_at: driveFile.modified,
+        is_published: true,
+        status: 'PUBLISHED' as any,
+        visibility: 'PUBLIC' as any,
+        file_url: driveFile.file_url,
+        file_size: driveFile.file_size,
+        views: driveFile.views,
+        recipients: driveFile.recipients || [],
+        tags: driveFile.tags || [],
+        template: {
+          id: `template-${driveFile.name}`,
+          name: driveFile.file_name.includes('Workflow') ? 'Workflow Template' : driveFile.file_name.includes('Screenshot') ? 'Screenshot Template' : 'Standard Document Template',
+          version: 1,
+          status: 'APPROVED',
+          template_type: driveFile.file_name.includes('Workflow') ? 'REGULATION' : driveFile.file_name.includes('Screenshot') ? 'POLICY' : 'GUIDELINE',
+          artifact_type: driveFile.file_type === 'Video' ? 'video' : 'pdf_form',
+          visibility: 'PUBLIC',
+          created_by: 'Administrator',
+          created_at: driveFile.creation,
+          updated_at: driveFile.modified,
+          description: 'Mock template for drive files',
+          source_file_url: driveFile.file_url,
+          source_file_name: driveFile.file_name,
+          template_metadata: null,
+        },
+        permissions: {
+          can_edit: true,
+          can_delete: true,
+          can_submit: false,
+          can_approve: false,
+          can_reject: false,
+          can_publish: false,
+          can_unpublish: true,
+          can_reset_to_draft: false,
+        },
+        approval: null
+      } as any;
+      
+      mockDocuments.push(newDoc);
+      return HttpResponse.json({ data: newDoc });
+    }
+    
+    return new HttpResponse(null, { status: 404 });
   }),
 
   http.post(getApiUrl('/api/v1/documents'), async ({ request }) => {
@@ -1057,73 +1301,35 @@ export const handlers = [
   // --- UNIVERSITY HUBS ---
   http.get(getApiUrl('/api/method/drive_edms.api.university_hub.get_hub_stats'), () => {
     return HttpResponse.json({
-      message: {
-        Images: { count: 0, size: 0 },
-        Videos: { count: 1, size: 17074788.0 },
-        Documents: { count: 1, size: 516773.0 },
-        Other: { count: 0, size: 0 }
-      }
+      message: calculateDriveStats(mockDriveFiles)
     });
   }),
 
   http.get(getApiUrl('/api/method/drive_edms.api.university_hub.get_hub_folders'), async ({ request }) => {
-    let category = 'Department';
-    try {
-      const body = await request.clone().json() as any;
-      if (body && body.category) {
-        category = body.category;
-      }
-    } catch {
-      // ignore
-    }
+    const url = new URL(request.url);
+    const category = url.searchParams.get('category') || 'Department';
 
-    if (category === 'Project') {
-      return HttpResponse.json({
-        message: {
-          data: [
-            {
-              name: "fb64643df8",
-              file_name: "Document1.docx",
-              modified: "2026-07-16 17:56:21.455920",
-              folder: "748bd378e2",
-              owner: "Administrator",
-              mime_type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-              owner_fullname: "Administrator",
-              owner_image: null
-            }
-          ],
-          total: 1,
-          page_size: 10,
-          start: 0
-        }
-      });
-    }
+    const folders = mockDriveFolders.filter(f => f.category === category);
+    const data = folders.map(f => {
+      const filesInFolder = mockDriveFiles.filter(file => file.folder === f.name);
+      return {
+        name: f.name,
+        file_name: f.file_name,
+        modified: f.modified || new Date().toISOString(),
+        folder: f.folder,
+        owner: f.owner,
+        mime_type: f.mime_type,
+        owner_fullname: f.owner_fullname,
+        owner_image: f.owner_image,
+        total_files: filesInFolder.length,
+        total_size: filesInFolder.reduce((sum, file) => sum + (file.file_size || 0), 0)
+      };
+    });
 
     return HttpResponse.json({
       message: {
-        data: [
-          {
-            name: "fb64643df8",
-            file_name: "Document1.docx",
-            modified: "2026-07-16 17:56:21.455920",
-            folder: "748bd378e2",
-            owner: "Administrator",
-            mime_type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            owner_fullname: "Administrator",
-            owner_image: null
-          },
-          {
-            name: "c013718b3f",
-            file_name: "travel.mp4",
-            modified: "2026-07-16 13:41:59.725212",
-            folder: "d3c3e8e3c9",
-            owner: "Administrator",
-            mime_type: "video/mp4",
-            owner_fullname: "Administrator",
-            owner_image: null
-          }
-        ],
-        total: 2,
+        data,
+        total: data.length,
         page_size: 10,
         start: 0
       }
@@ -1131,31 +1337,45 @@ export const handlers = [
   }),
 
   http.get(getApiUrl('/api/method/drive_edms.api.university_hub.get_recent_activity'), () => {
+    const allRecent = [
+      {
+        name: "fb64643df8",
+        file_name: "Document1.docx",
+        modified: "2026-07-16 17:56:21.455920",
+        folder: "748bd378e2",
+        owner: "Administrator",
+        mime_type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        owner_fullname: "Administrator",
+        owner_image: null
+      },
+      {
+        name: "c013718b3f",
+        file_name: "travel.mp4",
+        modified: "2026-07-16 13:41:59.725212",
+        folder: "d3c3e8e3c9",
+        owner: "Administrator",
+        mime_type: "video/mp4",
+        owner_fullname: "Administrator",
+        owner_image: null
+      }
+    ];
+
+    const data = allRecent.filter(act => {
+      const match = mockDriveFiles.find(file => file.name === act.name || file.file_name === act.file_name);
+      if (match) {
+        (act as any).file_url = match.file_url;
+        // Make sure properties match the found mock file if renamed
+        act.name = match.name;
+        act.file_name = match.file_name;
+        return true;
+      }
+      return false;
+    });
+
     return HttpResponse.json({
       message: {
-        data: [
-          {
-            name: "fb64643df8",
-            file_name: "Document1.docx",
-            modified: "2026-07-16 17:56:21.455920",
-            folder: "748bd378e2",
-            owner: "Administrator",
-            mime_type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            owner_fullname: "Administrator",
-            owner_image: null
-          },
-          {
-            name: "c013718b3f",
-            file_name: "travel.mp4",
-            modified: "2026-07-16 13:41:59.725212",
-            folder: "d3c3e8e3c9",
-            owner: "Administrator",
-            mime_type: "video/mp4",
-            owner_fullname: "Administrator",
-            owner_image: null
-          }
-        ],
-        total: 2,
+        data,
+        total: data.length,
         page_size: 10,
         start: 0
       }
@@ -1182,51 +1402,23 @@ export const handlers = [
 
   // --- MY HUBS ---
   http.get(getApiUrl('/api/method/drive_edms.api.my_hubs.get_my_folders'), () => {
+    const folders = mockDriveFolders.filter(f => f.category === 'MyHub');
+    const data = folders.map(f => {
+      // Calculate total files and total size for this folder
+      const filesInFolder = mockDriveFiles.filter(file => file.folder === f.name);
+      return {
+        name: f.name,
+        file_name: f.file_name,
+        folder: f.folder,
+        creation: f.creation || f.modified || new Date().toISOString(),
+        total_files: filesInFolder.length,
+        total_size: filesInFolder.reduce((sum, file) => sum + (file.file_size || 0), 0)
+      };
+    });
     return HttpResponse.json({
       message: {
-        data: [
-          {
-            name: "b947899c1e",
-            file_name: "áds",
-            folder: "d3c3e8e3c9",
-            creation: "2026-07-16 16:03:12.626853",
-            total_files: 0,
-            total_size: 0
-          },
-          {
-            name: "d3c3e8e3c9",
-            file_name: "Tiếng Anh",
-            folder: "09f303b6bf",
-            creation: "2026-07-16 13:27:40.689495",
-            total_files: 2,
-            total_size: 20109061.0
-          },
-          {
-            name: "09f303b6bf",
-            file_name: "Drive - evjem9pjqi",
-            folder: null,
-            creation: "2026-07-16 10:40:59.753247",
-            total_files: 5,
-            total_size: 10699093.0
-          },
-          {
-            name: "Home/Attachments",
-            file_name: "Attachments",
-            folder: "Home",
-            creation: "2026-07-16 08:49:47.302227",
-            total_files: 0,
-            total_size: 0
-          },
-          {
-            name: "Home",
-            file_name: "Home",
-            folder: null,
-            creation: "2026-07-16 08:49:47.300288",
-            total_files: 0,
-            total_size: 0
-          }
-        ],
-        total: 5,
+        data,
+        total: data.length,
         page_size: 20,
         start: 0
       }
@@ -1234,71 +1426,21 @@ export const handlers = [
   }),
 
   http.get(getApiUrl('/api/method/drive_edms.api.my_hubs.get_my_files'), () => {
+    const data = mockDriveFiles.map(file => ({
+      name: file.name,
+      file_name: file.file_name,
+      modified: file.modified,
+      creation: file.creation,
+      folder: file.folder || '',
+      owner: file.owner,
+      mime_type: file.mime_type,
+      file_size: file.file_size,
+      file_url: file.file_url
+    }));
     return HttpResponse.json({
       message: {
-        data: [
-          {
-            name: "70a7750e98",
-            file_name: "1. Luồng Cấu hình (Setup Workflow).txt",
-            modified: "2026-07-16 13:52:15.763100",
-            creation: "2026-07-16 13:52:15.721598",
-            folder: "09f303b6bf",
-            owner: "Administrator",
-            mime_type: "text/plain",
-            file_size: 3979
-          },
-          {
-            name: "f11d6ded4a",
-            file_name: "Screenshot 2026-07-15 152114.png",
-            modified: "2026-07-16 13:51:13.352771",
-            creation: "2026-07-16 13:51:13.230238",
-            folder: "09f303b6bf",
-            owner: "Administrator",
-            mime_type: "image/png",
-            file_size: 163516
-          },
-          {
-            name: "d2827383e9",
-            file_name: "CV_PhanPhamQuocKhanh.pdf",
-            modified: "2026-07-16 13:50:50.874084",
-            creation: "2026-07-16 13:50:48.537536",
-            folder: "09f303b6bf",
-            owner: "Administrator",
-            mime_type: "application/pdf",
-            file_size: 112438
-          },
-          {
-            name: "c013718b3f",
-            file_name: "travel.mp4",
-            modified: "2026-07-16 13:41:59.725212",
-            creation: "2026-07-16 13:28:42.697833",
-            folder: "d3c3e8e3c9",
-            owner: "Administrator",
-            mime_type: "video/mp4",
-            file_size: 17074788
-          },
-          {
-            name: "85d4052ca2",
-            file_name: "LESSON 5 - Listening (1).pptx",
-            modified: "2026-07-16 13:28:10.892488",
-            creation: "2026-07-16 13:28:10.757303",
-            folder: "d3c3e8e3c9",
-            owner: "Administrator",
-            mime_type: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-            file_size: 3034273
-          },
-          {
-            name: "11803bffec",
-            file_name: "6366630160986.mp4",
-            modified: "2026-07-16 10:46:48.797724",
-            creation: "2026-07-16 10:46:44.769656",
-            folder: "09f303b6bf",
-            owner: "Administrator",
-            mime_type: "video/mp4",
-            file_size: 10401906
-          }
-        ],
-        total: 6,
+        data,
+        total: data.length,
         page_size: 10,
         start: 0
       }
@@ -1306,71 +1448,83 @@ export const handlers = [
   }),
 
   http.get(getApiUrl('/api/method/drive_edms.api.my_hubs.get_my_recent_activity'), () => {
+    // Only return recent activities for files that actually exist in mockDriveFiles!
+    const allRecent = [
+      {
+        name: "70a7750e98",
+        file_name: "1. Luồng Cấu hình (Setup Workflow).txt",
+        modified: "2026-07-16 13:52:15.763100",
+        folder: "09f303b6bf",
+        owner: "Administrator",
+        mime_type: "text/plain",
+        owner_fullname: "Sarah Chen",
+        owner_image: null
+      },
+      {
+        name: "f11d6ded4a",
+        file_name: "Screenshot 2026-07-15 152114.png",
+        modified: "2026-07-16 13:51:13.352771",
+        folder: "09f303b6bf",
+        owner: "Administrator",
+        mime_type: "image/png",
+        owner_fullname: "David Wilson",
+        owner_image: null
+      },
+      {
+        name: "d2827383e9",
+        file_name: "CV_PhanPhamQuocKhanh.pdf",
+        modified: "2026-07-16 13:50:50.874084",
+        folder: "09f303b6bf",
+        owner: "Administrator",
+        mime_type: "application/pdf",
+        owner_fullname: "Sarah Jenkins",
+        owner_image: null
+      },
+      {
+        name: "c013718b3f",
+        file_name: "travel.mp4",
+        modified: "2026-07-16 13:41:59.725212",
+        folder: "d3c3e8e3c9",
+        owner: "Administrator",
+        mime_type: "video/mp4",
+        owner_fullname: "Administrator",
+        owner_image: null
+      },
+      {
+        name: "85d4052ca2",
+        file_name: "LESSON 5 - Listening (1).pptx",
+        modified: "2026-07-16 13:28:10.892488",
+        folder: "d3c3e8e3c9",
+        owner: "Administrator",
+        mime_type: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        owner_fullname: "Administrator",
+        owner_image: null
+      },
+      {
+        name: "11803bffec",
+        file_name: "6366630160986.mp4",
+        modified: "2026-07-16 10:46:48.797724",
+        folder: "09f303b6bf",
+        owner: "Administrator",
+        mime_type: "video/mp4",
+        owner_fullname: "Administrator",
+        owner_image: null
+      }
+    ];
+
+    const data = allRecent.filter(act => {
+      const match = mockDriveFiles.find(file => file.name === act.name);
+      if (match) {
+        (act as any).file_url = match.file_url;
+        return true;
+      }
+      return false;
+    });
+
     return HttpResponse.json({
       message: {
-        data: [
-          {
-            name: "70a7750e98",
-            file_name: "1. Luồng Cấu hình (Setup Workflow).txt",
-            modified: "2026-07-16 13:52:15.763100",
-            folder: "09f303b6bf",
-            owner: "Administrator",
-            mime_type: "text/plain",
-            owner_fullname: "Administrator",
-            owner_image: null
-          },
-          {
-            name: "f11d6ded4a",
-            file_name: "Screenshot 2026-07-15 152114.png",
-            modified: "2026-07-16 13:51:13.352771",
-            folder: "09f303b6bf",
-            owner: "Administrator",
-            mime_type: "image/png",
-            owner_fullname: "Administrator",
-            owner_image: null
-          },
-          {
-            name: "d2827383e9",
-            file_name: "CV_PhanPhamQuocKhanh.pdf",
-            modified: "2026-07-16 13:50:50.874084",
-            folder: "09f303b6bf",
-            owner: "Administrator",
-            mime_type: "application/pdf",
-            owner_fullname: "Administrator",
-            owner_image: null
-          },
-          {
-            name: "c013718b3f",
-            file_name: "travel.mp4",
-            modified: "2026-07-16 13:41:59.725212",
-            folder: "d3c3e8e3c9",
-            owner: "Administrator",
-            mime_type: "video/mp4",
-            owner_fullname: "Administrator",
-            owner_image: null
-          },
-          {
-            name: "85d4052ca2",
-            file_name: "LESSON 5 - Listening (1).pptx",
-            modified: "2026-07-16 13:28:10.892488",
-            folder: "d3c3e8e3c9",
-            owner: "Administrator",
-            mime_type: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-            owner_fullname: "Administrator",
-            owner_image: null
-          },
-          {
-            name: "11803bffec",
-            file_name: "6366630160986.mp4",
-            modified: "2026-07-16 10:46:48.797724",
-            folder: "09f303b6bf",
-            owner: "Administrator",
-            mime_type: "video/mp4",
-            owner_fullname: "Administrator",
-            owner_image: null
-          }
-        ],
-        total: 6,
+        data,
+        total: data.length,
         page_size: 10,
         start: 0
       }
@@ -1379,66 +1533,147 @@ export const handlers = [
 
   http.get(getApiUrl('/api/method/drive_edms.api.my_hubs.get_my_stats'), () => {
     return HttpResponse.json({
-      message: {
-        Images: {
-          count: 1,
-          size: 163516.0
-        },
-        Videos: {
-          count: 2,
-          size: 27476694.0
-        },
-        Documents: {
-          count: 3,
-          size: 3150690.0
-        },
-        Other: {
-          count: 0,
-          size: 0
-        }
-      }
+      message: calculateDriveStats(mockDriveFiles)
     });
   }),
 
   http.get(getApiUrl('/api/v1/my-hubs/folders'), () => {
-    return HttpResponse.json({ data: mockFolders });
+    const folders = mockDriveFolders.filter(f => f.category === 'MyHub').map(f => {
+      const filesInFolder = mockDriveFiles.filter(file => file.folder === f.name);
+      
+      const formatBytesLocal = (bytes: number): string => {
+        if (bytes === 0) return '0 B';
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+      };
+
+      return {
+        id: f.name,
+        name: f.file_name,
+        size: formatBytesLocal(filesInFolder.reduce((sum, file) => sum + (file.file_size || 0), 0)),
+        filesCount: filesInFolder.length
+      };
+    });
+    return HttpResponse.json({ data: folders });
   }),
 
   http.post(getApiUrl('/api/v1/my-hubs/folders'), async ({ request }) => {
     const payload = (await request.json()) as any;
     const newFolder = {
-      id: `folder-${Date.now()}`,
-      name: payload.name || 'New Folder',
-      size: '0 B',
-      filesCount: 0,
+      name: `folder-${Date.now()}`,
+      file_name: payload.name || 'New Folder',
+      folder: null,
+      creation: new Date().toISOString(),
+      modified: new Date().toISOString(),
+      owner: "Administrator",
+      mime_type: "Folder",
+      owner_fullname: "Administrator",
+      owner_image: null,
+      category: "MyHub"
     };
-    mockFolders = [...mockFolders, newFolder];
-    return HttpResponse.json({ data: newFolder });
+    mockDriveFolders.push(newFolder);
+    return HttpResponse.json({
+      data: {
+        id: newFolder.name,
+        name: newFolder.file_name,
+        size: '0 B',
+        filesCount: 0
+      }
+    });
   }),
 
   http.delete(getApiUrl('/api/v1/my-hubs/folders/:id'), ({ params }) => {
-    mockFolders = mockFolders.filter((f) => f.id !== params.id);
+    mockDriveFolders = mockDriveFolders.filter((f) => f.name !== params.id);
     return HttpResponse.json({ success: true });
   }),
 
   http.get(getApiUrl('/api/v1/my-hubs/files'), () => {
-    return HttpResponse.json({ data: mockFiles });
+    const formatBytesLocal = (bytes: number): string => {
+      if (bytes === 0) return '0 B';
+      const k = 1024;
+      const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    };
+
+    const files = mockDriveFiles.map(file => {
+      const mapFileTypeLocal = (mimeType: string, fileName?: string): 'pdf' | 'docx' | 'xlsx' | 'other' => {
+        const mimeLower = mimeType.toLowerCase();
+        if (mimeLower.includes('pdf')) return 'pdf';
+        if (mimeLower.includes('word') || mimeLower.includes('document') || mimeLower.includes('text/plain')) return 'docx';
+        if (mimeLower.includes('sheet') || mimeLower.includes('excel') || mimeLower.includes('spreadsheet')) return 'xlsx';
+        if (fileName) {
+          const ext = fileName.split('.').pop()?.toLowerCase();
+          if (ext === 'pdf') return 'pdf';
+          if (ext === 'docx' || ext === 'doc' || ext === 'txt') return 'docx';
+          if (ext === 'xlsx' || ext === 'xls') return 'xlsx';
+        }
+        return 'other';
+      };
+
+      return {
+        id: file.name,
+        name: file.file_name,
+        size: formatBytesLocal(file.file_size),
+        fileType: mapFileTypeLocal(file.mime_type, file.file_name),
+        fileUrl: file.file_url || null
+      };
+    });
+    return HttpResponse.json({ data: files });
   }),
 
   http.post(getApiUrl('/api/v1/my-hubs/files'), async ({ request }) => {
     const payload = (await request.json()) as any;
+    
+    let file_size = 102400; // 100 KB default
+    if (payload.size) {
+      const match = payload.size.match(/^([\d.]+)\s*(\w+)/);
+      if (match) {
+        const val = parseFloat(match[1]);
+        const unit = match[2].toUpperCase();
+        if (unit.startsWith('K')) file_size = val * 1024;
+        else if (unit.startsWith('M')) file_size = val * 1024 * 1024;
+        else if (unit.startsWith('G')) file_size = val * 1024 * 1024 * 1024;
+        else file_size = val;
+      }
+    }
+
     const newFile = {
-      id: `file-${Date.now()}`,
-      name: payload.name || 'New File',
-      size: payload.size || '0 B',
-      fileType: payload.fileType || 'pdf',
+      name: `file-${Date.now()}`,
+      file_name: payload.name || 'New File',
+      folder: "09f303b6bf", // Main folder
+      file_url: `/api/method/drive.api.s3.fetch?path=Administrator%20%28Administrator%29/${encodeURIComponent(payload.name || 'New File')}`,
+      file_size: file_size,
+      file_type: payload.fileType || 'pdf',
+      mime_type: payload.fileType === 'pdf' ? 'application/pdf' : payload.fileType === 'xlsx' ? 'application/vnd.ms-excel' : 'application/msword',
+      is_folder: 0,
+      creation: new Date().toISOString(),
+      modified: new Date().toISOString(),
+      owner: "Administrator",
+      owner_fullname: activeProfile.first_name + " " + (activeProfile.last_name || ""),
+      owner_image: null,
+      views: 0,
+      status: 'PUBLISHED',
+      recipients: [] as string[],
+      tags: [] as string[]
     };
-    mockFiles = [newFile, ...mockFiles];
-    return HttpResponse.json({ data: newFile });
+    mockDriveFiles.push(newFile);
+
+    return HttpResponse.json({
+      data: {
+        id: newFile.name,
+        name: newFile.file_name,
+        size: payload.size || '100 KB',
+        fileType: payload.fileType || 'pdf',
+        fileUrl: newFile.file_url
+      }
+    });
   }),
 
   http.delete(getApiUrl('/api/v1/my-hubs/files/:id'), ({ params }) => {
-    mockFiles = mockFiles.filter((f) => f.id !== params.id);
+    mockDriveFiles = mockDriveFiles.filter((f) => f.name !== params.id);
     return HttpResponse.json({ success: true });
   }),
 
@@ -1508,310 +1743,148 @@ export const handlers = [
 
   // --- DASHBOARD ---
   http.get(getApiUrl('/api/method/drive_edms.api.dashboard.trending_now'), () => {
-    return HttpResponse.json({
-      message: [
-        {
-          name: "d2827383e9",
-          file_name: "CV_PhanPhamQuocKhanh.pdf",
-          mime_type: "application/pdf",
-          owner: "Administrator",
-          creation: "2026-07-16 13:50:48.537536",
-          views: 1
-        },
-        {
-          name: "f11d6ded4a",
-          file_name: "Screenshot 2026-07-15 152114.png",
-          mime_type: "image/png",
-          owner: "Administrator",
-          creation: "2026-07-16 13:51:13.230238",
-          views: 1
-        },
-        {
-          name: "70a7750e98",
-          file_name: "1. Luồng Cấu hình (Setup Workflow).txt",
-          mime_type: "text/plain",
-          owner: "Administrator",
-          creation: "2026-07-16 13:52:15.721598",
-          views: 1
-        }
-      ]
-    });
+    const sorted = [...mockDriveFiles].sort((a, b) => (b.views || 0) - (a.views || 0)).slice(0, 3);
+    const data = sorted.map(file => ({
+      name: file.name,
+      file_name: file.file_name,
+      mime_type: file.mime_type,
+      owner: file.owner_fullname || file.owner || 'Administrator',
+      creation: file.creation,
+      views: file.views || 0,
+      file_url: file.file_url
+    }));
+    return HttpResponse.json({ message: data });
   }),
 
   http.get(getApiUrl('/api/method/drive_edms.api.dashboard.summary_stats'), () => {
+    const published_files = mockDocuments.filter(d => d.is_published || d.status === 'PUBLISHED').length;
+    const my_files = mockDriveFiles.length;
     return HttpResponse.json({
       message: {
-        published_files: 6,
-        my_files: 6,
+        published_files,
+        my_files,
         sharing_files: 0
       }
     });
   }),
 
   http.get(getApiUrl('/api/method/drive_edms.api.dashboard.engagement'), () => {
+    const totalViews = mockDriveFiles.reduce((sum, f) => sum + (f.views || 0), 0);
+    const data = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+      let views = 0;
+      if (i === 0) views = Math.max(3, totalViews);
+      else if (i === 1) views = Math.round(totalViews * 0.8) || 5;
+      else if (i === 2) views = Math.round(totalViews * 0.5) || 3;
+      else views = Math.max(1, 6 - i);
+      
+      data.push({
+        date: dateStr,
+        views
+      });
+    }
     return HttpResponse.json({
-      message: [
-        {
-          date: "2026-07-16",
-          views: 3
-        }
-      ]
+      message: data
     });
   }),
 
   http.get(getApiUrl('/api/method/drive_edms.api.dashboard.file_distribution'), () => {
+    const stats = calculateDriveStats(mockDriveFiles);
     return HttpResponse.json({
       message: {
-        Documents: 3,
-        Images: 1,
-        Videos: 2,
-        Others: 0
+        Documents: stats.Documents.count,
+        Images: stats.Images.count,
+        Videos: stats.Videos.count,
+        Others: stats.Other.count
       }
     });
   }),
 
   http.get(getApiUrl('/api/method/drive_edms.api.dashboard.documents_latest'), () => {
-    return HttpResponse.json({
-      message: [
-        {
-          name: "70a7750e98",
-          file_name: "1. Luồng Cấu hình (Setup Workflow).txt",
-          folder: "09f303b6bf",
-          file_url: null,
-          file_size: 3979,
-          file_type: "Text",
-          is_folder: 0,
-          content_doctype: null,
-          content_docname: null,
-          team: "evjem9pjqi",
-          creation: "2026-07-16 13:52:15.721598",
-          modified: "2026-07-16 04:41:49.808000",
-          owner: "Administrator",
-          attached_to_doctype: null,
-          attached_to_name: null,
-          shared_team: null,
-          owner_full_name: "Administrator",
-          owner_image: null,
-          is_favourite: null,
-          accessed: null,
-          child_count: 0,
-          share_count: 0,
-          kind: "native",
-          read: 1,
-          comment: 1,
-          share: 1,
-          upload: 1,
-          write: 1,
-          type: "admin"
-        },
-        {
-          name: "f11d6ded4a",
-          file_name: "Screenshot 2026-07-15 152114.png",
-          folder: "09f303b6bf",
-          file_url: null,
-          file_size: 163516,
-          file_type: "Image",
-          is_folder: 0,
-          content_doctype: null,
-          content_docname: null,
-          team: "evjem9pjqi",
-          creation: "2026-07-16 13:51:13.230238",
-          modified: "2025-03-02 13:46:43.407000",
-          owner: "Administrator",
-          attached_to_doctype: null,
-          attached_to_name: null,
-          shared_team: null,
-          owner_full_name: "Administrator",
-          owner_image: null,
-          is_favourite: null,
-          accessed: "2026-07-16 16:51:32.104088",
-          child_count: 0,
-          share_count: 0,
-          kind: "native",
-          read: 1,
-          comment: 1,
-          share: 1,
-          upload: 1,
-          write: 1,
-          type: "admin"
-        },
-        {
-          name: "d2827383e9",
-          file_name: "CV_PhanPhamQuocKhanh.pdf",
-          folder: "09f303b6bf",
-          file_url: null,
-          file_size: 112438,
-          file_type: "PDF",
-          is_folder: 0,
-          content_doctype: null,
-          content_docname: null,
-          team: "evjem9pjqi",
-          creation: "2026-07-16 13:50:48.537536",
-          modified: "2026-07-12 09:25:37.888000",
-          owner: "Administrator",
-          attached_to_doctype: null,
-          attached_to_name: null,
-          shared_team: null,
-          owner_full_name: "Administrator",
-          owner_image: null,
-          is_favourite: null,
-          accessed: "2026-07-16 14:19:52.112621",
-          child_count: 0,
-          share_count: 0,
-          kind: "native",
-          read: 1,
-          comment: 1,
-          share: 1,
-          upload: 1,
-          write: 1,
-          type: "admin"
-        },
-        {
-          name: "c013718b3f",
-          file_name: "travel.mp4",
-          folder: "d3c3e8e3c9",
-          file_url: null,
-          file_size: 17074788,
-          file_type: "Video",
-          is_folder: 0,
-          content_doctype: null,
-          content_docname: null,
-          team: "evjem9pjqi",
-          creation: "2026-07-16 13:28:42.697833",
-          modified: "2025-04-26 09:10:10.096000",
-          owner: "Administrator",
-          attached_to_doctype: null,
-          attached_to_name: null,
-          shared_team: null,
-          owner_full_name: "Administrator",
-          owner_image: null,
-          is_favourite: null,
-          accessed: null,
-          child_count: 0,
-          share_count: 0,
-          kind: "native",
-          read: 1,
-          comment: 1,
-          share: 1,
-          upload: 1,
-          write: 1,
-          type: "admin"
-        },
-        {
-          name: "85d4052ca2",
-          file_name: "LESSON 5 - Listening (1).pptx",
-          folder: "d3c3e8e3c9",
-          file_url: "/api/method/drive.api.s3.fetch?path=Administrator%20%28Administrator%29/Ti%E1%BA%BFng%20Anh/LESSON%205%20-%20Listening%20%281%29.pptx",
-          file_size: 3034273,
-          file_type: "Presentation",
-          is_folder: 0,
-          content_doctype: null,
-          content_docname: null,
-          team: "evjem9pjqi",
-          creation: "2026-07-16 13:28:10.757303",
-          modified: "2025-09-27 09:32:16.948000",
-          owner: "Administrator",
-          attached_to_doctype: null,
-          attached_to_name: null,
-          shared_team: null,
-          owner_full_name: "Administrator",
-          owner_image: null,
-          is_favourite: null,
-          accessed: null,
-          child_count: 0,
-          share_count: 0,
-          kind: "native",
-          read: 1,
-          comment: 1,
-          share: 1,
-          upload: 1,
-          write: 1,
-          type: "admin"
-        },
-        {
-          name: "11803bffec",
-          file_name: "6366630160986.mp4",
-          folder: "09f303b6bf",
-          file_url: null,
-          file_size: 10401906,
-          file_type: "Video",
-          is_folder: 0,
-          content_doctype: null,
-          content_docname: null,
-          team: "evjem9pjqi",
-          creation: "2026-07-16 10:46:44.769656",
-          modified: "2025-03-02 13:46:43.407000",
-          owner: "Administrator",
-          attached_to_doctype: null,
-          attached_to_name: null,
-          shared_team: null,
-          owner_full_name: "Administrator",
-          owner_image: null,
-          is_favourite: null,
-          accessed: null,
-          child_count: 0,
-          share_count: 0,
-          kind: "native",
-          read: 1,
-          comment: 1,
-          share: 1,
-          upload: 1,
-          write: 1,
-          type: "admin"
-        }
-      ]
-    });
+    const sorted = [...mockDriveFiles].sort((a, b) => new Date(b.creation).getTime() - new Date(a.creation).getTime());
+    const message = sorted.map(file => ({
+      name: file.name,
+      file_name: file.file_name,
+      folder: file.folder,
+      file_url: file.file_url,
+      file_size: file.file_size,
+      file_type: file.file_type,
+      is_folder: 0,
+      content_doctype: null,
+      content_docname: null,
+      team: "evjem9pjqi",
+      creation: file.creation,
+      modified: file.modified,
+      owner: file.owner,
+      owner_full_name: file.owner_fullname || file.owner || "Administrator",
+      owner_image: file.owner_image,
+      is_favourite: null,
+      accessed: file.modified,
+      child_count: 0,
+      share_count: 0,
+      kind: "native",
+      read: 1,
+      comment: 1,
+      share: 1,
+      upload: 1,
+      write: 1,
+      type: "admin"
+    }));
+    return HttpResponse.json({ message });
   }),
 
   // --- PROFILE ---
   http.get(getApiUrl('/api/method/drive_edms.api.profile.get_profile_dashboard'), () => {
+    const stats = calculateDriveStats(mockDriveFiles);
+    const baseDocBytes = 2.8 * 1024 * 1024 * 1024 * 1024;
+    const baseMediaBytes = 1.4 * 1024 * 1024 * 1024 * 1024;
+    
+    const docBytes = baseDocBytes + stats.Documents.size;
+    const mediaBytes = baseMediaBytes + stats.Videos.size + stats.Images.size;
+    const usedBytes = docBytes + mediaBytes;
+    const limitBytes = 10 * 1024 * 1024 * 1024 * 1024; // 10 TB limit
+    
+    const docPercentage = Math.round((docBytes / usedBytes) * 100);
+    const mediaPercentage = Math.round((mediaBytes / usedBytes) * 100);
+
     return HttpResponse.json({
       message: {
         user_info: {
-          first_name: "Administrator",
-          last_name: null,
-          full_name: "Administrator",
-          email: "admin@example.com",
-          phone: null,
-          employee_id: "EMP-XXXXX",
+          first_name: activeProfile.first_name,
+          last_name: activeProfile.last_name || null,
+          full_name: `${activeProfile.first_name} ${activeProfile.last_name || ''}`.trim(),
+          email: activeProfile.email,
+          phone: activeProfile.phone_number || null,
+          employee_id: activeProfile.id,
           department: "Information Management",
-          bio: null,
+          bio: activeProfile.expertise[0] || null,
           campus: "Main Campus",
-          role: null,
-          user_image: null
+          role: activeProfile.job,
+          user_image: activeProfile.profile_url || null
         },
         storage: {
-          used_bytes: 15999084.0,
-          limit_bytes: 10737418240,
-          percentage_used: 0,
+          used_bytes: usedBytes,
+          limit_bytes: limitBytes,
+          percentage_used: Math.round((usedBytes / limitBytes) * 100),
           categories: {
             documents: {
-              bytes: 3555025.0,
-              percentage: 22
+              bytes: docBytes,
+              percentage: docPercentage
             },
             media: {
-              bytes: 12444059.0,
-              percentage: 78
+              bytes: mediaBytes,
+              percentage: mediaPercentage
             }
           }
         },
         recent_activity: [
           {
-            title: "Administrator logged in",
+            title: `${activeProfile.first_name} logged in`,
             type: "Security",
-            time: "2026-07-17 11:47:02.503190",
-            icon: "security"
-          },
-          {
-            title: "Accessed '6366630160986.mp4'",
-            type: "Document",
-            time: "2026-07-17 10:52:03.244889",
-            icon: "document"
-          },
-          {
-            title: "Administrator logged in",
-            type: "Security",
-            time: "2026-07-17 08:42:11.213255",
+            time: new Date().toISOString().replace('T', ' ').substring(0, 19),
             icon: "security"
           },
           {
@@ -1833,130 +1906,139 @@ export const handlers = [
 
   http.put(getApiUrl('/api/method/drive_edms.api.profile.update_profile'), async ({ request }) => {
     const body = (await request.json()) as any;
+    if (body.first_name) activeProfile.first_name = body.first_name;
+    if (body.last_name !== undefined) activeProfile.last_name = body.last_name;
+    if (body.bio) activeProfile.expertise = [body.bio];
+    if (body.phone) activeProfile.phone_number = body.phone;
+    
     return HttpResponse.json({
       message: {
         status: "success",
         message: "Profile updated successfully",
         data_received: {
           phone: body.phone,
-          bio: body.bio
+          bio: body.bio,
+          first_name: body.first_name,
+          last_name: body.last_name
         }
       }
     });
   }),
 
   // --- DRIVE ACTIONS ---
-  http.get(getApiUrl('/api/method/drive.api.list.files'), () => {
+  http.get(getApiUrl('/api/method/drive.api.list.files'), ({ request }) => {
+    const url = new URL(request.url);
+    const entity_name = url.searchParams.get('entity_name');
+    
+    // Filter folders and files belonging to this entity_name parent folder!
+    const subfolders = mockDriveFolders
+      .filter(f => f.folder === entity_name)
+      .map(f => ({
+        name: f.name,
+        file_name: f.file_name,
+        folder: f.folder,
+        file_url: null,
+        file_size: 0,
+        file_type: "Folder",
+        is_folder: 1,
+        content_doctype: null,
+        content_docname: null,
+        team: "evjem9pjqi",
+        creation: f.creation || f.modified || new Date().toISOString(),
+        modified: f.modified || new Date().toISOString(),
+        owner: f.owner,
+        owner_full_name: f.owner_fullname || f.owner || "Administrator",
+        owner_image: f.owner_image,
+        is_favourite: null,
+        accessed: null,
+        child_count: 0,
+        share_count: 0,
+        kind: "native",
+        read: 1,
+        comment: 1,
+        share: 1,
+        upload: 1,
+        write: 1,
+        type: "admin"
+      }));
+      
+    const files = mockDriveFiles
+      .filter(file => file.folder === entity_name)
+      .map(file => ({
+        name: file.name,
+        file_name: file.file_name,
+        folder: file.folder,
+        file_url: file.file_url,
+        file_size: file.file_size,
+        file_type: file.file_type,
+        is_folder: 0,
+        content_doctype: null,
+        content_docname: null,
+        team: "evjem9pjqi",
+        creation: file.creation,
+        modified: file.modified,
+        owner: file.owner,
+        owner_full_name: file.owner_fullname || file.owner || "Administrator",
+        owner_image: file.owner_image,
+        is_favourite: null,
+        accessed: null,
+        child_count: 0,
+        share_count: 0,
+        kind: "native",
+        read: 1,
+        comment: 1,
+        share: 1,
+        upload: 1,
+        write: 1,
+        type: "admin"
+      }));
+      
     return HttpResponse.json({
-      message: [
-        {
-          name: "b947899c1e",
-          file_name: "áds",
-          folder: "d3c3e8e3c9",
-          file_url: null,
-          file_size: 0,
-          file_type: "Folder",
-          is_folder: 1,
-          content_doctype: null,
-          content_docname: null,
-          team: "evjem9pjqi",
-          creation: "2026-07-16 16:03:12.626853",
-          modified: "2026-07-16 16:25:54.108683",
-          owner: "Administrator",
-          attached_to_doctype: null,
-          attached_to_name: null,
-          shared_team: null,
-          owner_full_name: "Administrator",
-          owner_image: null,
-          is_favourite: null,
-          accessed: null,
-          child_count: 0,
-          share_count: 0,
-          kind: "native",
-          read: 1,
-          comment: 1,
-          share: 1,
-          upload: 1,
-          write: 1,
-          type: "admin"
-        },
-        {
-          name: "c013718b3f",
-          file_name: "travel.mp4",
-          folder: "d3c3e8e3c9",
-          file_url: null,
-          file_size: 17074788,
-          file_type: "Video",
-          is_folder: 0,
-          content_doctype: null,
-          content_docname: null,
-          team: "evjem9pjqi",
-          creation: "2026-07-16 13:28:42.697833",
-          modified: "2025-04-26 09:10:10.096000",
-          owner: "Administrator",
-          attached_to_doctype: null,
-          attached_to_name: null,
-          shared_team: null,
-          owner_full_name: "Administrator",
-          owner_image: null,
-          is_favourite: null,
-          accessed: null,
-          child_count: 0,
-          share_count: 0,
-          kind: "native",
-          read: 1,
-          comment: 1,
-          share: 1,
-          upload: 1,
-          write: 1,
-          type: "admin"
-        },
-        {
-          name: "85d4052ca2",
-          file_name: "LESSON 5 - Listening (1).pptx",
-          folder: "d3c3e8e3c9",
-          file_url: "/api/method/drive.api.s3.fetch?path=Administrator%20%28Administrator%29/Ti%E1%BA%BFng%20Anh/LESSON%205%20-%20Listening%20%281%29.pptx",
-          file_size: 3034273,
-          file_type: "Presentation",
-          is_folder: 0,
-          content_doctype: null,
-          content_docname: null,
-          team: "evjem9pjqi",
-          creation: "2026-07-16 13:28:10.757303",
-          modified: "2025-09-27 09:32:16.948000",
-          owner: "Administrator",
-          attached_to_doctype: null,
-          attached_to_name: null,
-          shared_team: null,
-          owner_full_name: "Administrator",
-          owner_image: null,
-          is_favourite: null,
-          accessed: null,
-          child_count: 0,
-          share_count: 0,
-          kind: "native",
-          read: 1,
-          comment: 1,
-          share: 1,
-          upload: 1,
-          write: 1,
-          type: "admin"
-        }
-      ]
+      message: [...subfolders, ...files]
     });
   }),
 
-  http.post(getApiUrl('/api/method/drive.api.files.rename'), () => {
+  http.post(getApiUrl('/api/method/drive.api.files.rename'), async ({ request }) => {
+    const payload = (await request.json()) as { entity_name: string; new_title: string };
+    if (payload) {
+      // Find in files
+      const fIdx = mockDriveFiles.findIndex((f) => f.name === payload.entity_name);
+      if (fIdx !== -1) {
+        mockDriveFiles[fIdx].file_name = payload.new_title;
+        mockDriveFiles[fIdx].modified = new Date().toISOString();
+      }
+      // Find in folders
+      const foldIdx = mockDriveFolders.findIndex((f) => f.name === payload.entity_name);
+      if (foldIdx !== -1) {
+        mockDriveFolders[foldIdx].file_name = payload.new_title;
+        mockDriveFolders[foldIdx].modified = new Date().toISOString();
+      }
+    }
     return HttpResponse.json({});
   }),
 
-  http.post(getApiUrl('/api/method/drive.api.files.move'), () => {
+  http.post(getApiUrl('/api/method/drive.api.files.move'), async ({ request }) => {
+    const payload = (await request.json()) as { entity_names: string[]; new_parent: string };
+    if (payload && payload.entity_names) {
+      payload.entity_names.forEach((name) => {
+        const fIdx = mockDriveFiles.findIndex((f) => f.name === name);
+        if (fIdx !== -1) {
+          mockDriveFiles[fIdx].folder = payload.new_parent;
+          mockDriveFiles[fIdx].modified = new Date().toISOString();
+        }
+        const foldIdx = mockDriveFolders.findIndex((f) => f.name === name);
+        if (foldIdx !== -1) {
+          mockDriveFolders[foldIdx].folder = payload.new_parent;
+          mockDriveFolders[foldIdx].modified = new Date().toISOString();
+        }
+      });
+    }
     return HttpResponse.json({
       message: {
-        file_name: "Tiếng Anh",
+        file_name: "Moved",
         team: "evjem9pjqi",
-        name: "d3c3e8e3c9",
-        folder: "09f303b6bf"
+        name: payload?.entity_names?.[0] || "",
+        folder: payload?.new_parent || ""
       }
     });
   }),
@@ -1965,7 +2047,12 @@ export const handlers = [
     return HttpResponse.json({});
   }),
 
-  http.post(getApiUrl('/api/method/drive.api.files.remove_or_restore'), () => {
+  http.post(getApiUrl('/api/method/drive.api.files.remove_or_restore'), async ({ request }) => {
+    const payload = (await request.json()) as { entity_names: string[] };
+    if (payload && payload.entity_names) {
+      mockDriveFiles = mockDriveFiles.filter((f) => !payload.entity_names.includes(f.name));
+      mockDriveFolders = mockDriveFolders.filter((f) => !payload.entity_names.includes(f.name));
+    }
     return HttpResponse.json({});
   }),
 

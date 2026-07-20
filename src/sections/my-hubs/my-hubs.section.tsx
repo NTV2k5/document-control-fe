@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useMemo } from 'react';
+import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 
 import {
   Folder,
@@ -49,8 +49,11 @@ import {
   moveDriveFilesAPI,
   shareDriveFileAPI,
   deleteDriveFilesAPI,
+  getDocumentByIdAPI,
   type IDriveFileItem,
+  type IDocument,
 } from 'api';
+import { DocumentSidePanel } from '../documents/document-side-panel.component';
 
 
 export const MyHubsSection = ({
@@ -70,16 +73,18 @@ export const MyHubsSection = ({
   const [newFolderName, setNewFolderName] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    listFoldersAPI().then(setFolders).catch(err => {
-      console.error('Failed to fetch folders:', err);
-      toast.error('Failed to fetch folders.');
-    });
-    listFilesAPI().then(setFiles).catch(err => {
-      console.error('Failed to fetch files:', err);
-      toast.error('Failed to fetch files.');
-    });
-    getMyStatsAPI().then((statsData) => {
+  const [selectedDocument, setSelectedDocument] = useState<IDocument | null>(null);
+  const [loadingDocument, setLoadingDocument] = useState(false);
+
+  const fetchFoldersAndFiles = useCallback(async () => {
+    try {
+      const foldersData = await listFoldersAPI();
+      setFolders(foldersData);
+      
+      const filesData = await listFilesAPI();
+      setFiles(filesData);
+      
+      const statsData = await getMyStatsAPI();
       const totalSize = statsData.Images.size + statsData.Videos.size + statsData.Documents.size + statsData.Other.size;
       const mappedStats = [
         {
@@ -128,12 +133,9 @@ export const MyHubsSection = ({
         },
       ];
       setStats(mappedStats);
-    }).catch(err => {
-      console.error('Failed to fetch stats:', err);
-    });
-
-    getMyRecentActivityAPI().then((data) => {
-      const mapped = data.map((item) => ({
+      
+      const activityData = await getMyRecentActivityAPI();
+      const mapped = activityData.map((item) => ({
         id: item.name,
         name: item.file_name,
         fileType: mapFileType(item.mime_type, item.file_name),
@@ -148,10 +150,58 @@ export const MyHubsSection = ({
         ]
       }));
       setActivities(mapped);
-    }).catch(err => {
-      console.error('Failed to fetch recent activities:', err);
-    });
+    } catch (err) {
+      console.error('Failed to load drive folders/files/stats/activities:', err);
+    }
   }, []);
+
+  const handleFileClick = useCallback(async (id: string) => {
+    try {
+      setLoadingDocument(true);
+      const doc = await getDocumentByIdAPI(id);
+      setSelectedDocument(doc);
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to load file details.');
+    } finally {
+      setLoadingDocument(false);
+    }
+  }, []);
+
+  const handleRecentActivityAction = useCallback(async (action: 'view' | 'download' | 'delete', activity: any) => {
+    if (action === 'view') {
+      handleFileClick(activity.id);
+    } else if (action === 'download') {
+      try {
+        const doc = await getDocumentByIdAPI(activity.id);
+        if (doc.file_url) {
+          const fullUrl = doc.file_url.startsWith('http') ? doc.file_url : `${import.meta.env.VITE_API_ENDPOINT || ''}${doc.file_url}`;
+          window.open(fullUrl, '_blank');
+        } else {
+          toast.error("Download URL not available.");
+        }
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to download.");
+      }
+    } else if (action === 'delete') {
+      if (confirm(`Are you sure you want to delete ${activity.name}?`)) {
+        try {
+          await deleteDriveFilesAPI({ entity_names: [activity.id] });
+          toast.success("File deleted successfully.");
+          void fetchFoldersAndFiles();
+          window.dispatchEvent(new Event('drive-updated'));
+        } catch (err) {
+          console.error(err);
+          toast.error("Failed to delete.");
+        }
+      }
+    }
+  }, [fetchFoldersAndFiles, handleFileClick]);
+
+  useEffect(() => {
+    void fetchFoldersAndFiles();
+  }, [fetchFoldersAndFiles]);
 
   const displayActivities = useMemo(() => {
     return activities.map((item) => ({
@@ -185,10 +235,46 @@ export const MyHubsSection = ({
     }
   };
 
-  const handleRename = async (id: string, currentName: string, isFolder: boolean) => {
-    const newName = window.prompt(`Rename ${isFolder ? 'folder' : 'file'}:`, currentName);
-    if (newName === null) return;
-    if (!newName.trim()) {
+  const [activeModal, setActiveModal] = useState<{
+    type: 'rename' | 'move' | 'share' | 'delete';
+    id: string;
+    name: string;
+    isFolder: boolean;
+  } | null>(null);
+
+  const [renameValue, setRenameValue] = useState('');
+  const [moveValue, setMoveValue] = useState('root');
+  const [shareEmail, setShareEmail] = useState('');
+
+  const handleRename = (id: string, currentName: string, isFolder: boolean) => {
+    setRenameValue(currentName);
+    setActiveModal({ type: 'rename', id, name: currentName, isFolder });
+  };
+
+  const handleMove = (id: string, currentName: string, isFolder: boolean) => {
+    setMoveValue('root');
+    setActiveModal({ type: 'move', id, name: currentName, isFolder });
+  };
+
+  const handleShare = (id: string, currentName: string) => {
+    setShareEmail('');
+    setActiveModal({ type: 'share', id, name: currentName, isFolder: false });
+  };
+
+  const handleDeleteFolder = (id: string, name: string) => {
+    setActiveModal({ type: 'delete', id, name, isFolder: true });
+  };
+
+  const handleDeleteFile = (id: string, name: string) => {
+    setActiveModal({ type: 'delete', id, name, isFolder: false });
+  };
+
+  const handleRenameSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activeModal) return;
+    const { id, name, isFolder } = activeModal;
+    const newName = renameValue.trim();
+    if (!newName) {
       toast.error('Name cannot be empty.');
       return;
     }
@@ -200,39 +286,40 @@ export const MyHubsSection = ({
       } else {
         setFiles((prev) => prev.map((f) => (f.id === id ? { ...f, name: newName } : f)));
       }
+      setActiveModal(null);
     } catch {
       toast.error('Failed to rename.');
     }
   };
 
-  const handleMove = async (id: string, currentName: string, isFolder: boolean) => {
-    const targetFolderId = window.prompt(
-      `Enter target folder ID to move ${currentName} to (Available folders:\n` +
-        folders.map((f) => `${f.name} (${f.id})`).join('\n') +
-        '\nOr type "root" to move to top level):'
-    );
-    if (targetFolderId === null) return;
-    const parentId = targetFolderId.trim().toLowerCase() === 'root' ? '' : targetFolderId.trim();
+  const handleMoveSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activeModal) return;
+    const { id, name } = activeModal;
+    const parentId = moveValue === 'root' ? '' : moveValue;
     try {
       await moveDriveFilesAPI({
         entity_names: [id],
         new_parent: parentId,
         team: 'evjem9pjqi',
       });
-      toast.success(`Moved ${currentName} successfully.`);
+      toast.success(`Moved ${name} successfully.`);
       const updatedFolders = await listFoldersAPI();
       setFolders(updatedFolders);
       const updatedFiles = await listFilesAPI();
       setFiles(updatedFiles);
+      setActiveModal(null);
     } catch {
       toast.error('Failed to move.');
     }
   };
 
-  const handleShare = async (id: string, currentName: string) => {
-    const email = window.prompt(`Enter user email to share access to ${currentName}:`);
-    if (email === null) return;
-    if (!email.trim()) {
+  const handleShareSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activeModal) return;
+    const { id, name } = activeModal;
+    const email = shareEmail.trim();
+    if (!email) {
       toast.error('Email cannot be empty.');
       return;
     }
@@ -243,31 +330,30 @@ export const MyHubsSection = ({
         user: email,
         read: 1,
       });
-      toast.success(`Shared ${currentName} with ${email} successfully.`);
+      toast.success(`Shared ${name} with ${email} successfully.`);
+      setActiveModal(null);
     } catch {
       toast.error('Failed to share.');
     }
   };
 
-  const handleDeleteFolder = async (id: string, name: string) => {
-    if (!window.confirm(`Are you sure you want to delete folder: ${name}?`)) return;
+  const handleConfirmDelete = async () => {
+    if (!activeModal) return;
+    const { id, name, isFolder } = activeModal;
     try {
       await deleteDriveFilesAPI({ entity_names: [id] });
-      setFolders((prev) => prev.filter((f) => f.id !== id));
-      toast.success(`Deleted folder: ${name}`);
+      if (isFolder) {
+        setFolders((prev) => prev.filter((f) => f.id !== id));
+        toast.success(`Deleted folder: ${name}`);
+      } else {
+        setFiles((prev) => prev.filter((f) => f.id !== id));
+        toast.success(`Deleted file: ${name}`);
+      }
+      setActiveModal(null);
+      void fetchFoldersAndFiles();
+      window.dispatchEvent(new Event('drive-updated'));
     } catch {
-      toast.error(`Failed to delete folder: ${name}`);
-    }
-  };
-
-  const handleDeleteFile = async (id: string, name: string) => {
-    if (!window.confirm(`Are you sure you want to delete file: ${name}?`)) return;
-    try {
-      await deleteDriveFilesAPI({ entity_names: [id] });
-      setFiles((prev) => prev.filter((f) => f.id !== id));
-      toast.success(`Deleted file: ${name}`);
-    } catch {
-      toast.error(`Failed to delete file: ${name}`);
+      toast.error(`Failed to delete ${isFolder ? 'folder' : 'file'}: ${name}`);
     }
   };
 
@@ -282,6 +368,8 @@ export const MyHubsSection = ({
       setNewFolderName('');
       setIsOpenFolderDialog(false);
       toast.success(`Created folder: ${newFolder.name}`);
+      void fetchFoldersAndFiles();
+      window.dispatchEvent(new Event('drive-updated'));
     } catch {
       toast.error(`Failed to create folder: ${newFolderName}`);
     }
@@ -319,6 +407,8 @@ export const MyHubsSection = ({
       });
       setFiles((prev) => [newFileItem, ...prev]);
       toast.success(`Successfully uploaded file: ${selectedFile.name}`);
+      void fetchFoldersAndFiles();
+      window.dispatchEvent(new Event('drive-updated'));
     } catch {
       toast.error(`Failed to upload file: ${selectedFile.name}`);
     }
@@ -489,7 +579,10 @@ export const MyHubsSection = ({
               key={file.id}
               className="flex items-center justify-between rounded-3xl border border-slate-100 bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md"
             >
-              <div className="flex items-center gap-3 min-w-0">
+              <div
+                onClick={() => handleFileClick(file.id)}
+                className="flex items-center gap-3 min-w-0 cursor-pointer"
+              >
                 {renderFileIcon(file.fileType)}
                 <div className="flex flex-col min-w-0">
                   <span className="font-bold text-slate-700 text-[13px] leading-snug truncate">
@@ -519,7 +612,14 @@ export const MyHubsSection = ({
                     Rename
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    onClick={() => toast.success(`Downloading file ${file.name}`)}
+                    onClick={() => {
+                      if (file.fileUrl) {
+                        const fullUrl = file.fileUrl.startsWith('http') ? file.fileUrl : `${import.meta.env.VITE_API_ENDPOINT || ''}${file.fileUrl}`;
+                        window.open(fullUrl, '_blank');
+                      } else {
+                        toast.info(`Downloading file ${file.name}`);
+                      }
+                    }}
                   >
                     <Download className="mr-2 size-4 text-slate-500" />
                     Download
@@ -551,7 +651,7 @@ export const MyHubsSection = ({
       </div>
 
       {/* Recent Activity */}
-      <HubRecentActivity activities={displayActivities} />
+      <HubRecentActivity activities={displayActivities} onActionClick={handleRecentActivityAction} />
 
       {/* Create Folder Dialog */}
       <Dialog open={isOpenFolderDialog} onOpenChange={setIsOpenFolderDialog}>
@@ -641,6 +741,191 @@ export const MyHubsSection = ({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Rename Dialog */}
+      <Dialog open={activeModal?.type === 'rename'} onOpenChange={(open) => !open && setActiveModal(null)}>
+        <DialogContent className="max-w-md bg-white rounded-3xl p-6">
+          <form onSubmit={handleRenameSubmit}>
+            <DialogHeader>
+              <DialogTitle className="text-[17px] font-bold text-slate-800">
+                Rename {activeModal?.isFolder ? 'Folder' : 'File'}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="py-6 flex flex-col gap-2">
+              <Label htmlFor="rename-input" className="text-xs font-bold text-slate-500">
+                New Name
+              </Label>
+              <Input
+                id="rename-input"
+                value={renameValue}
+                onChange={(e) => setRenameValue(e.target.value)}
+                placeholder="Enter new name..."
+                className="h-11 rounded-xl border-slate-200 text-sm focus-visible:ring-blue-600"
+                autoFocus
+              />
+            </div>
+            <DialogFooter className="flex items-center justify-end gap-3">
+              <Button
+                type="button"
+                variant="ghost"
+                className="h-10 rounded-xl px-4 text-xs font-bold text-slate-500"
+                onClick={() => setActiveModal(null)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="h-10 rounded-xl bg-blue-600 px-4 text-xs font-bold text-white shadow-md hover:bg-blue-700"
+              >
+                Save
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Move Dialog */}
+      <Dialog open={activeModal?.type === 'move'} onOpenChange={(open) => !open && setActiveModal(null)}>
+        <DialogContent className="max-w-md bg-white rounded-3xl p-6">
+          <form onSubmit={handleMoveSubmit}>
+            <DialogHeader>
+              <DialogTitle className="text-[17px] font-bold text-slate-800">
+                Move {activeModal?.name}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="py-6 flex flex-col gap-2">
+              <Label htmlFor="move-select" className="text-xs font-bold text-slate-500">
+                Select Destination Folder
+              </Label>
+              <select
+                id="move-select"
+                value={moveValue}
+                onChange={(e) => setMoveValue(e.target.value)}
+                className="w-full h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-700 focus:border-blue-600 focus:outline-none"
+              >
+                <option value="root">Root Folder</option>
+                {folders
+                  .filter((f) => f.id !== activeModal?.id)
+                  .map((f) => (
+                    <option key={f.id} value={f.id}>
+                      {f.name}
+                    </option>
+                  ))}
+              </select>
+            </div>
+            <DialogFooter className="flex items-center justify-end gap-3">
+              <Button
+                type="button"
+                variant="ghost"
+                className="h-10 rounded-xl px-4 text-xs font-bold text-slate-500"
+                onClick={() => setActiveModal(null)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="h-10 rounded-xl bg-blue-600 px-4 text-xs font-bold text-white shadow-md hover:bg-blue-700"
+              >
+                Move
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Share Dialog */}
+      <Dialog open={activeModal?.type === 'share'} onOpenChange={(open) => !open && setActiveModal(null)}>
+        <DialogContent className="max-w-md bg-white rounded-3xl p-6">
+          <form onSubmit={handleShareSubmit}>
+            <DialogHeader>
+              <DialogTitle className="text-[17px] font-bold text-slate-800">
+                Share Access
+              </DialogTitle>
+            </DialogHeader>
+            <div className="py-6 flex flex-col gap-2">
+              <Label htmlFor="share-email" className="text-xs font-bold text-slate-500">
+                User Email
+              </Label>
+              <Input
+                id="share-email"
+                type="email"
+                value={shareEmail}
+                onChange={(e) => setShareEmail(e.target.value)}
+                placeholder="Enter user email..."
+                className="h-11 rounded-xl border-slate-200 text-sm focus-visible:ring-blue-600"
+                required
+                autoFocus
+              />
+            </div>
+            <DialogFooter className="flex items-center justify-end gap-3">
+              <Button
+                type="button"
+                variant="ghost"
+                className="h-10 rounded-xl px-4 text-xs font-bold text-slate-500"
+                onClick={() => setActiveModal(null)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="h-10 rounded-xl bg-blue-600 px-4 text-xs font-bold text-white shadow-md hover:bg-blue-700"
+              >
+                Share
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={activeModal?.type === 'delete'} onOpenChange={(open) => !open && setActiveModal(null)}>
+        <DialogContent className="max-w-md bg-white rounded-3xl p-6">
+          <DialogHeader>
+            <DialogTitle className="text-[17px] font-bold text-slate-800">
+              Confirm Delete
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-6 text-sm text-slate-600">
+            Are you sure you want to delete {activeModal?.isFolder ? 'folder' : 'file'}: <strong>{activeModal?.name}</strong>?
+          </div>
+          <DialogFooter className="flex items-center justify-end gap-3">
+            <Button
+              type="button"
+              variant="ghost"
+              className="h-10 rounded-xl px-4 text-xs font-bold text-slate-500"
+              onClick={() => setActiveModal(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={handleConfirmDelete}
+              className="h-10 rounded-xl bg-red-600 px-4 text-xs font-bold text-white shadow-md hover:bg-red-700"
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* File Detail Drawer overlay */}
+      {selectedDocument && (
+        <div className="fixed inset-y-0 right-0 z-50 flex" onClick={(e) => e.stopPropagation()}>
+          <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" onClick={() => setSelectedDocument(null)} />
+          <div className="relative w-screen max-w-md bg-white shadow-2xl flex flex-col h-full animate-in slide-in-from-right duration-300">
+            <DocumentSidePanel
+              document={selectedDocument}
+              onClose={() => setSelectedDocument(null)}
+              inline={false}
+              onDocumentUpdated={(doc) => {
+                setSelectedDocument(doc);
+                void fetchFoldersAndFiles();
+                window.dispatchEvent(new Event('drive-updated'));
+              }}
+            />
+          </div>
+        </div>
+      )}
 
     </div>
   );

@@ -117,6 +117,7 @@ const MOCK_DOCUMENTS: DocumentRow[] = Array.from({ length: 24 }, (_, index) => {
     created_at: new Date(2025, 11, 12 - index, 10, 14, 0).toISOString(),
     updated_at: new Date(2025, 11, 12 - index, 10, 14, 0).toISOString(),
     visibility: 'PUBLIC',
+    views: index * 3 + 1,
     template: {
       id: `mock-template-${index + 1}`,
       name: `Template ${index + 1}`,
@@ -293,7 +294,7 @@ const getColumns = (
       cell: ({ row }) => (
         <div onClick={() => onSelectDocument(row.original)} className="cursor-pointer">
           <span className="text-sm font-semibold text-slate-400">
-            12
+            {row.original.views ?? 0}
           </span>
         </div>
       ),
@@ -463,25 +464,6 @@ export const DocumentsSection: React.FC<IDocumentsSectionProps> = () => {
       const res = await listPublishedDocumentsAPI(documentListParams);
 
       setDocuments(res.data);
-      
-      setPagination((prev) => {
-        if (
-          prev.total === res.pagination.total &&
-          prev.total_pages === res.pagination.total_pages &&
-          prev.page === res.pagination.page &&
-          prev.page_size === res.pagination.page_size
-        ) {
-          return prev;
-        }
-
-        return {
-          ...prev,
-          total: res.pagination.total,
-          total_pages: res.pagination.total_pages,
-          page: res.pagination.page,
-          page_size: res.pagination.page_size,
-        };
-      });
     } catch (error: unknown) {
       setToast({
         message: t('documentsPage.messages.loadFailed', { error: getErrorMessage(error) }),
@@ -501,6 +483,23 @@ export const DocumentsSection: React.FC<IDocumentsSectionProps> = () => {
     setSearchQuery(searchParamQuery);
     setPagination((prev) => ({ ...prev, page: 1 }));
   }, [searchParamQuery]);
+
+  // Calculate dynamic tab counts based on current search query
+  const tabCounts = useMemo(() => {
+    let list = documents;
+    if (list.length === 0 && !isLoading) {
+      list = MOCK_DOCUMENTS;
+    }
+    if (searchQuery) {
+      list = list.filter((doc) => doc.title.toLowerCase().includes(searchQuery.toLowerCase()));
+    }
+
+    const all = list.length;
+    const academic = list.filter((doc) => doc.template?.template_type === 'ACADEMIC').length;
+    const financial = list.filter((doc) => doc.template?.template_type === 'FINANCIAL').length;
+
+    return { all, academic, financial };
+  }, [documents, searchQuery, isLoading]);
 
   // memory-based filtering and slicing when backend is empty
   const displayDocs = useMemo(() => {
@@ -522,19 +521,39 @@ export const DocumentsSection: React.FC<IDocumentsSectionProps> = () => {
     return list;
   }, [documents, searchQuery, typeFilter, isLoading]);
 
+  // Synchronize pagination state with displayDocs and page_size
+  useEffect(() => {
+    setPagination((prev) => {
+      const total = displayDocs.length;
+      const total_pages = Math.max(1, Math.ceil(total / prev.page_size));
+      const page = prev.page > total_pages ? Math.max(1, total_pages) : prev.page;
+      
+      if (
+        prev.total === total &&
+        prev.total_pages === total_pages &&
+        prev.page === page
+      ) {
+        return prev;
+      }
+      return {
+        ...prev,
+        total,
+        total_pages,
+        page,
+      };
+    });
+  }, [displayDocs, pagination.page_size]);
+
   // Adjust pagination info based on displayed list
-  const totalEntries = documents.length > 0 ? pagination.total : displayDocs.length;
-  const totalPages = documents.length > 0 ? pagination.total_pages : Math.ceil(totalEntries / pageSize);
+  const totalEntries = displayDocs.length;
+  const totalPages = Math.max(1, Math.ceil(totalEntries / pageSize));
 
   const paginatedDocs = useMemo(() => {
-    if (documents.length > 0) {
-      return displayDocs; // server paginated already
-    }
-    // client-side pagination for mock list
+    // Always perform client-side pagination since the API retrieves all documents
     const start = (pagination.page - 1) * pageSize;
     const end = start + pageSize;
     return displayDocs.slice(start, end);
-  }, [displayDocs, documents.length, pagination.page, pageSize]);
+  }, [displayDocs, pagination.page, pageSize]);
 
 
   const handleDelete = useCallback(
@@ -756,7 +775,7 @@ export const DocumentsSection: React.FC<IDocumentsSectionProps> = () => {
                 ? 'border-blue-600 text-[#2563eb]'
                 : 'border-transparent text-[#A3AED0] hover:text-slate-600'
             }`}>
-            ALL ({documents.length > 0 ? pagination.total : 24})
+            ALL ({tabCounts.all})
           </button>
           <button
             onClick={() => handleTabClick('ACADEMIC')}
@@ -765,7 +784,7 @@ export const DocumentsSection: React.FC<IDocumentsSectionProps> = () => {
                 ? 'border-blue-600 text-[#2563eb]'
                 : 'border-transparent text-[#A3AED0] hover:text-slate-600'
             }`}>
-            ACADEMIC DOCS (12)
+            ACADEMIC DOCS ({tabCounts.academic})
           </button>
           <button
             onClick={() => handleTabClick('FINANCIAL')}
@@ -774,7 +793,7 @@ export const DocumentsSection: React.FC<IDocumentsSectionProps> = () => {
                 ? 'border-blue-600 text-[#2563eb]'
                 : 'border-transparent text-[#A3AED0] hover:text-slate-600'
             }`}>
-            FINANCIAL (8)
+            FINANCIAL ({tabCounts.financial})
           </button>
         </div>
 
@@ -906,6 +925,17 @@ export const DocumentsSection: React.FC<IDocumentsSectionProps> = () => {
               document={selectedDocument}
               onClose={() => setSelectedDocument(null)}
               inline={true}
+              onFolderClick={(folder) => {
+                setSearchQuery(folder);
+              }}
+              onTagClick={(tag) => {
+                setSearchQuery(tag);
+              }}
+              onDocumentUpdated={(doc) => {
+                setSelectedDocument(doc);
+                void fetchDocuments();
+                window.dispatchEvent(new Event('drive-updated'));
+              }}
             />
           </div>
         )}
@@ -918,6 +948,17 @@ export const DocumentsSection: React.FC<IDocumentsSectionProps> = () => {
             document={selectedDocument}
             onClose={() => setSelectedDocument(null)}
             inline={false}
+            onFolderClick={(folder) => {
+              setSearchQuery(folder);
+            }}
+            onTagClick={(tag) => {
+              setSearchQuery(tag);
+            }}
+            onDocumentUpdated={(doc) => {
+              setSelectedDocument(doc);
+              void fetchDocuments();
+              window.dispatchEvent(new Event('drive-updated'));
+            }}
           />
         )}
       </div>

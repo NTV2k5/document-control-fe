@@ -65,6 +65,7 @@ export const listFilesAPI = async (): Promise<IFileItem[]> => {
       name: item.file_name,
       size: formatBytes(item.file_size),
       fileType: mapFileType(item.mime_type, item.file_name),
+      fileUrl: (item as any).file_url || null,
     }))
   );
 };

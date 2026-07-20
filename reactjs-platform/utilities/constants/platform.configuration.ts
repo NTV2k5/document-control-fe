@@ -15,7 +15,7 @@ const getApiEndpoint = () => {
     return configuredEndpoint;
   }
 
-  return 'http://100.106.138.47:8000';
+  return 'http://100.106.138.47:8010';
 };
 
 const API_ENDPOINT = getApiEndpoint();

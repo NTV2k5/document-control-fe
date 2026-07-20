@@ -12,9 +12,10 @@ type LatestPublishedProps = {
     downloads?: number;
     views?: number;
   }[];
+  onItemClick?: (id: string) => void;
 };
 
-export function LatestPublished({ docs }: LatestPublishedProps) {
+export function LatestPublished({ docs, onItemClick }: LatestPublishedProps) {
   const getBadgeClasses = (type: string) => {
     if (type === 'REGULATION') {
       return 'bg-blue-100 text-blue-600 hover:bg-blue-100 shadow-[0_2px_8px_rgba(37,99,235,0.25)]';
@@ -47,6 +48,7 @@ export function LatestPublished({ docs }: LatestPublishedProps) {
         {docs.map((doc) => (
           <Card
             key={doc.id}
+            onClick={() => onItemClick?.(String(doc.id))}
             className="cursor-pointer rounded-2xl border-none shadow-sm ring-1 ring-slate-100 transition-all hover:shadow-md hover:ring-slate-200"
           >
             <CardContent className="p-6">
