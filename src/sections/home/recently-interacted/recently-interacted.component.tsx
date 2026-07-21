@@ -44,7 +44,7 @@ const getDocIcon = (type: string, className: string) => {
   return iconMap[type] ?? <File className={className} />;
 };
 
-export function RecentlyInteracted({ docs }: RecentlyInteractedProps) {
+export function RecentlyInteracted({ docs, onItemClick }: RecentlyInteractedProps) {
   const navigate = useNavigate();
 
   return (
