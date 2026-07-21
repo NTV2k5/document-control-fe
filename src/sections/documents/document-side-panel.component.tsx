@@ -3,6 +3,17 @@ import { type IDocument, exportOfficeArtifactAPI, getFileVersionsAPI, type IFile
 import { formatDate } from '../../lib';
 import { useState, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
+import { toast } from 'react-toastify';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  Button,
+  Input,
+  Label,
+} from 'reactjs-platform/ui';
 
 interface IDocumentSidePanelProps {
   document: IDocument | null;
@@ -27,6 +38,14 @@ export const DocumentSidePanel = ({
   const [versions, setVersions] = useState<IFileVersion[]>([]);
   const [loadingVersions, setLoadingVersions] = useState(false);
 
+  // Modal States
+  const [isAddRecipientOpen, setIsAddRecipientOpen] = useState(false);
+  const [isAddTagOpen, setIsAddTagOpen] = useState(false);
+  const [newRecipientEmail, setNewRecipientEmail] = useState('');
+  const [newTagName, setNewTagName] = useState('');
+  const [isSubmittingRecipient, setIsSubmittingRecipient] = useState(false);
+  const [isSubmittingTag, setIsSubmittingTag] = useState(false);
+
   useEffect(() => {
     if (activeTab === 'version' && document?.id) {
       setLoadingVersions(true);
@@ -37,53 +56,75 @@ export const DocumentSidePanel = ({
     }
   }, [activeTab, document?.id]);
 
-  const handleAddRecipientClick = async () => {
-    if (!document) return;
-    const email = window.prompt("Enter recipient's email address:");
+  const handleAddRecipientClick = () => {
+    setNewRecipientEmail('');
+    setIsAddRecipientOpen(true);
+  };
+
+  const handleAddTagClick = () => {
+    setNewTagName('');
+    setIsAddTagOpen(true);
+  };
+
+  const handleRecipientSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!document || isSubmittingRecipient) return;
+    const email = newRecipientEmail.trim();
     if (!email) return;
-    const trimmed = email.trim();
-    if (!trimmed) return;
+
+    setIsSubmittingRecipient(true);
     try {
       const currentRecipients = document.recipients || [];
-      if (currentRecipients.includes(trimmed)) {
-        alert("Recipient already added.");
+      if (currentRecipients.includes(email)) {
+        toast.error("Recipient already added.");
+        setIsSubmittingRecipient(false);
         return;
       }
-      const updatedRecipients = [...currentRecipients, trimmed];
-      
+      const updatedRecipients = [...currentRecipients, email];
+
       const updatedDoc = await updateDocumentAPI(document.id, {
         recipients: updatedRecipients
       });
-      
+
       onDocumentUpdated?.(updatedDoc);
+      setIsAddRecipientOpen(false);
+      toast.success("Recipient added successfully.");
     } catch (err) {
       console.error("Failed to add recipient:", err);
-      alert("Failed to add recipient.");
+      toast.error("Failed to add recipient.");
+    } finally {
+      setIsSubmittingRecipient(false);
     }
   };
 
-  const handleAddTagClick = async () => {
-    if (!document) return;
-    const tag = window.prompt("Enter new tag name (without #):");
+  const handleTagSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!document || isSubmittingTag) return;
+    const tag = newTagName.trim().replace(/^#/, '');
     if (!tag) return;
-    const trimmed = tag.trim();
-    if (!trimmed) return;
+
+    setIsSubmittingTag(true);
     try {
       const currentTags = document.tags || [];
-      if (currentTags.includes(trimmed)) {
-        alert("Tag already exists.");
+      if (currentTags.includes(tag)) {
+        toast.error("Tag already exists.");
+        setIsSubmittingTag(false);
         return;
       }
-      const updatedTags = [...currentTags, trimmed];
-      
+      const updatedTags = [...currentTags, tag];
+
       const updatedDoc = await updateDocumentAPI(document.id, {
         tags: updatedTags
       });
-      
+
       onDocumentUpdated?.(updatedDoc);
+      setIsAddTagOpen(false);
+      toast.success("Tag added successfully.");
     } catch (err) {
       console.error("Failed to add tag:", err);
-      alert("Failed to add tag.");
+      toast.error("Failed to add tag.");
+    } finally {
+      setIsSubmittingTag(false);
     }
   };
 
@@ -434,29 +475,118 @@ export const DocumentSidePanel = ({
     </div>
   );
 
-  if (inline) {
-    return (
-      <div
-        className="hidden xl:flex w-full xl:w-[380px] shrink-0 flex-col border border-slate-100 bg-white p-6 rounded-2xl shadow-sm h-fit"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {panelContent}
-      </div>
-    );
-  }
-
   return (
     <>
-      <div
-        className="fixed inset-0 z-40 bg-slate-900/15 backdrop-blur-[1px] transition-opacity"
-        onClick={onClose}
-      />
-      <div
-        className="fixed bottom-0 right-0 top-0 z-50 flex w-[450px] flex-col border-l border-slate-200 bg-white shadow-[-10px_0_30px_rgba(0,0,0,0.05)] transition-transform duration-300"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {panelContent}
-      </div>
+      {inline ? (
+        <div
+          className="hidden xl:flex w-full xl:w-[380px] shrink-0 flex-col border border-slate-100 bg-white p-6 rounded-2xl shadow-sm h-fit"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {panelContent}
+        </div>
+      ) : (
+        <>
+          <div
+            className="fixed inset-0 z-40 bg-slate-900/15 backdrop-blur-[1px] transition-opacity"
+            onClick={onClose}
+          />
+          <div
+            className="fixed bottom-0 right-0 top-0 z-50 flex w-[450px] flex-col border-l border-slate-200 bg-white shadow-[-10px_0_30px_rgba(0,0,0,0.05)] transition-transform duration-300"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {panelContent}
+          </div>
+        </>
+      )}
+
+      {/* Add Recipient Modal */}
+      <Dialog open={isAddRecipientOpen} onOpenChange={setIsAddRecipientOpen}>
+        <DialogContent className="max-w-md bg-white rounded-3xl p-6">
+          <form onSubmit={handleRecipientSubmit}>
+            <DialogHeader>
+              <DialogTitle className="text-[17px] font-bold text-slate-800">
+                Add Recipient
+              </DialogTitle>
+            </DialogHeader>
+            <div className="py-6 flex flex-col gap-2">
+              <Label htmlFor="recipient-email" className="text-xs font-bold text-slate-500">
+                Recipient Email
+              </Label>
+              <Input
+                id="recipient-email"
+                type="email"
+                value={newRecipientEmail}
+                onChange={(e) => setNewRecipientEmail(e.target.value)}
+                placeholder="Enter email address..."
+                className="h-11 rounded-xl border-slate-200 text-sm focus-visible:ring-blue-600"
+                autoFocus
+                required
+              />
+            </div>
+            <DialogFooter className="flex items-center justify-end gap-3">
+              <Button
+                type="button"
+                variant="ghost"
+                className="h-10 rounded-xl px-4 text-xs font-bold text-slate-500"
+                onClick={() => setIsAddRecipientOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={isSubmittingRecipient}
+                className="h-10 rounded-xl bg-blue-600 px-5 text-xs font-bold text-white shadow-md hover:bg-blue-700 disabled:opacity-50"
+              >
+                {isSubmittingRecipient ? 'Adding...' : 'Add'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Tag Modal */}
+      <Dialog open={isAddTagOpen} onOpenChange={setIsAddTagOpen}>
+        <DialogContent className="max-w-md bg-white rounded-3xl p-6">
+          <form onSubmit={handleTagSubmit}>
+            <DialogHeader>
+              <DialogTitle className="text-[17px] font-bold text-slate-800">
+                Add Tag
+              </DialogTitle>
+            </DialogHeader>
+            <div className="py-6 flex flex-col gap-2">
+              <Label htmlFor="tag-name" className="text-xs font-bold text-slate-500">
+                Tag Name
+              </Label>
+              <Input
+                id="tag-name"
+                value={newTagName}
+                onChange={(e) => setNewTagName(e.target.value)}
+                placeholder="Enter tag name (e.g. Invoices)..."
+                className="h-11 rounded-xl border-slate-200 text-sm focus-visible:ring-blue-600"
+                autoFocus
+                required
+              />
+            </div>
+            <DialogFooter className="flex items-center justify-end gap-3">
+              <Button
+                type="button"
+                variant="ghost"
+                className="h-10 rounded-xl px-4 text-xs font-bold text-slate-500"
+                onClick={() => setIsAddTagOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={isSubmittingTag}
+                className="h-10 rounded-xl bg-blue-600 px-5 text-xs font-bold text-white shadow-md hover:bg-blue-700 disabled:opacity-50"
+              >
+                {isSubmittingTag ? 'Adding...' : 'Add'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
