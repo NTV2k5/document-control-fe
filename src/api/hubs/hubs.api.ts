@@ -104,7 +104,7 @@ export const listDriveFilesAPI = async (
   return API.request<{ message: IDriveFileItem[] }>({
     method: 'GET',
     url: '/api/method/drive.api.list.files',
-    data: payload,
+    params: payload,
     headers: {
       'Content-Type': 'application/json',
     },

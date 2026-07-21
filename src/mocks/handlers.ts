@@ -44,11 +44,11 @@ const getApiUrl = (path: string) => {
 
 // RAM State Store for Simulated APIs
 let activeProfile = {
-  id: 'EMP-6338F20F',
-  username: 'thanhquang',
-  email: 'thanhquang@giadinh.edu.vn',
-  first_name: 'Thanh',
-  last_name: 'Quang',
+  id: 'EMP-LONG.TRA',
+  username: 'long.tran2026',
+  email: 'long.tran2026@yopmail.com',
+  first_name: 'Long',
+  last_name: 'Trần',
   phone_number: '+84 982 727 272',
   user_type: 1, // Root/Admin
   job: 'Dean of Information Systems',
@@ -1101,34 +1101,40 @@ export const handlers = [
     if (driveFile) {
       driveFile.views = (driveFile.views || 0) + 1;
       
+      const fileName = driveFile.file_name || "Document";
+      const fileType = driveFile.file_type || "Document";
+      const creationDate = driveFile.creation || new Date().toISOString();
+      const modifiedDate = driveFile.modified || new Date().toISOString();
+      
       const newDoc = {
         id: driveFile.name,
-        title: driveFile.file_name,
+        title: fileName,
         created_by: driveFile.owner_fullname || driveFile.owner || 'Administrator',
-        created_at: driveFile.creation,
-        updated_at: driveFile.modified,
+        created_at: creationDate,
+        updated_at: modifiedDate,
         is_published: true,
         status: 'PUBLISHED' as any,
         visibility: 'PUBLIC' as any,
         file_url: driveFile.file_url,
-        file_size: driveFile.file_size,
+        file_size: driveFile.file_size || 0,
+        folder: driveFile.folder,
         views: driveFile.views,
         recipients: driveFile.recipients || [],
         tags: driveFile.tags || [],
         template: {
           id: `template-${driveFile.name}`,
-          name: driveFile.file_name.includes('Workflow') ? 'Workflow Template' : driveFile.file_name.includes('Screenshot') ? 'Screenshot Template' : 'Standard Document Template',
+          name: fileName.includes('Workflow') ? 'Workflow Template' : fileName.includes('Screenshot') ? 'Screenshot Template' : 'Standard Document Template',
           version: 1,
           status: 'APPROVED',
-          template_type: driveFile.file_name.includes('Workflow') ? 'REGULATION' : driveFile.file_name.includes('Screenshot') ? 'POLICY' : 'GUIDELINE',
-          artifact_type: driveFile.file_type === 'Video' ? 'video' : 'pdf_form',
+          template_type: fileName.includes('Workflow') ? 'REGULATION' : fileName.includes('Screenshot') ? 'POLICY' : 'GUIDELINE',
+          artifact_type: fileType === 'Video' ? 'video' : 'pdf_form',
           visibility: 'PUBLIC',
           created_by: 'Administrator',
-          created_at: driveFile.creation,
-          updated_at: driveFile.modified,
+          created_at: creationDate,
+          updated_at: modifiedDate,
           description: 'Mock template for drive files',
           source_file_url: driveFile.file_url,
-          source_file_name: driveFile.file_name,
+          source_file_name: fileName,
           template_metadata: null,
         },
         permissions: {
@@ -1194,19 +1200,94 @@ export const handlers = [
   }),
 
   http.patch(getApiUrl('/api/v1/documents/:id'), async ({ params, request }) => {
-    const payload = (await request.json()) as any;
-    const index = mockDocuments.findIndex((d) => d.id === params.id);
-    if (index === -1) {
-      return new HttpResponse(null, { status: 404 });
+    try {
+      const payload = (await request.json()) as any;
+      let index = mockDocuments.findIndex((d) => d.id === params.id);
+      if (index === -1) {
+        // Auto-create document from drive file if not exists in mockDocuments list yet
+        const driveFile = mockDriveFiles.find(f => f.name === params.id);
+        if (driveFile) {
+          const fileName = driveFile.file_name || "Document";
+          const fileType = driveFile.file_type || "Document";
+          const creationDate = driveFile.creation || new Date().toISOString();
+          const modifiedDate = driveFile.modified || new Date().toISOString();
+
+          const newDoc = {
+            id: driveFile.name,
+            title: fileName,
+            created_by: driveFile.owner_fullname || driveFile.owner || 'Administrator',
+            created_at: creationDate,
+            updated_at: modifiedDate,
+            is_published: true,
+            status: 'PUBLISHED' as any,
+            visibility: 'PUBLIC' as any,
+            file_url: driveFile.file_url,
+            file_size: driveFile.file_size || 0,
+            folder: driveFile.folder,
+            views: driveFile.views || 0,
+            recipients: driveFile.recipients || [],
+            tags: driveFile.tags || [],
+            template: {
+              id: `template-${driveFile.name}`,
+              name: fileName.includes('Workflow') ? 'Workflow Template' : fileName.includes('Screenshot') ? 'Screenshot Template' : 'Standard Document Template',
+              version: 1,
+              status: 'APPROVED',
+              template_type: fileName.includes('Workflow') ? 'REGULATION' : fileName.includes('Screenshot') ? 'POLICY' : 'GUIDELINE',
+              artifact_type: fileType === 'Video' ? 'video' : 'pdf_form',
+              visibility: 'PUBLIC',
+              created_by: 'Administrator',
+              created_at: creationDate,
+              updated_at: modifiedDate,
+              description: 'Mock template for drive files',
+              source_file_url: driveFile.file_url,
+              source_file_name: fileName,
+              template_metadata: null,
+            },
+            permissions: {
+              can_edit: true,
+              can_delete: true,
+              can_submit: false,
+              can_approve: false,
+              can_reject: false,
+              can_publish: false,
+              can_unpublish: true,
+              can_reset_to_draft: false,
+            },
+            approval: null
+          } as any;
+          mockDocuments.push(newDoc);
+          index = mockDocuments.length - 1;
+        } else {
+          return new HttpResponse(null, { status: 404 });
+        }
+      }
+
+      mockDocuments[index] = {
+        ...mockDocuments[index],
+        ...payload,
+        updated_at: new Date().toISOString(),
+      };
+
+      // Sync back to mockDriveFiles if it exists
+      const driveIdx = mockDriveFiles.findIndex((f) => f.name === params.id);
+      if (driveIdx !== -1) {
+        if (payload.recipients !== undefined) {
+          mockDriveFiles[driveIdx].recipients = payload.recipients;
+        }
+        if (payload.tags !== undefined) {
+          mockDriveFiles[driveIdx].tags = payload.tags;
+        }
+        mockDriveFiles[driveIdx].modified = new Date().toISOString();
+      }
+
+      return HttpResponse.json({ data: mockDocuments[index] });
+    } catch (err: any) {
+      console.error("PATCH documents mock handler failed:", err);
+      return new HttpResponse(JSON.stringify({ error: err.message || "Internal Mock Error" }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
-
-    mockDocuments[index] = {
-      ...mockDocuments[index],
-      ...payload,
-      updated_at: new Date().toISOString(),
-    };
-
-    return HttpResponse.json({ data: mockDocuments[index] });
   }),
 
   http.delete(getApiUrl('/api/v1/documents/:id'), ({ params }) => {
