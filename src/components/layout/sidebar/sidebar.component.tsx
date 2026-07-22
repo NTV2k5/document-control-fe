@@ -116,10 +116,10 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
       getMyStatsAPI()
         .then((stats) => {
           const totalBytes =
-            stats.Images.size +
-            stats.Videos.size +
-            stats.Documents.size +
-            stats.Other.size;
+            (stats?.Images?.size ?? 0) +
+            (stats?.Videos?.size ?? 0) +
+            (stats?.Documents?.size ?? 0) +
+            (stats?.Other?.size ?? 0);
           const bytesToTb = totalBytes / (1024 * 1024 * 1024 * 1024);
           setStorageUsed(STORAGE_BASE_TB + bytesToTb);
         })
@@ -372,7 +372,10 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
       {/* Logo Area */}
       <div className="flex h-16 items-center justify-between border-b border-slate-100 px-4">
         {!isCollapsed && (
-          <div className="flex items-center gap-2">
+          <div
+            onClick={() => navigate({ to: '/home' as any })}
+            className="flex cursor-pointer items-center gap-2 select-none hover:opacity-80 transition-opacity"
+          >
             {/* Landmark icon */}
             <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-blue-800 text-white shadow-[0_4px_12px_rgba(30,64,175,0.4)]">
               <Landmark className="size-5" />
@@ -384,7 +387,10 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
           </div>
         )}
         {isCollapsed && (
-          <div className="mx-auto flex size-9 items-center justify-center rounded-full bg-blue-800 text-white shadow-[0_4px_12px_rgba(30,64,175,0.4)]">
+          <div
+            onClick={() => navigate({ to: '/home' as any })}
+            className="mx-auto flex size-9 cursor-pointer items-center justify-center rounded-full bg-blue-800 text-white shadow-[0_4px_12px_rgba(30,64,175,0.4)] hover:opacity-80 transition-opacity"
+          >
             <Landmark className="size-5" />
           </div>
         )}
