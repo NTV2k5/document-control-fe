@@ -4,9 +4,21 @@ const docxExportPreviewPath = '/docx-export-preview';
 const templateVariableDocsPath = '/template-variable-docs';
 const settingsPath = '/settings';
 const legacyOpenAiSettingsPath = '/openai';
+const sharingPath = '/dashboard/sharing';
+const sharedPath = '/dashboard/shared';
+const recycleBinPath = '/dashboard/recycle-bin';
 
-const commonPaths = [docxExportPreviewPath, '/home', '/change-password', '/profile'];
-const dashboardPaths = ['/dashboard'];
+const commonPaths = [
+  docxExportPreviewPath,
+  '/home',
+  '/change-password',
+  '/profile',
+  settingsPath,
+  sharingPath,
+  sharedPath,
+  recycleBinPath,
+];
+const dashboardPaths = ['/dashboard', settingsPath];
 const templatePaths = ['/templates'];
 const documentPaths = ['/documents'];
 const templateAgentPaths = ['/template-agent'];
