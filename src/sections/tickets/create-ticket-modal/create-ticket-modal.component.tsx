@@ -76,11 +76,11 @@ export const CreateTicketModal = ({ open, onClose, onTicketCreated }: ICreateTic
 
   const getProcessingMethodString = (form: string): string => {
     const map: Record<string, string> = {
-      ONLINE_KY_SO: 'Online ký số',
-      ONLINE_BAN_SCAN: 'Online bản scan',
-      OFFLINE_KY_TAY: 'Offline ký tay',
+      ONLINE_KY_SO: 'Ký số Online',
+      ONLINE_BAN_SCAN: 'Bản Scan Online',
+      OFFLINE_KY_TAY: 'Ký tay Offline',
     };
-    return map[form] || 'Online ký số';
+    return map[form] || 'Ký số Online';
   };
 
   const handleSubmit = async () => {
@@ -98,7 +98,7 @@ export const CreateTicketModal = ({ open, onClose, onTicketCreated }: ICreateTic
         title: title || 'Yêu cầu mới',
         description: content || '',
         processing_method: getProcessingMethodString(deliveryForm),
-        ...(studentId && { student: studentId }),
+        ...(!isStudentRole && studentId && { student: studentId }),
         has_fee: hasFee ? 1 : 0,
         fee_amount: hasFee ? (selectedTemplate?.fee ?? 0) : 0,
         deadline,

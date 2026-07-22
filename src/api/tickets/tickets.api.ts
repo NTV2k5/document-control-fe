@@ -119,8 +119,21 @@ export interface IUpdateTicketPayload {
 
 /* ─── API Functions ──────────────────────────────────────── */
 
-export const listTicketsAPI = async (): Promise<ITicketAPIListResponse['data']> => {
-  const res = await API.get<unknown>(`/api/method/${API_COMMON}.ticket.get_tickets`);
+export const listTicketsAPI = async (params?: { start?: number; page_size?: number }): Promise<ITicketAPIListResponse['data']> => {
+  const queryParams = params
+    ? {
+        start: params.start,
+        page_size: params.page_size,
+        limit: params.page_size,
+        limit_start: params.start,
+        limit_page_length: params.page_size,
+      }
+    : undefined;
+
+  const res = await API.get<unknown>(
+    `/api/method/${API_COMMON}.ticket.get_tickets`,
+    { params: queryParams }
+  );
   const body = res.data as Record<string, unknown>;
 
   // Debug: log actual response structure once
@@ -165,61 +178,57 @@ export const getTicketDetailAPI = async (ticketName: string): Promise<ITicketAPI
   throw new Error(`Unexpected response structure from get_ticket_detail: ${JSON.stringify(body).slice(0, 200)}`);
 };
 
-export const createTicketAPI = async (payload: ICreateTicketPayload): Promise<ITicketAPICreateResponse['data']> => {
-  const formData = new URLSearchParams();
-  (Object.keys(payload) as Array<keyof ICreateTicketPayload>).forEach((key) => {
-    const value = payload[key];
-    if (value !== undefined && value !== null) {
-      formData.append(key, String(value));
-    }
-  });
-
+export const createTicketAPI = async (
+  payload: ICreateTicketPayload
+): Promise<ITicketAPICreateResponse['data']> => {
   if (import.meta.env.DEV) {
-    console.log('[createTicketAPI] sending payload:', Object.fromEntries(formData.entries()));
+    console.log('[createTicketAPI] sending payload:', payload);
   }
 
+  // Ép kiểu dữ liệu chuẩn giống hệt Postman
+  const body = {
+    ticket_type: payload.ticket_type,
+    title: payload.title,
+    description: payload.description,
+    processing_method: payload.processing_method,
+    assignee: payload.assignee,
+    student: payload.student, // Thêm student vào body nếu có
+    has_fee: payload.has_fee ? 1 : 0,
+    fee_amount: Number(payload.fee_amount || 0),
+    deadline: payload.deadline,
+    source: payload.source || 'Tạo thủ công',
+  };
+
   try {
-    const res = await API.post<unknown>(
+    const res = await API.post<{
+      message: string;
+      data: ITicketAPICreateResponse['data'];
+    }>(
       `/api/method/${API_COMMON}.ticket.create_ticket`,
-      formData,
-      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
-    );
-    const body = res.data as Record<string, unknown>;
-
-    const fromMessage = body?.message as Record<string, unknown> | undefined;
-    if (fromMessage?.name) {
-      return fromMessage as unknown as ITicketAPICreateResponse['data'];
-    }
-
-    const fromData = body?.data as Record<string, unknown> | undefined;
-    if (fromData?.name) {
-      return fromData as unknown as ITicketAPICreateResponse['data'];
-    }
-
-    return { name: '', ticket_type: '', status: 'New' };
-  } catch (error: any) {
-    const is404 =
-      error?.status === 404 ||
-      error?.response?.status === 404 ||
-      (typeof error?.message === 'string' && (error.message.includes('404') || error.message.includes('Request failed with status code 404')));
-
-    // If backend endpoint is missing (404), fallback to mock behavior in DEV mode
-    if (import.meta.env.DEV && is404) {
-      console.warn('[createTicketAPI] Backend endpoint /api/method/drive_edms.api.ticket.create_ticket returned 404. Falling back to mock /api/v1/tickets');
-      try {
-        const mockRes = await API.post<unknown>('/api/v1/tickets', {
-          title: payload.title,
-          content: payload.description,
-          type: payload.ticket_type,
-          hasFee: payload.has_fee === 1,
-          feeAmount: payload.fee_amount,
-          source: payload.source,
-        });
-        return (mockRes.data as any)?.data || { name: 'TC-MOCK', ticket_type: payload.ticket_type, status: 'Chờ xử lý' };
-      } catch {
-        // Fallback to local fake response if mock server also fails
-        return { name: `TC-${Math.floor(100 + Math.random() * 900)}`, ticket_type: payload.ticket_type, status: 'Chờ xử lý' };
+      body,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'clean-request': 'no-clean', // 👈 BẮT BUỘC: Bỏ qua interceptor làm biến dạng body
+        },
       }
+    );
+
+    const resData = res.data as any;
+
+    // Xử lý linh hoạt 2 dạng Response của Frappe
+    if (resData?.data?.name) {
+      return resData.data;
+    }
+    if (resData?.message?.name) {
+      return resData.message;
+    }
+
+    return resData?.data || resData;
+  } catch (error: any) {
+    if (import.meta.env.DEV) {
+      console.error('[createTicketAPI] Error response data:', error?.response?.data);
+      console.error('[createTicketAPI] Error message:', error?.message);
     }
     throw error;
   }
