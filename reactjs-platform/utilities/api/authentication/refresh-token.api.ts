@@ -1,6 +1,8 @@
 import type { ILoginResponseData, ILoginResponse } from '../../models/login-response.model';
 import { pureAxios } from '../pure-axios';
 
+const API_COMMON = import.meta.env.VITE_API_COMMON || 'drive_edms.api';
+
 export const refreshTokenAPI = (refreshToken: string): Promise<ILoginResponseData> => {
   const formData = new URLSearchParams();
   formData.append('grant_type', 'refresh_token');
@@ -8,7 +10,7 @@ export const refreshTokenAPI = (refreshToken: string): Promise<ILoginResponseDat
 
   return pureAxios
     .post<ILoginResponse>(
-      '/api/method/authen.get_token',
+      `/api/method/${API_COMMON}.authen.get_token`,
       formData,
       {
         headers: {

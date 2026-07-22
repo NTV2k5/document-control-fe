@@ -3,12 +3,20 @@ import { API } from '..';
 
 import type { IProfileResponse } from '../authentication/profile.api';
 
-export const fetchUserProfileApi = (): Promise<IUserProfile> => {
-  return API.get<IProfileResponse>('/api/method/authen.get_profile')
-    .then((response) => {
-      const data = response.data.data;
+const API_COMMON = import.meta.env.VITE_API_COMMON || 'drive_edms.api';
 
-      const roles = data.roles || [];
+export const fetchUserProfileApi = (): Promise<IUserProfile> => {
+  return API.post<IProfileResponse>(`/api/method/${API_COMMON}.authen.get_profile`)
+    .then((response) => {
+      const body = response.data as any;
+
+      if (import.meta.env.DEV) {
+        console.log('[user profile API] raw response body:', JSON.stringify(body).slice(0, 300));
+      }
+
+      const data = body?.data || body?.message || body;
+
+      const roles = (data?.roles || []) as string[];
       const isAdminUser =
         roles.includes('Administrator') ||
         roles.includes('System Manager') ||
@@ -17,16 +25,20 @@ export const fetchUserProfileApi = (): Promise<IUserProfile> => {
         roles.includes('DEAN');
 
       const userProfile: IUserProfile = {
-        id: data.email || 'unknown',
-        username: data.email ? data.email.split('@')[0] : 'unknown',
-        email: data.email || '',
-        first_name: data.first_name || '',
-        last_name: data.last_name || '',
-        phone_number: data.mobile_no || '',
+        id: data?.email || 'unknown',
+        username: data?.email ? data.email.split('@')[0] : 'unknown',
+        email: data?.email || '',
+        full_name: data?.full_name || '',
+        first_name: data?.first_name || '',
+        last_name: data?.last_name || '',
+        phone_number: data?.mobile_no || '',
         user_type: isAdminUser ? 2 : 1, // 2 = ADMIN, 1 = USER
-        job: data.role_profile || '',
+        job: data?.role_profile || '',
+        role_profile: data?.role_profile || '',
+        is_student: data?.is_student ?? (data?.role_profile === 'Student'),
+        student_info: data?.student_info || null,
         expertise: [],
-        profile_url: data.picture || '',
+        profile_url: data?.picture || '',
         permission_codes: isAdminUser
           ? [
               'TECH_ROOT',

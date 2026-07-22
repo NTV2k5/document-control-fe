@@ -5,12 +5,11 @@ if (import.meta.env.DEV) {
   import('@react-grab/mcp/client');
 }
 
-// Disabled MSW to allow real API calls to ERPNext
-if (import.meta.env.DEV && typeof window !== 'undefined') {
-  const { worker } = await import('./mocks/browser');
-  await worker.start({
-    onUnhandledRequest: 'bypass',
-  });
-}
+// MSW disabled — all API calls go to the real backend via Vite proxy
+// Uncomment the block below to re-enable mock service worker:
+// if (import.meta.env.DEV && typeof window !== 'undefined') {
+//   const { worker } = await import('./mocks/browser');
+//   await worker.start({ onUnhandledRequest: 'bypass' });
+// }
 
 export const startInstance = createStart(() => ({}));

@@ -9,6 +9,7 @@ import {
   canManageUsers,
 } from 'reactjs-platform/utilities/utils/access-control.utils';
 import { profileStore } from 'reactjs-platform/utilities/store/store-user-profile/user-profile.store';
+import { CoreUserProfileStore } from 'reactjs-platform/utilities';
 import { useRouter, useLocation } from '@tanstack/react-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
@@ -133,6 +134,12 @@ export function useAuthGuard({
     },
     [router, getRedirectArea, localePath],
   );
+
+  useEffect(() => {
+    if (isHydrated && isAuthenticated && !profile && !isProfileLoading) {
+      CoreUserProfileStore.fetchProfileAction();
+    }
+  }, [isHydrated, isAuthenticated, profile, isProfileLoading]);
 
   useEffect(() => {
     if (!isHydrated || isLoading) return;
