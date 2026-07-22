@@ -44,6 +44,9 @@ import { Route as SidebarDocumentsNewRouteImport } from './routes/_sidebar/docum
 import { Route as SidebarDocumentsIdRouteImport } from './routes/_sidebar/documents/$id'
 import { Route as SidebarDocumentInputAgentHistoryUserIdRouteImport } from './routes/_sidebar/document-input-agent-history/$userId'
 import { Route as SidebarDashboardTicketsIndexRouteImport } from './routes/_sidebar/dashboard/tickets/index'
+import { Route as SidebarDashboardSharingIndexRouteImport } from './routes/_sidebar/dashboard/sharing/index'
+import { Route as SidebarDashboardSharedIndexRouteImport } from './routes/_sidebar/dashboard/shared/index'
+import { Route as SidebarDashboardRecycleBinIndexRouteImport } from './routes/_sidebar/dashboard/recycle-bin/index'
 import { Route as SidebarDashboardMyHubsIndexRouteImport } from './routes/_sidebar/dashboard/my-hubs/index'
 import { Route as SidebarDashboardHubsIndexRouteImport } from './routes/_sidebar/dashboard/hubs/index'
 import { Route as SidebarTemplatesNewVariablesRouteImport } from './routes/_sidebar/templates/new.variables'
@@ -242,6 +245,24 @@ const SidebarDashboardTicketsIndexRoute =
     path: '/dashboard/tickets/',
     getParentRoute: () => SidebarRoute,
   } as any)
+const SidebarDashboardSharingIndexRoute =
+  SidebarDashboardSharingIndexRouteImport.update({
+    id: '/dashboard/sharing/',
+    path: '/dashboard/sharing/',
+    getParentRoute: () => SidebarRoute,
+  } as any)
+const SidebarDashboardSharedIndexRoute =
+  SidebarDashboardSharedIndexRouteImport.update({
+    id: '/dashboard/shared/',
+    path: '/dashboard/shared/',
+    getParentRoute: () => SidebarRoute,
+  } as any)
+const SidebarDashboardRecycleBinIndexRoute =
+  SidebarDashboardRecycleBinIndexRouteImport.update({
+    id: '/dashboard/recycle-bin/',
+    path: '/dashboard/recycle-bin/',
+    getParentRoute: () => SidebarRoute,
+  } as any)
 const SidebarDashboardMyHubsIndexRoute =
   SidebarDashboardMyHubsIndexRouteImport.update({
     id: '/dashboard/my-hubs/',
@@ -312,6 +333,9 @@ export interface FileRoutesByFullPath {
   '/templates/new/variables': typeof SidebarTemplatesNewVariablesRoute
   '/dashboard/hubs/': typeof SidebarDashboardHubsIndexRoute
   '/dashboard/my-hubs/': typeof SidebarDashboardMyHubsIndexRoute
+  '/dashboard/recycle-bin/': typeof SidebarDashboardRecycleBinIndexRoute
+  '/dashboard/shared/': typeof SidebarDashboardSharedIndexRoute
+  '/dashboard/sharing/': typeof SidebarDashboardSharingIndexRoute
   '/dashboard/tickets/': typeof SidebarDashboardTicketsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -353,6 +377,9 @@ export interface FileRoutesByTo {
   '/templates/new/variables': typeof SidebarTemplatesNewVariablesRoute
   '/dashboard/hubs': typeof SidebarDashboardHubsIndexRoute
   '/dashboard/my-hubs': typeof SidebarDashboardMyHubsIndexRoute
+  '/dashboard/recycle-bin': typeof SidebarDashboardRecycleBinIndexRoute
+  '/dashboard/shared': typeof SidebarDashboardSharedIndexRoute
+  '/dashboard/sharing': typeof SidebarDashboardSharingIndexRoute
   '/dashboard/tickets': typeof SidebarDashboardTicketsIndexRoute
 }
 export interface FileRoutesById {
@@ -396,6 +423,9 @@ export interface FileRoutesById {
   '/_sidebar/templates/new/variables': typeof SidebarTemplatesNewVariablesRoute
   '/_sidebar/dashboard/hubs/': typeof SidebarDashboardHubsIndexRoute
   '/_sidebar/dashboard/my-hubs/': typeof SidebarDashboardMyHubsIndexRoute
+  '/_sidebar/dashboard/recycle-bin/': typeof SidebarDashboardRecycleBinIndexRoute
+  '/_sidebar/dashboard/shared/': typeof SidebarDashboardSharedIndexRoute
+  '/_sidebar/dashboard/sharing/': typeof SidebarDashboardSharingIndexRoute
   '/_sidebar/dashboard/tickets/': typeof SidebarDashboardTicketsIndexRoute
 }
 export interface FileRouteTypes {
@@ -439,6 +469,9 @@ export interface FileRouteTypes {
     | '/templates/new/variables'
     | '/dashboard/hubs/'
     | '/dashboard/my-hubs/'
+    | '/dashboard/recycle-bin/'
+    | '/dashboard/shared/'
+    | '/dashboard/sharing/'
     | '/dashboard/tickets/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -480,6 +513,9 @@ export interface FileRouteTypes {
     | '/templates/new/variables'
     | '/dashboard/hubs'
     | '/dashboard/my-hubs'
+    | '/dashboard/recycle-bin'
+    | '/dashboard/shared'
+    | '/dashboard/sharing'
     | '/dashboard/tickets'
   id:
     | '__root__'
@@ -522,6 +558,9 @@ export interface FileRouteTypes {
     | '/_sidebar/templates/new/variables'
     | '/_sidebar/dashboard/hubs/'
     | '/_sidebar/dashboard/my-hubs/'
+    | '/_sidebar/dashboard/recycle-bin/'
+    | '/_sidebar/dashboard/shared/'
+    | '/_sidebar/dashboard/sharing/'
     | '/_sidebar/dashboard/tickets/'
   fileRoutesById: FileRoutesById
 }
@@ -780,6 +819,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SidebarDashboardTicketsIndexRouteImport
       parentRoute: typeof SidebarRoute
     }
+    '/_sidebar/dashboard/sharing/': {
+      id: '/_sidebar/dashboard/sharing/'
+      path: '/dashboard/sharing'
+      fullPath: '/dashboard/sharing/'
+      preLoaderRoute: typeof SidebarDashboardSharingIndexRouteImport
+      parentRoute: typeof SidebarRoute
+    }
+    '/_sidebar/dashboard/shared/': {
+      id: '/_sidebar/dashboard/shared/'
+      path: '/dashboard/shared'
+      fullPath: '/dashboard/shared/'
+      preLoaderRoute: typeof SidebarDashboardSharedIndexRouteImport
+      parentRoute: typeof SidebarRoute
+    }
+    '/_sidebar/dashboard/recycle-bin/': {
+      id: '/_sidebar/dashboard/recycle-bin/'
+      path: '/dashboard/recycle-bin'
+      fullPath: '/dashboard/recycle-bin/'
+      preLoaderRoute: typeof SidebarDashboardRecycleBinIndexRouteImport
+      parentRoute: typeof SidebarRoute
+    }
     '/_sidebar/dashboard/my-hubs/': {
       id: '/_sidebar/dashboard/my-hubs/'
       path: '/dashboard/my-hubs'
@@ -883,6 +943,9 @@ interface SidebarRouteChildren {
   SidebarTemplatesIndexRoute: typeof SidebarTemplatesIndexRoute
   SidebarDashboardHubsIndexRoute: typeof SidebarDashboardHubsIndexRoute
   SidebarDashboardMyHubsIndexRoute: typeof SidebarDashboardMyHubsIndexRoute
+  SidebarDashboardRecycleBinIndexRoute: typeof SidebarDashboardRecycleBinIndexRoute
+  SidebarDashboardSharedIndexRoute: typeof SidebarDashboardSharedIndexRoute
+  SidebarDashboardSharingIndexRoute: typeof SidebarDashboardSharingIndexRoute
   SidebarDashboardTicketsIndexRoute: typeof SidebarDashboardTicketsIndexRoute
 }
 
@@ -924,6 +987,9 @@ const SidebarRouteChildren: SidebarRouteChildren = {
   SidebarTemplatesIndexRoute: SidebarTemplatesIndexRoute,
   SidebarDashboardHubsIndexRoute: SidebarDashboardHubsIndexRoute,
   SidebarDashboardMyHubsIndexRoute: SidebarDashboardMyHubsIndexRoute,
+  SidebarDashboardRecycleBinIndexRoute: SidebarDashboardRecycleBinIndexRoute,
+  SidebarDashboardSharedIndexRoute: SidebarDashboardSharedIndexRoute,
+  SidebarDashboardSharingIndexRoute: SidebarDashboardSharingIndexRoute,
   SidebarDashboardTicketsIndexRoute: SidebarDashboardTicketsIndexRoute,
 }
 

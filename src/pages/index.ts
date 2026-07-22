@@ -19,6 +19,10 @@ export * from './tickets';
 export * from './university-hubs';
 export * from './my-hubs';
 export * from './profile';
+export * from './sharing';
+export * from './shared';
+export * from './recycle-bin';
+export * from './settings';
 
 
 
