@@ -17,12 +17,15 @@ export default defineConfig(({ mode }) => {
       host: true,
       proxy: {
         '/api/method/authen': {
-          target: env.VITE_API_ENDPOINT || 'https://erpnext.aurora-tech.com',
+          // target: env.VITE_API_ENDPOINT || 'https://erpnext.aurora-tech.com',
+          target: targetUrl,
           changeOrigin: true,
           secure: false,
           configure: (proxy) => {
             proxy.on('proxyReq', (proxyReq) => {
               proxyReq.removeHeader('Expect');
+              proxyReq.removeHeader('expect');
+              proxyReq.setHeader('ngrok-skip-browser-warning', 'true');
             });
           },
         },
@@ -33,6 +36,8 @@ export default defineConfig(({ mode }) => {
           configure: (proxy) => {
             proxy.on('proxyReq', (proxyReq) => {
               proxyReq.removeHeader('Expect');
+              proxyReq.removeHeader('expect');
+              proxyReq.setHeader('ngrok-skip-browser-warning', 'true');
             });
           },
         },
@@ -43,6 +48,8 @@ export default defineConfig(({ mode }) => {
           configure: (proxy) => {
             proxy.on('proxyReq', (proxyReq) => {
               proxyReq.removeHeader('Expect');
+              proxyReq.removeHeader('expect');
+              proxyReq.setHeader('ngrok-skip-browser-warning', 'true');
             });
           },
         },
