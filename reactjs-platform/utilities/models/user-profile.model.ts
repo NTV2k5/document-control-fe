@@ -22,15 +22,29 @@ export interface IUserProfileScopeAssignment {
  *   2 = ADMIN  – creates templates, manages RBAC, approves, assigns users
  *   1 = USER   – views templates, submits documents for approval
  */
+export interface IStudentInfo {
+  name: string;
+  student_code: string;
+  faculty: string;
+  faculty_name: string;
+  major: string | null;
+  major_name: string;
+  mobile_no: string;
+}
+
 export interface IUserProfile {
   id: string;
   username: string;
   email: string;
+  full_name?: string;
   first_name: string;
   last_name: string;
   phone_number: string;
   user_type: number;
   job: string;
+  role_profile?: string;
+  is_student?: boolean;
+  student_info?: IStudentInfo | null;
   expertise: string[];
   profile_url: string;
   permission_codes: string[];

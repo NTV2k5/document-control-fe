@@ -15,20 +15,32 @@ export interface ICounters {
   enrollments: number;
 }
 
+export interface IStudentInfo {
+  name: string;
+  student_code: string;
+  faculty: string;
+  faculty_name: string;
+  major: string | null;
+  major_name: string;
+  mobile_no: string;
+}
+
 export interface IProfileData {
   active: boolean;
   full_name: string;
   first_name: string;
-  last_name: string;
+  last_name: string | null;
   email: string;
   mobile_no: string;
   role_profile: string;
   roles: string[];
-  level: number;
-  picture: string;
+  picture: string | null;
+  is_deletion_requested?: number;
   is_changed: number;
-  call_profile: ICallProfile;
-  counters: ICounters;
+  is_student?: boolean;
+  student_info?: IStudentInfo | null;
+  call_profile?: ICallProfile;
+  counters?: ICounters;
 }
 
 export interface IProfileResponse {

@@ -5,9 +5,11 @@ export interface IChangePasswordResponse {
   data: Record<string, unknown>;
 }
 
+const API_COMMON = import.meta.env.VITE_API_COMMON || 'drive_edms.api';
+
 export function changePasswordApi(old_password: string, new_password: string): Promise<IChangePasswordResponse> {
   return API.post<IChangePasswordResponse>(
-    '/api/method/authen.change_password',
+    `/api/method/${API_COMMON}.authen.change_password`,
     {
       old_password,
       new_password,
