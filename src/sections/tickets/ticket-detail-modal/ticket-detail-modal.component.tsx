@@ -6,6 +6,7 @@ import { TicketStepCard } from '../ticket-step-card';
 import { X, FileText, Paperclip, CreditCard, Calendar, Clock, Settings } from 'lucide-react';
 import { getTicketDetailAPI } from 'api';
 import type { ITicketAPIStep } from 'api';
+import { profileStore } from 'reactjs-platform/utilities';
 
 /* ─── Map API step → ITicketStep ─────────────────────────── */
 const mapApiStep = (s: ITicketAPIStep, idx: number): ITicketStep => ({
@@ -135,11 +136,18 @@ export const MockQRCode = ({ size = 120, value = 'GDU Document Control' }: { siz
 );
 
 export const TicketDetailModal = ({ ticket, open, onClose }: ITicketDetailModalProps) => {
+  const profile = profileStore((state: any) => state.profile);
   const [viewRole, setViewRole] = useState<'staff' | 'student'>('staff');
   const [steps, setSteps] = useState<ITicketStep[]>([]);
   const [paymentBannerOpen, setPaymentBannerOpen] = useState(true);
   const [zoomedQR, setZoomedQR] = useState(false);
   const [currentTicket, setCurrentTicket] = useState<typeof ticket>(null);
+
+  useEffect(() => {
+    if (profile) {
+      setViewRole(profile.is_student ? 'student' : 'staff');
+    }
+  }, [profile]);
 
   useEffect(() => {
     if (!ticket) return;
@@ -205,23 +213,6 @@ export const TicketDetailModal = ({ ticket, open, onClose }: ITicketDetailModalP
             <span className="text-lg font-semibold text-slate-800">{currentTicket.title}</span>
           </div>
           <div className="flex items-center gap-3">
-            {/* Role switch simulation */}
-            <div className="flex items-center gap-1.5 rounded-full bg-slate-100 p-1">
-              <button
-                onClick={() => setViewRole('staff')}
-                className={`rounded-full px-3 py-1 text-[11px] font-bold transition-all ${
-                  viewRole === 'staff' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-800'
-                }`}>
-                Cán bộ
-              </button>
-              <button
-                onClick={() => setViewRole('student')}
-                className={`rounded-full px-3 py-1 text-[11px] font-bold transition-all ${
-                  viewRole === 'student' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-800'
-                }`}>
-                Sinh viên
-              </button>
-            </div>
             <button
               onClick={onClose}
               className="flex size-8 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600">
