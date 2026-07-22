@@ -15,7 +15,7 @@ const getApiEndpoint = () => {
     return configuredEndpoint;
   }
 
-  return 'http://100.106.138.47:8010';
+  return 'https://chapter-excusably-delirious.ngrok-free.dev';
 };
 
 const API_ENDPOINT = getApiEndpoint();

@@ -6,7 +6,7 @@ import eslint from 'vite-plugin-eslint2';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
-  const targetUrl = env.VITE_API_URL || env.VITE_API_ENDPOINT || 'http://100.106.138.47:8000';
+  const targetUrl = env.VITE_API_URL || env.VITE_API_ENDPOINT || 'https://chapter-excusably-delirious.ngrok-free.dev';
 
   return {
     envPrefix: ['VITE_', 'TECH_'],
@@ -45,6 +45,7 @@ export default defineConfig(({ mode }) => {
           target: targetUrl,
           changeOrigin: true,
           secure: false,
+          ws: true,
           configure: (proxy) => {
             proxy.on('proxyReq', (proxyReq) => {
               proxyReq.removeHeader('Expect');

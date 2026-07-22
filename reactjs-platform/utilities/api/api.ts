@@ -6,8 +6,10 @@ import { CookieService, CoreAuthenticationStore } from 'reactjs-platform/utiliti
 
 const API = axios.create({
   baseURL: `${API_ENDPOINT}`,
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json;charset=UTF-8',
+    'ngrok-skip-browser-warning': 'true',
   },
 });
 
@@ -88,23 +90,32 @@ API.interceptors.request.use(
     try {
       const contentType = serializerConfig.headers?.['Content-Type'];
 
-      if (typeof contentType === 'string' && contentType.includes('application/json')) {
-        const bodyJsonData = serializerConfig.data;
-        if (bodyJsonData) {
-          Object.keys(bodyJsonData).forEach((key) => {
-            if (typeof bodyJsonData[key] === 'string') {
-              bodyJsonData[key] = bodyJsonData[key].trim().replace(/\s+/g, ' ');
-            }
-          });
-          serializerConfig.data = JSON.stringify(bodyJsonData);
-        }
-      } else if (typeof contentType === 'string' && contentType.includes('application/x-www-form-urlencoded')) {
-        const bodyFormData: URLSearchParams = serializerConfig.data;
-        bodyFormData?.forEach((value, key) => {
-          bodyFormData.set(key, value.trim().replace(/\s+/g, ' '));
-        });
-        serializerConfig.data = bodyFormData;
-      }
+    //  if (typeof contentType === 'string' && contentType.includes('application/json')) {
+    //     let bodyJsonData = serializerConfig.data;
+        
+    //     if (typeof bodyJsonData === 'string') {
+    //       try {
+    //         bodyJsonData = JSON.parse(bodyJsonData);
+    //       } catch {
+    //         // Không phải JSON string hợp lệ thì bỏ qua
+    //       }
+    //     }
+
+    //     if (bodyJsonData && typeof bodyJsonData === 'object') {
+    //       Object.keys(bodyJsonData).forEach((key) => {
+    //         if (typeof bodyJsonData[key] === 'string') {
+    //           bodyJsonData[key] = bodyJsonData[key].trim().replace(/\s+/g, ' ');
+    //         }
+    //       });
+    //       serializerConfig.data = bodyJsonData; // Để Axios tự xử lý stringify
+    //     }
+    //   } else if (typeof contentType === 'string' && contentType.includes('application/x-www-form-urlencoded')) {
+    //     const bodyFormData: URLSearchParams = serializerConfig.data;
+    //     bodyFormData?.forEach((value, key) => {
+    //       bodyFormData.set(key, value.trim().replace(/\s+/g, ' '));
+    //     });
+    //     serializerConfig.data = bodyFormData;
+    //   }
     } catch {
       // Keep request cleanup failures non-blocking; callers handle user-facing errors.
     }
@@ -153,7 +164,10 @@ API.interceptors.response.use(
       return Promise.reject(new Error(message));
     }
 
-    throw new Error(message);
+    const customError = new Error(message) as any;
+    customError.response = error.response;
+    customError.status = error.response?.status;
+    throw customError;
   },
 );
 
