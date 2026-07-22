@@ -14,13 +14,11 @@ import {
   getEngagementAPI,
   getFileDistributionAPI,
   getDocumentsLatestAPI,
-  listApprovalDashboardDocumentsAPI,
   getDocumentByIdAPI,
   type IDocument,
 } from 'api';
 import { DocumentSidePanel } from '../documents/document-side-panel.component';
 import type {
-  IApprovalDashboardRow,
   ITrendingNowItem,
   ISummaryStats,
   IEngagementItem,
@@ -66,7 +64,6 @@ export const HomeSection = (_props: IHomeSectionProps) => {
   const [engagementData, setEngagementData] = useState<IEngagementItem[]>([]);
   const [fileDistribution, setFileDistribution] = useState<IFileDistribution | null>(null);
   const [documentsLatest, setDocumentsLatest] = useState<IDocumentLatestItem[]>([]);
-  const [todoDocs, setTodoDocs] = useState<IApprovalDashboardRow[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedDocument, setSelectedDocument] = useState<IDocument | null>(null);
   const [loadingDocument, setLoadingDocument] = useState(false);
@@ -129,11 +126,12 @@ export const HomeSection = (_props: IHomeSectionProps) => {
             .catch((err) => console.error('Error fetching latest documents:', err)),
 
           // 6. Fetch todo approval documents
-          listApprovalDashboardDocumentsAPI('todo')
-            .then((res) => {
-              if (active) setTodoDocs(res);
-            })
-            .catch((err) => console.error('Error fetching todo approval documents:', err)),
+          // Temporarily disabled - backend endpoint not implemented yet
+          // listApprovalDashboardDocumentsAPI('todo')
+          //   .then((res) => {
+          //     if (active) setTodoDocs(res);
+          //   })
+          //   .catch((err) => console.error('Error fetching todo approval documents:', err)),
         ]);
       } catch (error) {
         console.error('Error loading dashboard data:', error);
@@ -267,25 +265,8 @@ export const HomeSection = (_props: IHomeSectionProps) => {
   }, [documentsLatest, locale]);
 
   // Mapping Important - Unread alert details
-  const latestUrgentDoc = useMemo(() => {
-    if (todoDocs.length === 0) return null;
-    const latest = todoDocs[0];
-    const timeText = latest.updated_at
-      ? new Date(latest.updated_at).toLocaleDateString(locale === 'vi' ? 'vi-VN' : 'en-US', {
-          hour: '2-digit',
-          minute: '2-digit',
-        })
-      : '';
-    return {
-      id: latest.id,
-      title: latest.title,
-      description:
-        locale === 'vi'
-          ? `Yêu cầu: Đang chờ bạn phê duyệt ở bước "${latest.approval?.current_step?.label || ''}"`
-          : `Action Required: Waiting for your approval in step "${latest.approval?.current_step?.label || ''}"`,
-      time: timeText,
-    };
-  }, [todoDocs, locale]);
+  // Temporarily disabled - backend endpoint not implemented yet
+  const latestUrgentDoc = useMemo(() => null, []);
 
 
   if (loading) {
@@ -374,7 +355,8 @@ export const HomeSection = (_props: IHomeSectionProps) => {
       </div>
 
       {/* Important Unread Alert */}
-      <ImportantAlert urgentCount={todoDocs.length} latestUrgentDoc={latestUrgentDoc} />
+      {/* Temporarily disabled - backend endpoint not implemented yet */}
+      <ImportantAlert urgentCount={0} latestUrgentDoc={latestUrgentDoc} />
 
       {/* Latest Published */}
       <LatestPublished docs={latestPublishedDocs} onItemClick={handleFileClick} />

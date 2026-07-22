@@ -4,6 +4,25 @@ import { ETicketType, ETicketStatus, EPaymentStatus, EProcessingForm, EStepStatu
 import { QRCodeSVG as QRCode } from 'qrcode.react';
 import { TicketStepCard } from '../ticket-step-card';
 import { X, FileText, Paperclip, CreditCard, Calendar, Clock, Settings } from 'lucide-react';
+import { getTicketDetailAPI } from 'api';
+import type { ITicketAPIStep } from 'api';
+
+/* ─── Map API step → ITicketStep ─────────────────────────── */
+const mapApiStep = (s: ITicketAPIStep, idx: number): ITicketStep => ({
+  id: s.name,
+  order: s.step_order ?? idx + 1,
+  name: s.step_name,
+  performer: s.assigned_to,
+  performerType: s.assigned_to === 'System' ? 'system' : s.is_student_action ? 'student' : 'staff',
+  status: s.step_status === 'Completed' ? EStepStatus.DA_XONG
+    : s.step_status === 'In Progress' ? EStepStatus.DANG_CHO
+    : EStepStatus.CHUA_TOI,
+  completedAt: s.completed_at ?? undefined,
+  resultSummary: s.result_summary ?? undefined,
+  icon: s.action_type ?? 'file',
+  isStudentAction: s.is_student_action === 1,
+  comments: [],
+});
 
 const avatarColor = (name: string) => {
   const colors = [
@@ -123,12 +142,28 @@ export const TicketDetailModal = ({ ticket, open, onClose }: ITicketDetailModalP
   const [currentTicket, setCurrentTicket] = useState<typeof ticket>(null);
 
   useEffect(() => {
-    if (ticket) {
-      setCurrentTicket(ticket);
-      setSteps(ticket.steps);
-      setPaymentBannerOpen(true);
-      setZoomedQR(false);
-    }
+    if (!ticket) return;
+    setCurrentTicket(ticket);
+    setSteps([]);
+    setPaymentBannerOpen(true);
+    setZoomedQR(false);
+
+    // Fetch real detail from API to get steps
+    getTicketDetailAPI(ticket.code)
+      .then((detail) => {
+        setSteps(detail.steps.map(mapApiStep));
+        // Sync additional detail fields back onto the current ticket
+        setCurrentTicket((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            content: detail.description || prev.content,
+          };
+        });
+      })
+      .catch((err) => {
+        console.error('Failed to fetch ticket detail:', err);
+      });
   }, [ticket]);
 
   if (!open || !ticket || !currentTicket) return null;

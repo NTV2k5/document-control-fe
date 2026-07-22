@@ -1,12 +1,21 @@
 import type { ICreateTicketModalProps } from '../ticket.type';
 import { ETicketType } from '../ticket.type';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, Info, FileText, CheckCircle, ClipboardCheck, ArrowRight } from 'lucide-react';
 import { mockFaculties, mockStudentsByFaculty, mockDocumentTemplates } from '../ticket.mock';
 import { createTicketAPI } from 'api';
 import { toast } from 'react-toastify';
+import { profileStore, fetchProfileAction } from 'reactjs-platform/utilities';
 
 export const CreateTicketModal = ({ open, onClose, onTicketCreated }: ICreateTicketModalProps) => {
+  const profile = profileStore((state) => state.profile);
+  const studentInfo = profile?.student_info;
+  const isStudentRole =
+    profile?.is_student ??
+    (profile?.role_profile === 'Student' ||
+      profile?.user_type === 1 ||
+      (profile?.scope_assignments || []).some((sa) => sa.role?.role_key?.toLowerCase().includes('student')));
+
   const [ticketType, setTicketType] = useState<ETicketType>(ETicketType.CUNG_CAP_THONG_TIN);
   const [faculty, setFaculty] = useState('');
   const [studentId, setStudentId] = useState('');
@@ -16,6 +25,34 @@ export const CreateTicketModal = ({ open, onClose, onTicketCreated }: ICreateTic
   const [slaOption, setSlaOption] = useState('same_day');
   const [documentTemplateId, setDocumentTemplateId] = useState('');
   const [deliveryForm, setDeliveryForm] = useState('ONLINE_KY_SO');
+
+  const facultyDisplayName =
+    studentInfo?.faculty_name ||
+    studentInfo?.faculty ||
+    (profile?.scope_assignments || []).find((sa) => sa.organization_unit_name)?.organization_unit_name ||
+    '';
+
+  useEffect(() => {
+    if (open) {
+      fetchProfileAction().catch((err) => {
+        console.error('Failed to fetch user profile in modal:', err);
+      });
+    }
+  }, [open]);
+
+  useEffect(() => {
+    if (open && isStudentRole && profile) {
+      // Auto-fill student info from logged-in account
+      const currentStudentId = studentInfo?.student_code || studentInfo?.name || profile.id || profile.username || 'p1';
+      setStudentId(currentStudentId);
+
+      // Auto-set faculty if department matches or fallback
+      const matchedFaculty = mockFaculties.find(
+        (f) => facultyDisplayName && (f.name.toLowerCase().includes(facultyDisplayName.toLowerCase()) || facultyDisplayName.toLowerCase().includes(f.name.toLowerCase()))
+      );
+      setFaculty(matchedFaculty ? matchedFaculty.id : 'f1');
+    }
+  }, [open, isStudentRole, profile, studentInfo, facultyDisplayName]);
 
   if (!open) return null;
 
@@ -34,23 +71,38 @@ export const CreateTicketModal = ({ open, onClose, onTicketCreated }: ICreateTic
     setDeliveryForm('ONLINE_KY_SO');
   };
 
+  const getTicketTypeString = (t: ETicketType): string =>
+    t === ETicketType.DICH_VU_HANH_CHINH ? 'Dịch vụ hành chính' : 'Cung cấp thông tin';
+
+  const getProcessingMethodString = (form: string): string => {
+    const map: Record<string, string> = {
+      ONLINE_KY_SO: 'Online ký số',
+      ONLINE_BAN_SCAN: 'Online bản scan',
+      OFFLINE_KY_TAY: 'Offline ký tay',
+    };
+    return map[form] || 'Online ký số';
+  };
+
   const handleSubmit = async () => {
     try {
+      // Default deadline: 7 days from now
+      const deadline = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .replace('T', ' ')
+        .slice(0, 19);
+
+      const hasFee = ticketType === ETicketType.DICH_VU_HANH_CHINH && !!selectedTemplate?.fee;
+
       await createTicketAPI({
+        ticket_type: getTicketTypeString(ticketType),
         title: title || 'Yêu cầu mới',
-        content,
-        type: ticketType,
-        processingForm: deliveryForm as any,
-        documentCode: selectedTemplate?.id || 'PVB-802',
-        hasFee: !!selectedTemplate?.id, // if a template is selected, it represents a document with fee
-        feeAmount: selectedTemplate?.id ? 50000 : 0,
-        student: selectedStudent ? {
-          id: selectedStudent.id,
-          name: selectedStudent.name,
-          mssv: selectedStudent.mssv || '',
-          role: selectedStudent.role || '',
-          department: selectedStudent.department || '',
-        } : undefined,
+        description: content || '',
+        processing_method: getProcessingMethodString(deliveryForm),
+        ...(studentId && { student: studentId }),
+        has_fee: hasFee ? 1 : 0,
+        fee_amount: hasFee ? (selectedTemplate?.fee ?? 0) : 0,
+        deadline,
+        source: 'Tạo thủ công',
       });
 
       toast.success('Tạo ticket thành công!');
@@ -61,6 +113,7 @@ export const CreateTicketModal = ({ open, onClose, onTicketCreated }: ICreateTic
       toast.error('Không thể tạo ticket. Vui lòng thử lại.');
     }
   };
+
 
   const isCCTT = ticketType === ETicketType.CUNG_CAP_THONG_TIN;
 
@@ -137,44 +190,83 @@ export const CreateTicketModal = ({ open, onClose, onTicketCreated }: ICreateTic
                 <ClipboardCheck className="size-3.5" />
                 Thông tin sinh viên
               </h3>
-              <div className="space-y-3">
-                <div>
-                  <label className="mb-1 block text-xs font-medium text-slate-600">
-                    Khoa / Đơn vị của sinh viên
-                  </label>
-                  <select
-                    value={faculty}
-                    onChange={(e) => { setFaculty(e.target.value); setStudentId(''); }}
-                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 transition-colors focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
-                  >
-                    <option value="">— Chọn Khoa —</option>
-                    {mockFaculties.map((f) => (
-                      <option key={f.id} value={f.id}>{f.name}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs font-medium text-slate-600">
-                    Sinh viên
-                  </label>
-                  <select
-                    value={studentId}
-                    onChange={(e) => setStudentId(e.target.value)}
-                    disabled={!faculty}
-                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 transition-colors focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100 disabled:bg-slate-50 disabled:text-slate-400"
-                  >
-                    <option value="">— Chọn Khoa trước —</option>
-                    {students.map((s) => (
-                      <option key={s.id} value={s.id}>{s.name} ({s.mssv})</option>
-                    ))}
-                  </select>
-                </div>
-                {selectedStudent?.mssv && (
+              {isStudentRole ? (
+                <div className="space-y-3 rounded-xl border border-slate-100 bg-slate-50/70 p-3.5">
+                  <div>
+                    <label className="mb-1 block text-xs font-medium text-slate-500">
+                      Khoa / Đơn vị
+                    </label>
+                    <input
+                      type="text"
+                      readOnly
+                      value={facultyDisplayName || mockFaculties.find((f) => f.id === faculty)?.name || 'CNTT'}
+                      className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 select-none cursor-not-allowed focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-xs font-medium text-slate-500">
+                      Họ và tên sinh viên
+                    </label>
+                    <input
+                      type="text"
+                      readOnly
+                      value={
+                        (() => {
+                          const fullName =
+                            profile?.full_name ||
+                            [profile?.last_name, profile?.first_name].filter(Boolean).join(' ') ||
+                            'Phan Phạm Quốc Khánh';
+                          const mssv = profile?.student_info?.student_code || studentInfo?.student_code || '23140012';
+                          return `${fullName} (${mssv})`;
+                        })()
+                      }
+                      className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 select-none cursor-not-allowed focus:outline-none"
+                    />
+                  </div>
                   <p className="text-xs text-slate-500">
-                    MSSV sẽ tự động hiển thị sau khi chọn sinh viên: <strong>{selectedStudent.mssv}</strong>
+                    Mã số sinh viên (MSSV): <strong>{profile?.student_info?.student_code || studentInfo?.student_code || '23140012'}</strong>
                   </p>
-                )}
-              </div>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div>
+                    <label className="mb-1 block text-xs font-medium text-slate-600">
+                      Khoa / Đơn vị của sinh viên
+                    </label>
+                    <select
+                      value={faculty}
+                      onChange={(e) => { setFaculty(e.target.value); setStudentId(''); }}
+                      className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 transition-colors focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                    >
+                      <option value="">— Chọn Khoa —</option>
+                      {mockFaculties.map((f) => (
+                        <option key={f.id} value={f.id}>{f.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-xs font-medium text-slate-600">
+                      Sinh viên
+                    </label>
+                    <select
+                      value={studentId}
+                      onChange={(e) => setStudentId(e.target.value)}
+                      disabled={!faculty}
+                      className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 transition-colors focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100 disabled:bg-slate-50 disabled:text-slate-400"
+                    >
+                      <option value="">— Chọn Khoa trước —</option>
+                      {students.map((s) => (
+                        <option key={s.id} value={s.id}>{s.name} ({s.mssv})</option>
+                      ))}
+                    </select>
+                  </div>
+                  {selectedStudent?.mssv && (
+                    <p className="text-xs text-slate-500">
+                      MSSV sẽ tự động hiển thị sau khi chọn sinh viên: <strong>{selectedStudent.mssv}</strong>
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Tiêu đề & nội dung */}
