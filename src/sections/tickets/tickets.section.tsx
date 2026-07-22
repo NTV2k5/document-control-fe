@@ -10,22 +10,23 @@ import { TicketSourceModal } from './ticket-source-modal';
 import { listTicketsAPI } from 'api';
 import type { ITicketAPIItem } from 'api';
 import { toast } from 'react-toastify';
+import { profileStore } from 'reactjs-platform/utilities';
 
 const PAGE_SIZE = 6;
 
 /* ─── Helpers: map API ticket_type / status / source → Enum ── */
 
 const mapTicketType = (raw: string): ETicketType => {
-  if (raw === 'Information Provision') return ETicketType.CUNG_CAP_THONG_TIN;
-  if (raw === 'Administrative Service') return ETicketType.DICH_VU_HANH_CHINH;
+  if (raw === 'Information Provision' || raw === 'Cung cấp thông tin') return ETicketType.CUNG_CAP_THONG_TIN;
+  if (raw === 'Administrative Service' || raw === 'Dịch vụ hành chính') return ETicketType.DICH_VU_HANH_CHINH;
   return ETicketType.CUNG_CAP_THONG_TIN;
 };
 
 const mapTicketStatus = (raw: string): ETicketStatus => {
-  if (raw === 'New') return ETicketStatus.MOI;
-  if (raw === 'In Progress') return ETicketStatus.DANG_XU_LY;
-  if (raw === 'Pending Student') return ETicketStatus.CHO_SINH_VIEN;
-  if (raw === 'Completed' || raw === 'Closed') return ETicketStatus.DA_HOAN_TAT;
+  if (raw === 'New' || raw === 'Mới' || raw === 'Chờ xử lý') return ETicketStatus.MOI;
+  if (raw === 'In Progress' || raw === 'Đang xử lý') return ETicketStatus.DANG_XU_LY;
+  if (raw === 'Pending Student' || raw === 'Chờ sinh viên' || raw === 'Chờ sinh viên phản hồi') return ETicketStatus.CHO_SINH_VIEN;
+  if (raw === 'Completed' || raw === 'Closed' || raw === 'Hoàn tất' || raw === 'Đã đóng') return ETicketStatus.DA_HOAN_TAT;
   return ETicketStatus.MOI;
 };
 
@@ -149,8 +150,10 @@ export const TicketsSection = (_props: ITicketsSectionProps) => {
   const [sourceTicket, setSourceTicket] = useState<ITicket | null>(null);
   const [sourceOpen, setSourceOpen] = useState(false);
 
+  const profile = profileStore((state: any) => state.profile);
+
   const fetchTickets = useCallback(() => {
-    listTicketsAPI()
+    listTicketsAPI({ start: 0, page_size: 1000 })
       .then((data) => {
         setTickets((data.tickets ?? []).map(mapApiItemToTicket));
         setStatsCards(buildTicketStatsFromAPI(data.stats ?? { total: 0, need_action: 0, processing: 0, overdue: 0, completed: 0 }));
@@ -172,7 +175,12 @@ export const TicketsSection = (_props: ITicketsSectionProps) => {
 
     // Stats filter
     if (filter.statsFilter === 'assigned_to_me') {
-      result = result.filter((t) => t.status === ETicketStatus.MOI);
+      result = result.filter(
+        (t) =>
+          (t.status === ETicketStatus.MOI || t.status === ETicketStatus.CHO_SINH_VIEN) &&
+          profile?.email &&
+          t.assignee?.id?.toLowerCase() === profile.email.toLowerCase()
+      );
     } else if (filter.statsFilter === 'in_progress') {
       result = result.filter((t) => t.status === ETicketStatus.DANG_XU_LY);
     } else if (filter.statsFilter === 'overdue') {
