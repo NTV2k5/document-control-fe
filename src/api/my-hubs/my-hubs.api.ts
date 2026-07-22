@@ -37,7 +37,7 @@ export const listFoldersAPI = async (): Promise<IFolderItem[]> => {
   return API.get<{ message: { data: IMyHubFolderAPIResponse[] } }>(
     `/api/method/${API_COMMON}.my_hubs.get_my_folders`
   ).then((response) =>
-    response.data.message.data.map((item) => ({
+    (response.data?.message?.data ?? []).map((item) => ({
       id: item.name,
       name: item.file_name,
       size: formatBytes(item.total_size),
@@ -60,7 +60,7 @@ export const listFilesAPI = async (): Promise<IFileItem[]> => {
   return API.get<{ message: { data: IMyHubFileAPIResponse[] } }>(
     `/api/method/${API_COMMON}.my_hubs.get_my_files`
   ).then((response) =>
-    response.data.message.data.map((item) => ({
+    (response.data?.message?.data ?? []).map((item) => ({
       id: item.name,
       name: item.file_name,
       size: formatBytes(item.file_size),
@@ -93,5 +93,5 @@ export const getMyStatsAPI = async (): Promise<IMyHubStatsAPIResponse> => {
 export const getMyRecentActivityAPI = async (): Promise<IMyHubRecentActivityAPIResponse[]> => {
   return API.get<{ message: { data: IMyHubRecentActivityAPIResponse[] } }>(
     `/api/method/${API_COMMON}.my_hubs.get_my_recent_activity`
-  ).then((response) => response.data.message.data);
+  ).then((response) => response.data?.message?.data ?? []);
 };

@@ -24,7 +24,8 @@ export const getHubFoldersAPI = async (category: 'Department' | 'Project'): Prom
     headers: {
       'Content-Type': 'application/json',
     },
-  }).then((response) => response.data.message.data);
+  }).then((response) => response.data?.message?.data ?? []);
+
 };
 
 export const listDepartmentsAPI = async (): Promise<IDepartmentItem[]> => {
@@ -95,7 +96,7 @@ export const getHubRecentActivityAPI = async (): Promise<IHubRecentActivityAPIRe
     headers: {
       'Content-Type': 'application/json',
     },
-  }).then((response) => response.data.message.data);
+  }).then((response) => response.data?.message?.data ?? []);
 };
 
 export const listDriveFilesAPI = async (
