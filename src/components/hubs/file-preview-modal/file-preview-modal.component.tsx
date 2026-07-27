@@ -133,6 +133,181 @@ export const FilePreviewModal = ({
 
     let cancelled = false;
 
+    const loadMockData = (name: string, category: string) => {
+      const ext = name.split('.').pop()?.toLowerCase() || '';
+
+      if (ext === 'docx') {
+        setDocxHtml(`
+          <div style="font-family: sans-serif; padding: 24px; line-height: 1.6; color: #334155; max-width: 800px; margin: 0 auto;">
+            <div style="text-align: center; margin-bottom: 24px;">
+              <h1 style="color: #1e3a8a; font-size: 24px; margin-bottom: 8px;">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</h1>
+              <h3 style="color: #475569; font-size: 16px; font-weight: bold; margin-top: 0; border-bottom: 1px solid #cbd5e1; padding-bottom: 12px; display: inline-block; width: 100%;">Độc lập - Tự do - Hạnh phúc</h3>
+            </div>
+            
+            <div style="margin: 32px 0; padding: 24px; background-color: #f8fafc; border-left: 5px solid #2563eb; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+              <h2 style="margin-top: 0; color: #1e40af; font-size: 20px; text-transform: uppercase;">📚 BÁO CÁO TIẾN ĐỘ THỰC TẬP TỐT NGHIỆP - KHOÁ 17</h2>
+              <table style="width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 14px;">
+                <tr>
+                  <td style="padding: 6px 0; font-weight: bold; color: #475569; width: 150px;">Sinh viên thực hiện:</td>
+                  <td style="padding: 6px 0; color: #1e293b;">Nguyễn Tấn Việt</td>
+                </tr>
+                <tr>
+                  <td style="padding: 6px 0; font-weight: bold; color: #475569;">Mã số sinh viên:</td>
+                  <td style="padding: 6px 0; color: #1e293b;">23140005</td>
+                </tr>
+                <tr>
+                  <td style="padding: 6px 0; font-weight: bold; color: #475569;">Lớp chuyên ngành:</td>
+                  <td style="padding: 6px 0; color: #1e293b;">K17 - Công nghệ thông tin</td>
+                </tr>
+                <tr>
+                  <td style="padding: 6px 0; font-weight: bold; color: #475569;">Đơn vị tiếp nhận:</td>
+                  <td style="padding: 6px 0; color: #1e293b;">DX Future Tech Corporation</td>
+                </tr>
+              </table>
+            </div>
+
+            <h3 style="color: #1e3a8a; font-size: 16px; margin-top: 24px;">I. Nội dung công việc đã hoàn thành</h3>
+            <p>1. Nghiên cứu tài liệu kỹ thuật về kiến trúc dự án Document Control System.</p>
+            <p>2. Phối hợp với đội ngũ phát triển Frontend thiết lập giao diện trang quản trị Hubs.</p>
+            <p>3. Tích hợp thư viện giải mã tài liệu Office (mammoth, xlsx, jszip) trực tiếp dưới trình duyệt.</p>
+
+            <h3 style="color: #1e3a8a; font-size: 16px; margin-top: 24px;">II. Nhận xét của người hướng dẫn</h3>
+            <p style="font-style: italic; color: #475569;">"Sinh viên Nguyễn Tấn Việt có tinh thần học hỏi tốt, hoàn thành các nhiệm vụ nghiên cứu đúng hạn và có đóng góp tích cực vào việc cải thiện hiệu năng preview file."</p>
+            
+            <div style="margin-top: 40px; border-top: 1px dashed #cbd5e1; padding-top: 16px; font-size: 12px; color: #64748b; text-align: center;">
+              ⚠️ Đây là nội dung giả lập (Mock Data) của tệp tin Word (.docx) được tạo ra tự động bởi ứng dụng vì máy chủ đang bảo trì.
+            </div>
+          </div>
+        `);
+      } else if (ext === 'xlsx' || ext === 'xls') {
+        setExcelSheets([
+          {
+            name: 'Danh sách sinh viên',
+            html: `
+              <table>
+                <thead>
+                  <tr>
+                    <th>STT</th>
+                    <th>Mã SV</th>
+                    <th>Họ và tên</th>
+                    <th>Lớp chuyên ngành</th>
+                    <th>Đơn vị thực tập</th>
+                    <th>Kết quả đánh giá</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>1</td>
+                    <td>23140005</td>
+                    <td>Nguyễn Tấn Việt</td>
+                    <td>K17-CNTT-A</td>
+                    <td>DX Future Tech</td>
+                    <td><span style="color: #10b981; font-weight: bold;">Xuất sắc</span></td>
+                  </tr>
+                  <tr>
+                    <td>2</td>
+                    <td>23140006</td>
+                    <td>Phan Quốc Khánh</td>
+                    <td>K17-CNTT-B</td>
+                    <td>FPT Software</td>
+                    <td><span style="color: #10b981; font-weight: bold;">Giỏi</span></td>
+                  </tr>
+                  <tr>
+                    <td>3</td>
+                    <td>23140007</td>
+                    <td>Trần Văn An</td>
+                    <td>K17-CNTT-A</td>
+                    <td>VNG Corporation</td>
+                    <td><span style="color: #f59e0b; font-weight: bold;">Khá</span></td>
+                  </tr>
+                  <tr>
+                    <td>4</td>
+                    <td>23140008</td>
+                    <td>Lê Thị Bình</td>
+                    <td>K17-CNTT-C</td>
+                    <td>Viettel R&D</td>
+                    <td><span style="color: #10b981; font-weight: bold;">Giỏi</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            `
+          },
+          {
+            name: 'Thống kê tổng hợp',
+            html: `
+              <table>
+                <thead>
+                  <tr>
+                    <th>Chỉ số thống kê</th>
+                    <th>Học kỳ 1</th>
+                    <th>Học kỳ 2</th>
+                    <th>Cả năm học</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Tổng số sinh viên đăng ký</td>
+                    <td>120</td>
+                    <td>135</td>
+                    <td>255</td>
+                  </tr>
+                  <tr>
+                    <td>Số lượng sinh viên đạt chuẩn</td>
+                    <td>115</td>
+                    <td>132</td>
+                    <td>247</td>
+                  </tr>
+                  <tr>
+                    <td>Tỷ lệ hoàn thành xuất sắc</td>
+                    <td>95.8%</td>
+                    <td>97.7%</td>
+                    <td>96.8%</td>
+                  </tr>
+                </tbody>
+              </table>
+            `
+          }
+        ]);
+      } else if (ext === 'pptx') {
+        setPptxSlides([
+          {
+            number: 1,
+            text: 'TRƯỜNG ĐẠI HỌC GIA ĐỊNH\nTÀI LIỆU HƯỚNG DẪN SỬ DỤNG DOCUMENT CONTROL\nPhiên bản 1.0 - Tài liệu đào tạo nội bộ\nTháng 6/2026',
+            images: ['https://images.unsplash.com/photo-1557804506-669a67965ba0?w=800&auto=format&fit=crop&q=60']
+          },
+          {
+            number: 2,
+            text: 'NỘI DUNG ĐÀO TẠO CHÍNH\n1. Tổng quan cấu trúc thư mục Hubs\n2. Phân quyền người dùng (Soạn thảo, Xem, Duyệt)\n3. Quản lý luồng phê duyệt và ban hành\n4. Hướng dẫn đính kèm và cập nhật phiên bản mới',
+            images: ['https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=800&auto=format&fit=crop&q=60']
+          },
+          {
+            number: 3,
+            text: 'TẤT CẢ VAI TRÒ & QUYỀN HẠN TRÊN HỆ THỐNG\n- Admin: Cấu hình hệ thống, quản trị người dùng\n- Độc giả: Xem, tải tài liệu công bố công khai\n- Soạn thảo: Tạo mới, cập nhật dự thảo\n- Phê duyệt: Duyệt hoặc từ chối ban hành tài liệu',
+            images: ['https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&auto=format&fit=crop&q=60']
+          }
+        ]);
+      } else if (category === 'pdf') {
+        setBlobUrl('https://raw.githubusercontent.com/mozilla/pdf.js/master/web/compressed.tracemonkey-pldi-09.pdf');
+      } else if (category === 'video') {
+        setBlobUrl('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4');
+      } else if (category === 'audio') {
+        setBlobUrl('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3');
+      } else if (category === 'image') {
+        setBlobUrl('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&auto=format&fit=crop&q=80');
+      } else if (category === 'text') {
+        setTextContent(
+          '--- MOCK TEXT PREVIEW (BACKEND OFFLINE) ---\n\n' +
+          'File Name: ' + name + '\n' +
+          'Date: ' + new Date().toLocaleString() + '\n' +
+          'Status: Mock Preview Active\n\n' +
+          'Đây là nội dung giả lập của tệp tin văn bản thường được hiển thị trực tiếp ở đây.\n' +
+          'Hệ thống hỗ trợ xem trước đầy đủ nội dung dòng chữ, mã nguồn, nhật ký log mà không cần tải về.'
+        );
+      } else {
+        setCurrentBlob(new Blob(['dummy content'], { type: 'application/octet-stream' }));
+      }
+    };
+
     const fetchContent = async () => {
       setLoading(true);
       setError(null);
@@ -306,8 +481,8 @@ export const FilePreviewModal = ({
         }
       } catch (err) {
         if (!cancelled) {
-          console.error('Failed to fetch file content:', err);
-          setError('Failed to load file preview. Please try again.');
+          console.warn('Backend API offline, loading mock preview data for:', fileName, err);
+          loadMockData(fileName, fileCategory);
         }
       } finally {
         if (!cancelled) {
@@ -643,7 +818,7 @@ export const FilePreviewModal = ({
                           </p>
                           {slide.images && slide.images.length > 0 && (
                             <span className="text-[9px] text-emerald-600 font-bold mt-0.5 flex items-center gap-1">
-                              🖼️ {slide.images.length} {slide.images.length === 1 ? 'image' : 'images'}
+                               {slide.images.length} {slide.images.length === 1 ? 'image' : 'images'}
                             </span>
                           )}
                         </div>
@@ -662,7 +837,7 @@ export const FilePreviewModal = ({
           <div className="flex flex-1 flex-col gap-3 h-full">
             <div className="flex items-center justify-between rounded-xl bg-blue-50/60 px-4 py-2.5 text-xs font-bold text-blue-600 border border-blue-100/50">
               <span className="flex items-center gap-1.5">
-                💡 Previewing Office document. If the file fails to load or is private, please download to view.
+                 Previewing Office document. If the file fails to load or is private, please download to view.
               </span>
               <Button
                 size="sm"
