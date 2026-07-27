@@ -41,6 +41,30 @@ export default defineConfig(({ mode }) => {
             });
           },
         },
+        '/files': {
+          target: targetUrl,
+          changeOrigin: true,
+          secure: false,
+          configure: (proxy) => {
+            proxy.on('proxyReq', (proxyReq) => {
+              proxyReq.removeHeader('Expect');
+              proxyReq.removeHeader('expect');
+              proxyReq.setHeader('ngrok-skip-browser-warning', 'true');
+            });
+          },
+        },
+        '/private': {
+          target: targetUrl,
+          changeOrigin: true,
+          secure: false,
+          configure: (proxy) => {
+            proxy.on('proxyReq', (proxyReq) => {
+              proxyReq.removeHeader('Expect');
+              proxyReq.removeHeader('expect');
+              proxyReq.setHeader('ngrok-skip-browser-warning', 'true');
+            });
+          },
+        },
         '/notifications': {
           target: targetUrl,
           changeOrigin: true,
