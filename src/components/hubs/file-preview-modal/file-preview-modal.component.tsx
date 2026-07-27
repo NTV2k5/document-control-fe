@@ -138,44 +138,61 @@ export const FilePreviewModal = ({
 
       if (ext === 'docx') {
         setDocxHtml(`
-          <div style="font-family: sans-serif; padding: 24px; line-height: 1.6; color: #334155; max-width: 800px; margin: 0 auto;">
-            <div style="text-align: center; margin-bottom: 24px;">
-              <h1 style="color: #1e3a8a; font-size: 24px; margin-bottom: 8px;">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</h1>
-              <h3 style="color: #475569; font-size: 16px; font-weight: bold; margin-top: 0; border-bottom: 1px solid #cbd5e1; padding-bottom: 12px; display: inline-block; width: 100%;">Độc lập - Tự do - Hạnh phúc</h3>
+          <div style="font-family: 'Times New Roman', Times, serif; padding: 40px; line-height: 1.5; color: #000000; max-width: 800px; margin: 0 auto; background-color: #ffffff;">
+            <div style="text-align: center; margin-bottom: 30px;">
+              <h3 style="font-size: 14px; font-weight: bold; margin: 0; text-transform: uppercase;">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</h3>
+              <h4 style="font-size: 13px; font-weight: bold; margin: 5px 0 0 0;">Độc lập - Tự do - Hạnh phúc</h4>
+              <div style="width: 150px; border-bottom: 1px solid #000000; margin: 5px auto 25px auto;"></div>
+              
+              <h2 style="font-size: 18px; font-weight: bold; margin: 20px 0; text-transform: uppercase;">BÁO CÁO TIẾN ĐỘ THỰC TẬP TỐT NGHIỆP</h2>
+              <h3 style="font-size: 14px; font-weight: normal; font-style: italic; margin-top: -10px;">Học kỳ 2 - Niên khóa 2025 - 2026</h3>
             </div>
             
-            <div style="margin: 32px 0; padding: 24px; background-color: #f8fafc; border-left: 5px solid #2563eb; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-              <h2 style="margin-top: 0; color: #1e40af; font-size: 20px; text-transform: uppercase;">📚 BÁO CÁO TIẾN ĐỘ THỰC TẬP TỐT NGHIỆP - KHOÁ 17</h2>
-              <table style="width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 14px;">
-                <tr>
-                  <td style="padding: 6px 0; font-weight: bold; color: #475569; width: 150px;">Sinh viên thực hiện:</td>
-                  <td style="padding: 6px 0; color: #1e293b;">Nguyễn Tấn Việt</td>
-                </tr>
-                <tr>
-                  <td style="padding: 6px 0; font-weight: bold; color: #475569;">Mã số sinh viên:</td>
-                  <td style="padding: 6px 0; color: #1e293b;">23140005</td>
-                </tr>
-                <tr>
-                  <td style="padding: 6px 0; font-weight: bold; color: #475569;">Lớp chuyên ngành:</td>
-                  <td style="padding: 6px 0; color: #1e293b;">K17 - Công nghệ thông tin</td>
-                </tr>
-                <tr>
-                  <td style="padding: 6px 0; font-weight: bold; color: #475569;">Đơn vị tiếp nhận:</td>
-                  <td style="padding: 6px 0; color: #1e293b;">DX Future Tech Corporation</td>
-                </tr>
+            <div style="margin: 20px 0 30px 0;">
+              <table style="width: 100%; border-collapse: collapse; font-size: 14px; margin-bottom: 20px;">
+                <tbody>
+                  <tr>
+                    <td style="width: 35%; padding: 4px 0; font-weight: bold;">Họ và tên sinh viên:</td>
+                    <td style="width: 65%; padding: 4px 0;">Nguyễn Tấn Việt</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 4px 0; font-weight: bold;">Mã số sinh viên:</td>
+                    <td style="padding: 4px 0;">23140005</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 4px 0; font-weight: bold;">Lớp học phần:</td>
+                    <td style="padding: 4px 0;">K17 - Công nghệ thông tin - Lớp A</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 4px 0; font-weight: bold;">Đơn vị tiếp nhận thực tập:</td>
+                    <td style="padding: 4px 0;">Công ty Cổ phần Công nghệ DX Future Tech</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 4px 0; font-weight: bold;">Thời gian thực tập:</td>
+                    <td style="padding: 4px 0;">Từ 01/05/2026 đến 30/07/2026</td>
+                  </tr>
+                </tbody>
               </table>
             </div>
 
-            <h3 style="color: #1e3a8a; font-size: 16px; margin-top: 24px;">I. Nội dung công việc đã hoàn thành</h3>
-            <p>1. Nghiên cứu tài liệu kỹ thuật về kiến trúc dự án Document Control System.</p>
-            <p>2. Phối hợp với đội ngũ phát triển Frontend thiết lập giao diện trang quản trị Hubs.</p>
-            <p>3. Tích hợp thư viện giải mã tài liệu Office (mammoth, xlsx, jszip) trực tiếp dưới trình duyệt.</p>
+            <h4 style="font-size: 15px; font-weight: bold; margin-top: 20px; text-transform: uppercase;">I. Các công việc đã thực hiện trong giai đoạn</h4>
+            <p style="text-indent: 30px; margin: 5px 0;">1. Thực hiện khảo sát quy trình quản lý hồ sơ, tài liệu nghiệp vụ tại đơn vị tiếp nhận.</p>
+            <p style="text-indent: 30px; margin: 5px 0;">2. Tìm hiểu tài liệu kỹ thuật về các chuẩn mã hóa định dạng tệp tin văn bản phổ biến hiện nay.</p>
+            <p style="text-indent: 30px; margin: 5px 0;">3. Xây dựng và tối ưu hóa module hiển thị trực quan các tệp tin bảng tính Excel và tài liệu Word trực tiếp trên trình duyệt client.</p>
 
-            <h3 style="color: #1e3a8a; font-size: 16px; margin-top: 24px;">II. Nhận xét của người hướng dẫn</h3>
-            <p style="font-style: italic; color: #475569;">"Sinh viên Nguyễn Tấn Việt có tinh thần học hỏi tốt, hoàn thành các nhiệm vụ nghiên cứu đúng hạn và có đóng góp tích cực vào việc cải thiện hiệu năng preview file."</p>
+            <h4 style="font-size: 15px; font-weight: bold; margin-top: 25px; text-transform: uppercase;">II. Đánh giá sơ bộ của đơn vị hướng dẫn</h4>
+            <p style="text-indent: 30px; margin: 5px 0; font-style: italic;">"Sinh viên Nguyễn Tấn Việt có thái độ làm việc nghiêm túc, tính kỷ luật cao. Có khả năng nghiên cứu độc lập tốt và hoàn thành đầy đủ các yêu cầu chuyên môn được giao từ bộ phận kỹ thuật."</p>
             
-            <div style="margin-top: 40px; border-top: 1px dashed #cbd5e1; padding-top: 16px; font-size: 12px; color: #64748b; text-align: center;">
-              ⚠️ Đây là nội dung giả lập (Mock Data) của tệp tin Word (.docx) được tạo ra tự động bởi ứng dụng vì máy chủ đang bảo trì.
+            <div style="margin-top: 50px; display: flex; justify-content: space-between; font-size: 14px;">
+              <div style="text-align: center; width: 45%;">
+                <p style="font-weight: bold; margin-bottom: 60px;">Đại diện đơn vị tiếp nhận</p>
+                <p style="font-style: italic; color: #555555;">(Ký và ghi rõ họ tên)</p>
+              </div>
+              <div style="text-align: center; width: 45%;">
+                <p style="font-style: italic; margin-bottom: 0;">Tp. Hồ Chí Minh, ngày 27 tháng 07 năm 2026</p>
+                <p style="font-weight: bold; margin-top: 5px; margin-bottom: 60px;">Người viết báo cáo</p>
+                <p style="font-weight: bold;">Nguyễn Tấn Việt</p>
+              </div>
             </div>
           </div>
         `);
