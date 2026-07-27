@@ -17,7 +17,7 @@ import {
   Archive,
 } from 'lucide-react';
 import type { IMyHubsSectionProps, IFolderItem, IFileItem } from './my-hubs.type';
-import { HubStats, HubRecentActivity } from '../../components/hubs';
+import { HubStats, HubRecentActivity, FilePreviewModal } from '../../components/hubs';
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -75,6 +75,13 @@ export const MyHubsSection = ({
 
   const [selectedDocument, setSelectedDocument] = useState<IDocument | null>(null);
   const [loadingDocument, setLoadingDocument] = useState(false);
+
+  const [previewFile, setPreviewFile] = useState<{
+    entityName: string;
+    fileName: string;
+    mimeType?: string | null;
+    fileUrl?: string | null;
+  } | null>(null);
 
   const fetchFoldersAndFiles = useCallback(async () => {
     try {
@@ -155,6 +162,10 @@ export const MyHubsSection = ({
     }
   }, []);
 
+  const handleFilePreview = useCallback((entityName: string, fileName: string, mimeType?: string | null, fileUrl?: string | null) => {
+    setPreviewFile({ entityName, fileName, mimeType, fileUrl });
+  }, []);
+
   const handleFileClick = useCallback(async (id: string) => {
     try {
       setLoadingDocument(true);
@@ -170,7 +181,7 @@ export const MyHubsSection = ({
 
   const handleRecentActivityAction = useCallback(async (action: 'view' | 'download' | 'delete', activity: any) => {
     if (action === 'view') {
-      handleFileClick(activity.id);
+      handleFilePreview(activity.id, activity.name);
     } else if (action === 'download') {
       try {
         const doc = await getDocumentByIdAPI(activity.id);
@@ -197,7 +208,7 @@ export const MyHubsSection = ({
         }
       }
     }
-  }, [fetchFoldersAndFiles, handleFileClick]);
+  }, [fetchFoldersAndFiles, handleFilePreview]);
 
   useEffect(() => {
     void fetchFoldersAndFiles();
@@ -219,7 +230,6 @@ export const MyHubsSection = ({
     setLoadingFolderFiles(true);
     try {
       const data = await listDriveFilesAPI({
-        team: 'evjem9pjqi',
         entity_name: id,
         order_by: 'modified',
         ascending: 0,
@@ -287,6 +297,8 @@ export const MyHubsSection = ({
         setFiles((prev) => prev.map((f) => (f.id === id ? { ...f, name: newName } : f)));
       }
       setActiveModal(null);
+      void fetchFoldersAndFiles();
+      window.dispatchEvent(new Event('drive-updated'));
     } catch {
       toast.error('Failed to rename.');
     }
@@ -301,7 +313,6 @@ export const MyHubsSection = ({
       await moveDriveFilesAPI({
         entity_names: [id],
         new_parent: parentId,
-        team: 'evjem9pjqi',
       });
       toast.success(`Moved ${name} successfully.`);
       const updatedFolders = await listFoldersAPI();
@@ -379,32 +390,8 @@ export const MyHubsSection = ({
     const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;
 
-    const formatSize = (bytes: number): string => {
-      if (bytes === 0) return '0 B';
-      const k = 1024;
-      const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
-      const i = Math.floor(Math.log(bytes) / Math.log(k));
-      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-    };
-
-    const ext = selectedFile.name.split('.').pop()?.toLowerCase();
-    let type: 'pdf' | 'docx' | 'xlsx' | 'other' = 'other';
-    if (ext === 'pdf') {
-      type = 'pdf';
-    } else if (ext === 'docx' || ext === 'doc') {
-      type = 'docx';
-    } else if (ext === 'xlsx' || ext === 'xls') {
-      type = 'xlsx';
-    }
-
-    const nameWithoutExt = selectedFile.name.substring(0, selectedFile.name.lastIndexOf('.')) || selectedFile.name;
-
     try {
-      const newFileItem = await createFileAPI({
-        name: nameWithoutExt,
-        size: formatSize(selectedFile.size),
-        fileType: type,
-      });
+      const newFileItem = await createFileAPI(selectedFile);
       setFiles((prev) => [newFileItem, ...prev]);
       toast.success(`Successfully uploaded file: ${selectedFile.name}`);
       void fetchFoldersAndFiles();
@@ -580,7 +567,7 @@ export const MyHubsSection = ({
               className="flex items-center justify-between rounded-3xl border border-slate-100 bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md"
             >
               <div
-                onClick={() => handleFileClick(file.id)}
+                onClick={() => handleFilePreview(file.id, file.name, file.mimeType, file.fileUrl)}
                 className="flex items-center gap-3 min-w-0 cursor-pointer"
               >
                 {renderFileIcon(file.fileType)}
@@ -714,7 +701,11 @@ export const MyHubsSection = ({
               </div>
             ) : (
               folderFiles.map((file) => (
-                <div key={file.name} className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-slate-100/50 transition">
+                <div
+                  key={file.name}
+                  className="flex cursor-pointer items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-blue-50/60 hover:border-blue-200 transition"
+                  onClick={() => handleFilePreview(file.name, file.file_name, file.file_type, file.file_url)}
+                >
                   <div className="flex items-center gap-3">
                     <FileText className="size-5 text-blue-600" />
                     <div className="flex flex-col">
@@ -926,6 +917,16 @@ export const MyHubsSection = ({
           </div>
         </div>
       )}
+
+      {/* File Preview Modal */}
+      <FilePreviewModal
+        open={previewFile !== null}
+        onClose={() => setPreviewFile(null)}
+        entityName={previewFile?.entityName || ''}
+        fileName={previewFile?.fileName || ''}
+        mimeType={previewFile?.mimeType}
+        fileUrl={previewFile?.fileUrl}
+      />
 
     </div>
   );

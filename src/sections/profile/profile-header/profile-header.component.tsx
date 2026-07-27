@@ -1,6 +1,7 @@
 import type { IProfileHeaderProps } from '../profile.type';
 import { Mail, Phone, Building2, MapPin, Camera } from 'lucide-react';
 import { useRef } from 'react';
+import { formatAvatarUrl } from '../../../lib/format-avatar-url';
 
 export const ProfileHeader = ({ profile, onAvatarClick, onAvatarChange }: IProfileHeaderProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -43,7 +44,7 @@ export const ProfileHeader = ({ profile, onAvatarClick, onAvatarChange }: IProfi
         <div className="relative shrink-0">
           <div className="h-28 w-28 overflow-hidden rounded-2xl border border-slate-100 bg-slate-50 shadow-md md:h-32 md:w-32">
             <img
-              src={profile.profile_url || 'https://i.pravatar.cc/150?u=a042581f4e29026024d'}
+              src={formatAvatarUrl(profile.profile_url)}
               alt="Avatar"
               className="h-full w-full object-cover"
             />

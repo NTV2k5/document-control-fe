@@ -3,6 +3,7 @@ export interface IFolderItem {
   name: string;
   size: string;
   filesCount: number;
+  team?: string;
 }
 
 export interface IFileItem {
@@ -11,6 +12,7 @@ export interface IFileItem {
   size: string;
   fileType: 'pdf' | 'docx' | 'xlsx' | 'other';
   fileUrl?: string | null;
+  mimeType?: string | null;
 }
 
 export interface IMyHubFolderAPIResponse {
@@ -20,6 +22,7 @@ export interface IMyHubFolderAPIResponse {
   creation: string;
   total_files: number;
   total_size: number;
+  team?: string;
 }
 
 export interface IMyHubFileAPIResponse {

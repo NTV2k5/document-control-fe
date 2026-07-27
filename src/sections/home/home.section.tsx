@@ -8,6 +8,7 @@ import { OverviewBanner } from './overview-banner';
 import { QuickAccess } from './quick-access';
 import { RecentlyInteracted } from './recently-interacted';
 import { StatsOverview } from './stats-overview';
+import { FilePreviewModal } from '../../components/hubs';
 import {
   getTrendingNowAPI,
   getSummaryStatsAPI,
@@ -68,17 +69,28 @@ export const HomeSection = (_props: IHomeSectionProps) => {
   const [selectedDocument, setSelectedDocument] = useState<IDocument | null>(null);
   const [loadingDocument, setLoadingDocument] = useState(false);
   
+  const [previewFile, setPreviewFile] = useState<{
+    entityName: string;
+    fileName: string;
+    mimeType?: string | null;
+    fileUrl?: string | null;
+  } | null>(null);
+  
   const handleFileClick = async (id: string) => {
-    try {
-      setLoadingDocument(true);
-      const doc = await getDocumentByIdAPI(id);
-      setSelectedDocument(doc);
-    } catch (err) {
-      console.error('Failed to fetch document detail:', err);
-      alert('Failed to load document details.');
-    } finally {
-      setLoadingDocument(false);
-    }
+    // Find the item in trendingNowData or documentsLatest to get its title/mime type/url
+    const trendingItem = trendingNowData.find((item) => item.name === id);
+    const latestItem = documentsLatest.find((doc) => doc.name === id);
+
+    const fileName = trendingItem?.file_name || latestItem?.file_name || 'Document';
+    const mimeType = trendingItem?.mime_type || null;
+    const fileUrl = latestItem?.file_url || null;
+
+    setPreviewFile({
+      entityName: id,
+      fileName,
+      mimeType,
+      fileUrl,
+    });
   };
 
   useEffect(() => {
@@ -386,6 +398,16 @@ export const HomeSection = (_props: IHomeSectionProps) => {
           </div>
         </div>
       )}
+
+      {/* File Preview Modal */}
+      <FilePreviewModal
+        open={previewFile !== null}
+        onClose={() => setPreviewFile(null)}
+        entityName={previewFile?.entityName || ''}
+        fileName={previewFile?.fileName || ''}
+        mimeType={previewFile?.mimeType}
+        fileUrl={previewFile?.fileUrl}
+      />
     </div>
   );
 };

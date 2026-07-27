@@ -53,7 +53,7 @@ export interface IHubRecentActivityAPIResponse {
 }
 
 export interface IListDriveFilesPayload {
-  team: string;
+  team?: string;
   entity_name: string;
   order_by?: string;
   ascending?: number;
@@ -98,7 +98,7 @@ export interface IRenameDriveFilePayload {
 export interface IMoveDriveFilesPayload {
   entity_names: string[];
   new_parent: string;
-  team: string;
+  team?: string;
 }
 
 export interface IShareDriveFilePayload {

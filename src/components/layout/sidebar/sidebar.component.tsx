@@ -34,6 +34,8 @@ import {
   getDocumentInputAgentSettingsAPI,
   type IDocumentInputAgentSettings,
   getMyStatsAPI,
+  getProfileDashboardAPI,
+  formatBytes,
 } from 'api';
 import { SidebarItem } from '../sidebar-item';
 import {
@@ -48,6 +50,7 @@ import {
   useAuth,
 } from 'reactjs-platform/utilities';
 import { useTranslation } from '../../../i18n/use-translation';
+import { formatAvatarUrl } from '../../../lib/format-avatar-url';
 
 type TAgentSidebarSettings = Pick<
   IDocumentInputAgentSettings,
@@ -107,23 +110,58 @@ const STORAGE_BASE_TB = 4.2;
 const STORAGE_TOTAL_TB = 10;
 
 export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProps) => {
-  const [storageUsed, setStorageUsed] = useState(STORAGE_BASE_TB);
-  const storageTotal = STORAGE_TOTAL_TB;
-  const storagePercent = Math.round((storageUsed / storageTotal) * 100);
+  const [storageData, setStorageData] = useState<{
+    used_bytes: number;
+    limit_bytes: number;
+    percentage_used: number;
+  }>({
+    used_bytes: 4.2 * 1024 * 1024 * 1024 * 1024,
+    limit_bytes: 10 * 1024 * 1024 * 1024 * 1024,
+    percentage_used: 42,
+  });
 
   useEffect(() => {
     const updateStorage = () => {
-      getMyStatsAPI()
-        .then((stats) => {
-          const totalBytes =
-            (stats?.Images?.size ?? 0) +
-            (stats?.Videos?.size ?? 0) +
-            (stats?.Documents?.size ?? 0) +
-            (stats?.Other?.size ?? 0);
-          const bytesToTb = totalBytes / (1024 * 1024 * 1024 * 1024);
-          setStorageUsed(STORAGE_BASE_TB + bytesToTb);
+      getProfileDashboardAPI()
+        .then((dashboard) => {
+          if (dashboard?.storage) {
+            setStorageData({
+              used_bytes: dashboard.storage.used_bytes,
+              limit_bytes: dashboard.storage.limit_bytes,
+              percentage_used: dashboard.storage.percentage_used,
+            });
+          }
+
+          // Sync avatar from dashboard to the global profile store
+          const dashboardImage = dashboard?.user_info?.user_image;
+          if (dashboardImage) {
+            const current = profileStore.getState().profile;
+            if (current && current.profile_url !== dashboardImage) {
+              profileStore.setState({
+                profile: { ...current, profile_url: dashboardImage },
+              });
+            }
+          }
         })
-        .catch((err) => console.error('Failed to fetch sidebar storage stats:', err));
+        .catch(() => {
+          // Fallback to getMyStatsAPI if getProfileDashboardAPI fails
+          getMyStatsAPI()
+            .then((stats) => {
+              const totalBytes =
+                (stats?.Images?.size ?? 0) +
+                (stats?.Videos?.size ?? 0) +
+                (stats?.Documents?.size ?? 0) +
+                (stats?.Other?.size ?? 0);
+              const limitBytes = 10 * 1024 * 1024 * 1024 * 1024;
+              const usedBytes = 4.2 * 1024 * 1024 * 1024 * 1024 + totalBytes;
+              setStorageData({
+                used_bytes: usedBytes,
+                limit_bytes: limitBytes,
+                percentage_used: Math.round((usedBytes / limitBytes) * 100),
+              });
+            })
+            .catch((err) => console.error('Failed to fetch sidebar storage stats:', err));
+        });
     };
 
     updateStorage();
@@ -146,10 +184,15 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
   const isAdmin = profile ? isRootProfile(profile) : false;
   const canReadAgentSettings = profile ? isRootProfile(profile) : false;
 
+  const primaryScopeAssignment =
+    profile?.scope_assignments?.find((assignment) => assignment.is_primary) ?? profile?.scope_assignments?.[0];
+
   const roleLabel = profile
-    ? isAdmin
-      ? t('navigation.admin')
-      : t('navigation.viewer')
+    ? primaryScopeAssignment?.role?.role_name ||
+      primaryScopeAssignment?.role?.role_key ||
+      profile.role_profile ||
+      profile.job ||
+      (isAdmin ? 'Quản trị viên' : 'Người dùng')
     : null;
 
   const [agentSidebarSettings, setAgentSidebarSettings] = useState<TAgentSidebarSettings | null>(
@@ -493,7 +536,7 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
               className="flex cursor-pointer items-center gap-3 transition-opacity hover:opacity-80"
             >
               <img
-                src="https://i.pravatar.cc/150?u=a042581f4e29026024d"
+                src={formatAvatarUrl(profile?.profile_url)}
                 alt="Avatar"
                 className="size-9 shrink-0 rounded-full object-cover ring-2 ring-white shadow-sm"
               />
@@ -508,12 +551,12 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
                 Storage Usage
               </div>
               <div className="text-sm font-bold">
-                {storageUsed.toFixed(2)} TB / {storageTotal} TB
+                {formatBytes(storageData.used_bytes)} / {formatBytes(storageData.limit_bytes)}
               </div>
               <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/20">
                 <div
                   className="h-full bg-blue-400 transition-all"
-                  style={{ width: `${storagePercent}%` }}
+                  style={{ width: `${Math.min(100, Math.max(0, storageData.percentage_used))}%` }}
                 />
               </div>
             </div>
@@ -530,7 +573,7 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
           <div className="flex flex-col items-center gap-3">
             <img
               onClick={() => navigate({ to: '/profile' })}
-              src="https://i.pravatar.cc/150?u=a042581f4e29026024d"
+              src={formatAvatarUrl(profile?.profile_url)}
               alt="Avatar"
               className="size-9 cursor-pointer rounded-full object-cover ring-2 ring-white shadow-sm transition-opacity hover:opacity-80"
             />

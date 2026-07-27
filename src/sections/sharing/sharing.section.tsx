@@ -366,9 +366,6 @@ export const SharingSection = (_props: ISharingSectionProps) => {
                     "{selectedFile.file_name}"
                   </span>
                 </div>
-                <button onClick={() => setSelectedFile(null)} className="rounded-full p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition">
-                  <X className="size-5" />
-                </button>
               </div>
 
               {/* Add people section */}

@@ -22,12 +22,17 @@ export interface IPersonalInfoFormProps {
 }
 
 export interface IStorageAnalyticsProps {
-  usedStorageTb: number;
-  totalStorageTb: number;
+  usedStorageBytes?: number;
+  totalStorageBytes?: number;
+  percentageUsed?: number;
   documentsPercent: number;
   mediaPercent: number;
-  documentsTb: number;
-  mediaTb: number;
+  documentsBytes?: number;
+  mediaBytes?: number;
+  usedStorageTb?: number;
+  totalStorageTb?: number;
+  documentsTb?: number;
+  mediaTb?: number;
 }
 
 export interface IRecentActivityItem {
