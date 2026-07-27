@@ -35,7 +35,7 @@ const formatDate = (isoString: string, locale: string) => {
   try {
     const date = new Date(isoString);
     if (isNaN(date.getTime())) return isoString;
-    
+
     if (locale === 'vi') {
       const day = date.getDate();
       const month = date.getMonth() + 1;
@@ -188,11 +188,11 @@ export const SharedSection = (_props: ISharedSectionProps) => {
       titleEn: string;
       items: ISharedFileItem[];
     }[] = [
-      { id: 'week', titleVi: 'Tuần trước', titleEn: 'Last week', items: [] },
-      { id: 'month', titleVi: 'Đầu tháng này', titleEn: 'Earlier this month', items: [] },
-      { id: 'year', titleVi: 'Đầu năm nay', titleEn: 'Earlier this year', items: [] },
-      { id: 'older', titleVi: 'Cũ hơn', titleEn: 'Older', items: [] },
-    ];
+        { id: 'week', titleVi: 'Tuần trước', titleEn: 'Last week', items: [] },
+        { id: 'month', titleVi: 'Đầu tháng này', titleEn: 'Earlier this month', items: [] },
+        { id: 'year', titleVi: 'Đầu năm nay', titleEn: 'Earlier this year', items: [] },
+        { id: 'older', titleVi: 'Cũ hơn', titleEn: 'Older', items: [] },
+      ];
 
     filteredFiles.forEach((file) => {
       const date = new Date(file.shared_at);
@@ -255,8 +255,8 @@ export const SharedSection = (_props: ISharedSectionProps) => {
 
   const handleDownload = (file: ISharedFileItem) => {
     toast.info(
-      locale === 'vi' 
-        ? `Đang tải xuống tệp: ${file.file_name}` 
+      locale === 'vi'
+        ? `Đang tải xuống tệp: ${file.file_name}`
         : `Downloading file: ${file.file_name}`
     );
   };
@@ -387,7 +387,7 @@ export const SharedSection = (_props: ISharedSectionProps) => {
             <div className="divide-y divide-slate-50">
               {group.items.map((file) => {
                 const initial = file.shared_by.name.charAt(0).toUpperCase() || 'U';
-                
+
                 return (
                   <div
                     key={file.id}

@@ -103,7 +103,7 @@ export const SharingSection = (_props: ISharingSectionProps) => {
   const { locale } = useTranslation();
   const [sharingFiles, setSharingFiles] = useState<ISharingFileItem[]>(MOCK_SHARING_FILES);
   const [selectedFile, setSelectedFile] = useState<ISharingFileItem | null>(null);
-  
+
   // Modal states
   const [newShareEmail, setNewShareEmail] = useState('');
   const [newShareRole, setNewShareRole] = useState<TSharedRole>('viewer');
@@ -141,8 +141,8 @@ export const SharingSection = (_props: ISharingSectionProps) => {
     setModalSharedUsers((prev) => [...prev, newUser]);
     setNewShareEmail('');
     toast.success(
-      locale === 'vi' 
-        ? `Đã thêm ${email} vào danh sách quyền truy cập.` 
+      locale === 'vi'
+        ? `Đã thêm ${email} vào danh sách quyền truy cập.`
         : `Added ${email} to access list.`
     );
   };
@@ -164,17 +164,17 @@ export const SharingSection = (_props: ISharingSectionProps) => {
       prev.map((file) =>
         file.id === selectedFile.id
           ? {
-              ...file,
-              shared_users: modalSharedUsers,
-              general_access: modalGeneralAccess,
-            }
+            ...file,
+            shared_users: modalSharedUsers,
+            general_access: modalGeneralAccess,
+          }
           : file
       )
     );
 
     toast.success(
-      locale === 'vi' 
-        ? `Cập nhật cấu hình chia sẻ cho "${selectedFile.file_name}" thành công!` 
+      locale === 'vi'
+        ? `Cập nhật cấu hình chia sẻ cho "${selectedFile.file_name}" thành công!`
         : `Updated sharing settings for "${selectedFile.file_name}" successfully!`
     );
     setSelectedFile(null);
@@ -185,8 +185,8 @@ export const SharingSection = (_props: ISharingSectionProps) => {
     const mockLink = `https://edu-docs-control-dev.dxfuturetech.com.vn/view/${selectedFile.id}`;
     navigator.clipboard.writeText(mockLink).then(() => {
       toast.success(
-        locale === 'vi' 
-          ? 'Đã sao chép đường liên kết vào khay nhớ tạm!' 
+        locale === 'vi'
+          ? 'Đã sao chép đường liên kết vào khay nhớ tạm!'
           : 'Link copied to clipboard!'
       );
     }).catch(() => {
@@ -306,8 +306,8 @@ export const SharingSection = (_props: ISharingSectionProps) => {
                   )}
                 </div>
                 <span className="text-xs font-semibold text-slate-500 ml-2.5">
-                  {file.shared_users.length === 0 
-                    ? (locale === 'vi' ? 'Riêng tư' : 'Private') 
+                  {file.shared_users.length === 0
+                    ? (locale === 'vi' ? 'Riêng tư' : 'Private')
                     : `${file.shared_users.length} ${locale === 'vi' ? 'người' : 'people'}`}
                 </span>
               </div>
@@ -378,14 +378,14 @@ export const SharingSection = (_props: ISharingSectionProps) => {
                       value={newShareEmail}
                       onChange={(e) => setNewShareEmail(e.target.value)}
                       placeholder={
-                        locale === 'vi' 
-                          ? 'Thêm người, nhóm, không gian...' 
+                        locale === 'vi'
+                          ? 'Thêm người, nhóm, không gian...'
                           : 'Add people, groups...'
                       }
                       className="h-10 w-full rounded-xl border-slate-200 pl-9 pr-3 text-xs focus-visible:ring-blue-600"
                     />
                   </div>
-                  
+
                   {/* Select Role for addition */}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -464,7 +464,7 @@ export const SharingSection = (_props: ISharingSectionProps) => {
                               </span>
                             </div>
                           </div>
-                          
+
                           {/* Role selector dropdown */}
                           <div className="flex items-center gap-1.5">
                             <DropdownMenu>
@@ -547,11 +547,11 @@ export const SharingSection = (_props: ISharingSectionProps) => {
                         <span className="text-[10px] text-slate-400 leading-normal max-w-[280px]">
                           {modalGeneralAccess.scope === 'anyone'
                             ? (locale === 'vi'
-                                ? 'Bất kỳ ai có kết nối Internet và có đường liên kết này đều có thể xem'
-                                : 'Anyone on the Internet with this link can view')
+                              ? 'Bất kỳ ai có kết nối Internet và có đường liên kết này đều có thể xem'
+                              : 'Anyone on the Internet with this link can view')
                             : (locale === 'vi'
-                                ? 'Chỉ những người được chia sẻ trực tiếp mới có thể xem bằng liên kết này'
-                                : 'Only people added can open with this link')}
+                              ? 'Chỉ những người được chia sẻ trực tiếp mới có thể xem bằng liên kết này'
+                              : 'Only people added can open with this link')}
                         </span>
                       </div>
                     </div>
@@ -588,8 +588,8 @@ export const SharingSection = (_props: ISharingSectionProps) => {
                 <div className="flex gap-2.5 p-3 rounded-2xl bg-blue-50/50 border border-blue-100/50 text-[10.5px] font-semibold text-blue-700 leading-normal">
                   <Info className="size-4 shrink-0 text-blue-600 mt-0.5" />
                   <span>
-                    {locale === 'vi' 
-                      ? 'Những người xem tệp này có thể thấy các nhận xét và mục đề xuất' 
+                    {locale === 'vi'
+                      ? 'Những người xem tệp này có thể thấy các nhận xét và mục đề xuất'
                       : 'Viewers of this file can see comments and suggestions'}
                   </span>
                 </div>
