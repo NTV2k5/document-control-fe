@@ -158,7 +158,107 @@ export const MyHubsSection = ({
       }));
       setActivities(mapped);
     } catch (err) {
-      console.error('Failed to load drive folders/files/stats/activities:', err);
+      console.warn('Backend API offline, loading mock folders/files/stats/activities:', err);
+      
+      const mockFolders = [
+        { id: 'folder-1', name: 'Đồ án tốt nghiệp', size: '15.4 MB', filesCount: 12, team: 'CNTT' },
+        { id: 'folder-2', name: 'Tài liệu hướng dẫn', size: '8.2 MB', filesCount: 5, team: 'Hành chính' },
+        { id: 'folder-3', name: 'Biểu mẫu & Quy định', size: '3.1 MB', filesCount: 8, team: 'Đào tạo' },
+      ];
+
+      const mockFiles = [
+        { id: 'mock-pdf', name: 'Bản mô tả dự án.pdf', size: '1.2 MB', fileType: 'pdf' as const, fileUrl: null, mimeType: 'application/pdf' },
+        { id: 'mock-docx', name: 'Báo cáo thực tập tốt nghiệp.docx', size: '240 KB', fileType: 'docx' as const, fileUrl: null, mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' },
+        { id: 'mock-doc', name: '59_NguyenTanViet_23140005.doc', size: '1.1 MB', fileType: 'docx' as const, fileUrl: null, mimeType: 'application/msword' },
+        { id: 'mock-xlsx', name: 'Kết quả học tập khóa 17.xlsx', size: '85 KB', fileType: 'xlsx' as const, fileUrl: null, mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' },
+        { id: 'mock-pptx', name: 'HDSD_Document_Control_v1.pptx', size: '4.5 MB', fileType: 'other' as const, fileUrl: null, mimeType: 'application/vnd.openxmlformats-officedocument.presentationml.presentation' },
+        { id: 'mock-video', name: 'Video giới thiệu trường GDU.mp4', size: '12.8 MB', fileType: 'other' as const, fileUrl: null, mimeType: 'video/mp4' },
+        { id: 'mock-image', name: 'Sơ đồ tổ chức khoa.png', size: '450 KB', fileType: 'other' as const, fileUrl: null, mimeType: 'image/png' },
+        { id: 'mock-text', name: 'Readme.txt', size: '12 KB', fileType: 'docx' as const, fileUrl: null, mimeType: 'text/plain' },
+      ];
+
+      const mockStats = [
+        {
+          id: 'images',
+          label: 'IMAGES',
+          itemsCount: 1,
+          usedSpace: '450 KB used',
+          percentage: 5,
+          icon: <ImageIcon className="size-5" />,
+          iconBgColor: 'bg-red-50',
+          iconColor: 'text-red-500',
+          barColor: 'bg-red-500',
+        },
+        {
+          id: 'videos',
+          label: 'VIDEOS',
+          itemsCount: 1,
+          usedSpace: '12.8 MB used',
+          percentage: 65,
+          icon: <Clapperboard className="size-5" />,
+          iconBgColor: 'bg-blue-50',
+          iconColor: 'text-blue-500',
+          barColor: 'bg-blue-500',
+        },
+        {
+          id: 'documents',
+          label: 'DOCUMENTS',
+          itemsCount: 5,
+          usedSpace: '6.9 MB used',
+          percentage: 28,
+          icon: <FileText className="size-5" />,
+          iconBgColor: 'bg-emerald-50',
+          iconColor: 'text-emerald-500',
+          barColor: 'bg-emerald-500',
+        },
+        {
+          id: 'other',
+          label: 'OTHER',
+          itemsCount: 1,
+          usedSpace: '12 KB used',
+          percentage: 2,
+          icon: <Archive className="size-5" />,
+          iconBgColor: 'bg-amber-50',
+          iconColor: 'text-amber-500',
+          barColor: 'bg-amber-500',
+        },
+      ];
+
+      const mockActivities = [
+        {
+          id: 'act-1',
+          name: 'Báo cáo thực tập tốt nghiệp.docx',
+          fileType: 'docx' as const,
+          lastModified: '2026-07-27 15:00:00',
+          folderId: 'folder-1',
+          owners: [
+            {
+              name: 'Nguyễn Tấn Việt',
+              avatarUrl: undefined,
+              initials: 'N'
+            }
+          ]
+        },
+        {
+          id: 'act-2',
+          name: 'HDSD_Document_Control_v1.pptx',
+          fileType: 'other' as const,
+          lastModified: '2026-07-27 14:30:00',
+          folderId: 'folder-2',
+          owners: [
+            {
+              name: 'Phan Quốc Khánh',
+              avatarUrl: undefined,
+              initials: 'P'
+            }
+          ]
+        }
+      ];
+
+      setFolders(mockFolders);
+      setFiles(mockFiles);
+      setStats(mockStats);
+      setActivities(mockActivities);
     }
   }, []);
 
