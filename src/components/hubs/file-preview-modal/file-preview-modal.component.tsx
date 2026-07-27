@@ -412,15 +412,18 @@ export const FilePreviewModal = ({
 
       case 'video':
         return (directUrl || blobUrl) ? (
-          <div className="flex flex-1 items-center justify-center p-4">
-            <video
-              src={directUrl || blobUrl || ''}
-              controls
-              autoPlay={false}
-              className="max-h-full max-w-full rounded-lg shadow-lg"
-            >
-              Your browser does not support the video tag.
-            </video>
+          <div className="flex flex-1 items-center justify-center p-4 bg-slate-950/40 rounded-xl border border-slate-100">
+            <div className="w-full max-w-4xl aspect-video rounded-xl overflow-hidden bg-black shadow-2xl border border-slate-800 flex items-center justify-center">
+              <video
+                key={directUrl || blobUrl || ''}
+                src={directUrl || blobUrl || ''}
+                controls
+                autoPlay={false}
+                className="w-full h-full object-contain"
+              >
+                Your browser does not support the video tag.
+              </video>
+            </div>
           </div>
         ) : null;
 
