@@ -136,6 +136,9 @@ export const FilePreviewModal = ({
     const loadMockData = (name: string, category: string) => {
       const ext = name.split('.').pop()?.toLowerCase() || '';
 
+      // Initialize currentBlob with a mock blob so the download button is always enabled
+      setCurrentBlob(new Blob(['Nội dung giả lập của tệp tin này (Mock Data)'], { type: 'application/octet-stream' }));
+
       if (ext === 'docx') {
         setDocxHtml(`
           <div style="font-family: 'Times New Roman', Times, serif; padding: 40px; line-height: 1.5; color: #000000; max-width: 800px; margin: 0 auto; background-color: #ffffff;">
@@ -320,8 +323,6 @@ export const FilePreviewModal = ({
           'Đây là nội dung giả lập của tệp tin văn bản thường được hiển thị trực tiếp ở đây.\n' +
           'Hệ thống hỗ trợ xem trước đầy đủ nội dung dòng chữ, mã nguồn, nhật ký log mà không cần tải về.'
         );
-      } else {
-        setCurrentBlob(new Blob(['dummy content'], { type: 'application/octet-stream' }));
       }
     };
 
