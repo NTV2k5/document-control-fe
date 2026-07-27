@@ -1,4 +1,4 @@
-import { Scale, ShieldUser, TerminalSquare } from 'lucide-react';
+import { FileText, FileSpreadsheet, FileImage, FileVideo, Presentation, File, Scale, ShieldUser } from 'lucide-react';
 import { Badge, Card, CardContent } from 'reactjs-platform/ui';
 
 type LatestPublishedProps = {
@@ -17,23 +17,29 @@ type LatestPublishedProps = {
 
 export function LatestPublished({ docs, onItemClick }: LatestPublishedProps) {
   const getBadgeClasses = (type: string) => {
-    if (type === 'REGULATION') {
-      return 'bg-blue-100 text-blue-600 hover:bg-blue-100 shadow-[0_2px_8px_rgba(37,99,235,0.25)]';
-    }
-    if (type === 'POLICY') {
-      return 'bg-cyan-100 text-cyan-600 hover:bg-cyan-100 shadow-[0_2px_8px_rgba(6,182,212,0.25)]';
-    }
-    return 'bg-green-100 text-green-600 hover:bg-green-100 shadow-[0_2px_8px_rgba(34,197,94,0.25)]';
+    const t = type.toUpperCase();
+    if (t === 'PDF') return 'bg-red-100 text-red-600 hover:bg-red-100 shadow-[0_2px_8px_rgba(239,68,68,0.2)]';
+    if (t === 'VIDEO') return 'bg-purple-100 text-purple-600 hover:bg-purple-100 shadow-[0_2px_8px_rgba(147,51,234,0.2)]';
+    if (t === 'IMAGE') return 'bg-amber-100 text-amber-600 hover:bg-amber-100 shadow-[0_2px_8px_rgba(245,158,11,0.2)]';
+    if (t === 'SPREADSHEET' || t === 'EXCEL') return 'bg-emerald-100 text-emerald-600 hover:bg-emerald-100 shadow-[0_2px_8px_rgba(16,185,129,0.2)]';
+    if (t === 'PRESENTATION' || t === 'POWERPOINT') return 'bg-orange-100 text-orange-600 hover:bg-orange-100 shadow-[0_2px_8px_rgba(249,115,22,0.2)]';
+    if (t === 'TEXT') return 'bg-green-100 text-green-600 hover:bg-green-100 shadow-[0_2px_8px_rgba(34,197,94,0.25)]';
+    if (t === 'REGULATION') return 'bg-blue-100 text-blue-600 hover:bg-blue-100 shadow-[0_2px_8px_rgba(37,99,235,0.25)]';
+    if (t === 'POLICY') return 'bg-cyan-100 text-cyan-600 hover:bg-cyan-100 shadow-[0_2px_8px_rgba(6,182,212,0.25)]';
+    return 'bg-slate-100 text-slate-600 hover:bg-slate-100 shadow-[0_2px_8px_rgba(100,116,139,0.15)]';
   };
 
   const getIcon = (type: string) => {
-    if (type === 'REGULATION') {
-      return <Scale className="h-5 w-5 text-slate-500" />;
-    }
-    if (type === 'POLICY') {
-      return <ShieldUser className="h-5 w-5 text-slate-500" />;
-    }
-    return <TerminalSquare className="h-5 w-5 text-slate-500" />;
+    const t = type.toUpperCase();
+    if (t === 'PDF' || t === 'DOCUMENT' || t === 'WORD') return <FileText className="h-5 w-5 text-red-500" />;
+    if (t === 'VIDEO') return <FileVideo className="h-5 w-5 text-purple-500" />;
+    if (t === 'IMAGE') return <FileImage className="h-5 w-5 text-amber-500" />;
+    if (t === 'SPREADSHEET' || t === 'EXCEL') return <FileSpreadsheet className="h-5 w-5 text-emerald-500" />;
+    if (t === 'PRESENTATION' || t === 'POWERPOINT') return <Presentation className="h-5 w-5 text-orange-500" />;
+    if (t === 'TEXT') return <FileText className="h-5 w-5 text-green-500" />;
+    if (t === 'REGULATION') return <Scale className="h-5 w-5 text-blue-500" />;
+    if (t === 'POLICY') return <ShieldUser className="h-5 w-5 text-cyan-500" />;
+    return <File className="h-5 w-5 text-slate-500" />;
   };
 
   return (
@@ -63,7 +69,9 @@ export function LatestPublished({ docs, onItemClick }: LatestPublishedProps) {
                   {doc.type}
                 </Badge>
               </div>
-              <h4 className="mb-2 text-base font-bold text-slate-900">{doc.title}</h4>
+              <h4 className="mb-2 text-base font-bold text-slate-900 truncate" title={doc.title}>
+                {doc.title}
+              </h4>
               <p className="mb-6 line-clamp-2 text-sm leading-relaxed font-medium text-slate-500/80">
                 {doc.description}
               </p>

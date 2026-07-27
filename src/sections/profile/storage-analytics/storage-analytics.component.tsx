@@ -1,22 +1,47 @@
 import { Info, FileText, Film } from 'lucide-react';
 import type { IStorageAnalyticsProps } from '../profile.type';
 import { Tooltip, TooltipContent, TooltipTrigger } from 'reactjs-platform/ui';
+import { formatBytes } from 'api';
 
 export const StorageAnalytics = ({
-  usedStorageTb = 4.2,
-  totalStorageTb = 10,
-  documentsPercent = 65,
-  mediaPercent = 35,
-  documentsTb = 2.8,
-  mediaTb = 1.4,
+  usedStorageBytes,
+  totalStorageBytes,
+  percentageUsed,
+  documentsPercent = 0,
+  mediaPercent = 0,
+  documentsBytes,
+  mediaBytes,
+  usedStorageTb,
+  totalStorageTb,
+  documentsTb,
+  mediaTb,
 }: Partial<IStorageAnalyticsProps>) => {
-  const usedPercent = Math.round((usedStorageTb / totalStorageTb) * 100);
+  const bytesUsed =
+    usedStorageBytes ??
+    (usedStorageTb !== undefined ? usedStorageTb * 1024 * 1024 * 1024 * 1024 : 4.2 * 1024 * 1024 * 1024 * 1024);
+  const bytesTotal =
+    totalStorageBytes ??
+    (totalStorageTb !== undefined ? totalStorageTb * 1024 * 1024 * 1024 * 1024 : 10 * 1024 * 1024 * 1024 * 1024);
+
+  const calcPercent =
+    percentageUsed ?? (bytesTotal > 0 ? (bytesUsed / bytesTotal) * 100 : 0);
+
+  const percentDisplay =
+    calcPercent > 0 && calcPercent < 1 ? calcPercent.toFixed(2) : Math.round(calcPercent);
+
+  const docBytes =
+    documentsBytes ??
+    (documentsTb !== undefined ? documentsTb * 1024 * 1024 * 1024 * 1024 : 0);
+  const medBytes =
+    mediaBytes ??
+    (mediaTb !== undefined ? mediaTb * 1024 * 1024 * 1024 * 1024 : 0);
 
   // SVG circle calculations
   const radius = 60;
   const strokeWidth = 14;
   const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (usedPercent / 100) * circumference;
+  const clampedPercent = Math.min(100, Math.max(0, calcPercent));
+  const strokeDashoffset = circumference - (clampedPercent / 100) * circumference;
 
   return (
     <div className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm flex flex-col">
@@ -30,7 +55,7 @@ export const StorageAnalytics = ({
             </button>
           </TooltipTrigger>
           <TooltipContent className="bg-slate-900 text-white text-xs rounded-lg p-2 max-w-[200px]">
-            Displays the current document and media file consumption against your allotted space of {totalStorageTb} TB.
+            Displays the current document and media file consumption against your allotted space of {formatBytes(bytesTotal)}.
           </TooltipContent>
         </Tooltip>
       </div>
@@ -65,7 +90,7 @@ export const StorageAnalytics = ({
         </svg>
         {/* Inner Text - Perfectly Centered */}
         <div className="flex flex-col items-center justify-center leading-none">
-          <span className="text-3xl font-extrabold text-slate-800">{usedPercent}%</span>
+          <span className="text-3xl font-extrabold text-slate-800">{percentDisplay}%</span>
           <span className="text-[10px] font-bold tracking-wider text-slate-400 mt-1 uppercase">USED</span>
         </div>
       </div>
@@ -80,7 +105,7 @@ export const StorageAnalytics = ({
             </div>
             <div className="flex flex-col">
               <span className="text-xs font-bold text-slate-800 leading-tight">Documents</span>
-              <span className="text-[10px] text-slate-400 font-medium">{documentsTb} TB</span>
+              <span className="text-[10px] text-slate-400 font-medium">{formatBytes(docBytes)}</span>
             </div>
           </div>
           <span className="text-xs font-bold text-slate-800">{documentsPercent}%</span>
@@ -94,7 +119,7 @@ export const StorageAnalytics = ({
             </div>
             <div className="flex flex-col">
               <span className="text-xs font-bold text-slate-800 leading-tight">Media Assets</span>
-              <span className="text-[10px] text-slate-400 font-medium">{mediaTb} TB</span>
+              <span className="text-[10px] text-slate-400 font-medium">{formatBytes(medBytes)}</span>
             </div>
           </div>
           <span className="text-xs font-bold text-slate-800">{mediaPercent}%</span>

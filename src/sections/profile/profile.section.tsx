@@ -31,6 +31,18 @@ export const ProfileSection = () => {
     fetchDashboard();
   }, [fetchDashboard]);
 
+  // Sync avatar from dashboard API back to the global store
+  // so the sidebar and other consumers see the correct image.
+  useEffect(() => {
+    if (!dashboardData?.user_info?.user_image || !profile) return;
+    const dashboardUrl = dashboardData.user_info.user_image;
+    if (profile.profile_url !== dashboardUrl) {
+      updateProfileAction({ ...profile, profile_url: dashboardUrl });
+    }
+    // Only run when dashboardData changes, not on every profile update
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dashboardData]);
+
   const handleSaveProfile = async (formData: IPersonalInfoFormState) => {
     if (!profile) {
       toast.error('No active user session found.');
@@ -91,14 +103,15 @@ export const ProfileSection = () => {
   };
 
   // Dynamic storage stats
-  const storageData = dashboardData
+  const storageData = dashboardData?.storage
     ? {
-        usedStorageTb: dashboardData.storage.used_bytes / (1024 * 1024 * 1024 * 1024),
-        totalStorageTb: dashboardData.storage.limit_bytes / (1024 * 1024 * 1024 * 1024),
-        documentsPercent: dashboardData.storage.categories.documents.percentage,
-        mediaPercent: dashboardData.storage.categories.media.percentage,
-        documentsTb: dashboardData.storage.categories.documents.bytes / (1024 * 1024 * 1024 * 1024),
-        mediaTb: dashboardData.storage.categories.media.bytes / (1024 * 1024 * 1024 * 1024),
+        usedStorageBytes: dashboardData.storage.used_bytes,
+        totalStorageBytes: dashboardData.storage.limit_bytes,
+        percentageUsed: dashboardData.storage.percentage_used,
+        documentsPercent: dashboardData.storage.categories?.documents?.percentage ?? 0,
+        mediaPercent: dashboardData.storage.categories?.media?.percentage ?? 0,
+        documentsBytes: dashboardData.storage.categories?.documents?.bytes ?? 0,
+        mediaBytes: dashboardData.storage.categories?.media?.bytes ?? 0,
       }
     : {
         usedStorageTb: 4.2,
@@ -110,13 +123,13 @@ export const ProfileSection = () => {
       };
 
   // Dynamic recent activities
-  const activities = dashboardData
+  const activities = dashboardData?.recent_activity
     ? dashboardData.recent_activity.map((item, idx) => ({
         id: String(idx),
-        type: item.type.toLowerCase() === 'security' ? ('security' as const) : ('document' as const),
-        title: item.title,
-        timestamp: `${item.time} • ${item.type}`,
-        iconName: item.icon === 'security' ? ('shield' as const) : ('document' as const),
+        type: (item?.type || '').toLowerCase() === 'security' ? ('security' as const) : ('document' as const),
+        title: item?.title || '',
+        timestamp: `${item?.time || ''} • ${item?.type || ''}`,
+        iconName: item?.icon === 'security' ? ('shield' as const) : ('document' as const),
       }))
     : [
         {
@@ -215,14 +228,7 @@ export const ProfileSection = () => {
 
         {/* Right Column (1/3 width) */}
         <div className="space-y-6 lg:col-span-1">
-          <StorageAnalytics
-            usedStorageTb={storageData.usedStorageTb}
-            totalStorageTb={storageData.totalStorageTb}
-            documentsPercent={storageData.documentsPercent}
-            mediaPercent={storageData.mediaPercent}
-            documentsTb={storageData.documentsTb}
-            mediaTb={storageData.mediaTb}
-          />
+          <StorageAnalytics {...storageData} />
           <RecentActivity activities={activities} />
           <ChangePasswordCard />
         </div>

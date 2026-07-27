@@ -106,9 +106,6 @@ export const listDriveFilesAPI = async (
     method: 'GET',
     url: '/api/method/drive.api.list.files',
     params: payload,
-    headers: {
-      'Content-Type': 'application/json',
-    },
   }).then((response) => response.data.message);
 };
 

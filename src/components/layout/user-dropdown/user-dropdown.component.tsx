@@ -12,6 +12,7 @@ import { BarChart3, FileText, Files, LogOut, Users } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { LanguageSwitcher } from '../../i18n';
 import { useTranslation } from '../../../i18n';
+import { formatAvatarUrl } from '../../../lib/format-avatar-url';
 
 export const UserDropdown = () => {
   const { t } = useTranslation();
@@ -91,7 +92,7 @@ export const UserDropdown = () => {
         {/* Avatar with online dot */}
         <div className="relative shrink-0">
           {profile?.profile_url && isValidImage(profile.profile_url) ? (
-            <img src={profile.profile_url} alt="" className="size-7 rounded-full object-cover" />
+            <img src={formatAvatarUrl(profile.profile_url)} alt="" className="size-7 rounded-full object-cover" />
           ) : (
             <img
               src={`https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=EBF4FF&color=7F9CF5`}
