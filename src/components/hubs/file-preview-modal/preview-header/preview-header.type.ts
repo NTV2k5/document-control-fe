@@ -1,4 +1,4 @@
-import type { TMimeCategory } from '../../file-preview-modal.type';
+import type { TMimeCategory } from '../file-preview-modal.type';
 import type { TMenuCategory } from '../preview-menu-dropdown';
 
 export interface IPreviewHeaderProps {

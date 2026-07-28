@@ -1,4 +1,4 @@
-import type { TMimeCategory } from '../../file-preview-modal.type';
+import type { TMimeCategory } from '../file-preview-modal.type';
 
 export interface IDocumentCanvasProps {
   fileName: string;
