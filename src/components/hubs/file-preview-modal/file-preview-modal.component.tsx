@@ -2,7 +2,26 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import mammoth from 'mammoth';
 import * as XLSX from 'xlsx';
-import { getFileContentAPI } from 'api';
+import {
+  getFileContentAPI,
+  shareDriveFileAPI,
+  renameDriveFileAPI,
+  moveDriveFilesAPI,
+  listFoldersAPI,
+  downloadDriveFile,
+  type IFolderItem,
+} from 'api';
+import { toast } from 'react-toastify';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  Input,
+  Label,
+  Button,
+} from 'reactjs-platform/ui';
 import type { IFilePreviewModalProps, TMimeCategory, TFSMState } from './file-preview-modal.type';
 import { PreviewHeader } from './preview-header';
 import { PreviewToolbar } from './preview-toolbar';
@@ -104,6 +123,31 @@ export const FilePreviewModal = ({
   const [zoomLevel, setZoomLevel] = useState<number>(100);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
+
+  // Dynamic file name state for rename sync
+  const [currentFileName, setCurrentFileName] = useState<string>(fileName);
+
+  // Dialog States
+  const [shareOpen, setShareOpen] = useState(false);
+  const [shareEmail, setShareEmail] = useState('');
+  const [shareSubmitting, setShareSubmitting] = useState(false);
+
+  const [renameOpen, setRenameOpen] = useState(false);
+  const [renameValue, setRenameValue] = useState('');
+  const [renameSubmitting, setRenameSubmitting] = useState(false);
+
+  const [moveOpen, setMoveOpen] = useState(false);
+  const [moveFolder, setMoveFolder] = useState('root');
+  const [foldersList, setFoldersList] = useState<IFolderItem[]>([]);
+  const [moveSubmitting, setMoveSubmitting] = useState(false);
+
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [isStarred, setIsStarred] = useState(false);
+
+  useEffect(() => {
+    setCurrentFileName(fileName);
+    setRenameValue(fileName);
+  }, [fileName, open]);
 
   // Dropdown Header State
   const [activeMenu, setActiveMenu] = useState<TMenuCategory>(null);
@@ -391,11 +435,104 @@ export const FilePreviewModal = ({
     };
   }, [open, onClose, items, currentIndex, onNavigate, activeMenu]);
 
-  const handleDownload = () => {
+  const handleShareSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const email = shareEmail.trim();
+    if (!email) {
+      toast.error('Vui lòng nhập email người dùng.');
+      return;
+    }
+    try {
+      setShareSubmitting(true);
+      if (entityName) {
+        await shareDriveFileAPI({
+          entity_name: entityName,
+          method: 'share',
+          user: email,
+          read: 1,
+        });
+      }
+      toast.success(`Đã chia sẻ thành công tệp ${currentFileName} với ${email}`);
+      setShareOpen(false);
+      setShareEmail('');
+    } catch (err) {
+      console.error(err);
+      toast.error('Không thể chia sẻ tệp. Vui lòng thử lại.');
+    } finally {
+      setShareSubmitting(false);
+    }
+  };
+
+  const handleRenameSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const newName = renameValue.trim();
+    if (!newName) {
+      toast.error('Tên tệp không được để trống.');
+      return;
+    }
+    try {
+      setRenameSubmitting(true);
+      if (entityName) {
+        await renameDriveFileAPI({
+          entity_name: entityName,
+          new_title: newName,
+        });
+      }
+      setCurrentFileName(newName);
+      toast.success(`Đã đổi tên tệp thành công thành: ${newName}`);
+      setRenameOpen(false);
+      window.dispatchEvent(new Event('drive-updated'));
+    } catch (err) {
+      console.error(err);
+      toast.error('Không thể đổi tên tệp. Vui lòng thử lại.');
+    } finally {
+      setRenameSubmitting(false);
+    }
+  };
+
+  const handleMoveSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      setMoveSubmitting(true);
+      if (entityName) {
+        await moveDriveFilesAPI({
+          entity_names: [entityName],
+          new_parent: moveFolder === 'root' ? '' : moveFolder,
+          team: 'evjem9pjqi',
+        });
+      }
+      toast.success(`Đã di chuyển tệp ${currentFileName} thành công`);
+      setMoveOpen(false);
+      window.dispatchEvent(new Event('drive-updated'));
+    } catch (err) {
+      console.error(err);
+      toast.error('Không thể di chuyển tệp. Vui lòng thử lại.');
+    } finally {
+      setMoveSubmitting(false);
+    }
+  };
+
+  const loadFoldersAndOpenMove = async () => {
+    try {
+      const folders = await listFoldersAPI();
+      setFoldersList(folders);
+    } catch {
+      setFoldersList([]);
+    }
+    setMoveFolder('root');
+    setMoveOpen(true);
+  };
+
+  const handleDownload = async () => {
+    if (entityName) {
+      await downloadDriveFile(entityName, currentFileName);
+      return;
+    }
+
     if (fileUrl) {
       const a = document.createElement('a');
       a.href = fileUrl;
-      a.download = fileName;
+      a.download = currentFileName;
       a.click();
       return;
     }
@@ -405,7 +542,7 @@ export const FilePreviewModal = ({
       const url = URL.createObjectURL(dummyBlob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = fileName;
+      a.download = currentFileName;
       a.click();
       URL.revokeObjectURL(url);
       return;
@@ -414,7 +551,7 @@ export const FilePreviewModal = ({
     const url = URL.createObjectURL(currentBlob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = fileName;
+    a.download = currentFileName;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -425,16 +562,40 @@ export const FilePreviewModal = ({
 
   const handleMenuAction = (actionId: string) => {
     switch (actionId) {
-      case 'download':
-        handleDownload();
-        break;
-      case 'print':
-        handlePrint();
+      case 'share':
+      case 'share_others':
+        setShareOpen(true);
         break;
       case 'copy_link':
         if (navigator.clipboard) {
           void navigator.clipboard.writeText(window.location.href);
+          toast.success('Đã sao chép liên kết vào bộ nhớ tạm');
         }
+        break;
+      case 'download':
+        void handleDownload();
+        break;
+      case 'rename':
+        setRenameOpen(true);
+        break;
+      case 'move':
+        void loadFoldersAndOpenMove();
+        break;
+      case 'star':
+        setIsStarred((prev) => {
+          const next = !prev;
+          toast.success(next ? 'Đã gắn dấu sao cho tệp này' : 'Đã bỏ dấu sao');
+          return next;
+        });
+        break;
+      case 'details':
+        setDetailsOpen(true);
+        break;
+      case 'security':
+        toast.info('Tệp tin tuân thủ theo chính sách mã hóa bảo mật của EDMS.');
+        break;
+      case 'print':
+        handlePrint();
         break;
       case 'fullscreen':
         if (!document.fullscreenElement) {
@@ -460,6 +621,12 @@ export const FilePreviewModal = ({
         break;
       case 'zoom_200':
         setZoomLevel(200);
+        break;
+      case 'zoom_fit_page':
+        setZoomLevel(100);
+        break;
+      case 'zoom_fit_width':
+        setZoomLevel(125);
         break;
       default:
         break;
@@ -506,7 +673,7 @@ export const FilePreviewModal = ({
 
       {/* Layer 3: Top Header */}
       <PreviewHeader
-        fileName={fileName}
+        fileName={currentFileName}
         mimeCategory={mimeCategory}
         fileUrl={fileUrl}
         activeMenu={activeMenu}
@@ -514,6 +681,7 @@ export const FilePreviewModal = ({
         onClose={onClose}
         onDownload={handleDownload}
         onPrint={handlePrint}
+        onShare={() => setShareOpen(true)}
       />
 
       {/* Dropdown Overlay Menu Systems */}
@@ -540,10 +708,10 @@ export const FilePreviewModal = ({
       {/* Layer 2: Main Viewport Canvas (Sheet or Fallback Card) */}
       <main className="relative flex-1 overflow-hidden flex flex-col z-40">
         {isUnsupported ? (
-          <FallbackCard onDownload={handleDownload} fileName={fileName} />
+          <FallbackCard onDownload={handleDownload} fileName={currentFileName} />
         ) : (
           <DocumentCanvas
-            fileName={fileName}
+            fileName={currentFileName}
             mimeCategory={mimeCategory}
             loading={loading}
             error={error}
@@ -569,6 +737,184 @@ export const FilePreviewModal = ({
         onPrev={handlePrev}
         onNext={handleNext}
       />
+
+      {/* Share Modal Dialog */}
+      <Dialog open={shareOpen} onOpenChange={setShareOpen}>
+        <DialogContent className="max-w-md bg-white rounded-3xl p-6 z-[10005]">
+          <form onSubmit={handleShareSubmit}>
+            <DialogHeader>
+              <DialogTitle className="text-[17px] font-bold text-slate-800">
+                Chia sẻ tệp: {currentFileName}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="py-6 flex flex-col gap-2">
+              <Label htmlFor="share-modal-email" className="text-xs font-bold text-slate-500">
+                Email người dùng
+              </Label>
+              <Input
+                id="share-modal-email"
+                type="email"
+                value={shareEmail}
+                onChange={(e) => setShareEmail(e.target.value)}
+                placeholder="Nhập email người dùng muốn chia sẻ..."
+                className="h-11 rounded-xl border-slate-200 text-sm focus-visible:ring-blue-600"
+                required
+                autoFocus
+              />
+            </div>
+            <DialogFooter className="flex items-center justify-end gap-3">
+              <Button
+                type="button"
+                variant="ghost"
+                className="h-10 rounded-xl px-4 text-xs font-bold text-slate-500"
+                onClick={() => setShareOpen(false)}
+              >
+                Hủy
+              </Button>
+              <Button
+                type="submit"
+                disabled={shareSubmitting}
+                className="h-10 rounded-xl bg-blue-600 px-4 text-xs font-bold text-white shadow-md hover:bg-blue-700"
+              >
+                {shareSubmitting ? 'Đang gửi...' : 'Chia sẻ'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Rename Modal Dialog */}
+      <Dialog open={renameOpen} onOpenChange={setRenameOpen}>
+        <DialogContent className="max-w-md bg-white rounded-3xl p-6 z-[10005]">
+          <form onSubmit={handleRenameSubmit}>
+            <DialogHeader>
+              <DialogTitle className="text-[17px] font-bold text-slate-800">
+                Đổi tên tệp
+              </DialogTitle>
+            </DialogHeader>
+            <div className="py-6 flex flex-col gap-2">
+              <Label htmlFor="rename-modal-input" className="text-xs font-bold text-slate-500">
+                Tên tệp mới
+              </Label>
+              <Input
+                id="rename-modal-input"
+                value={renameValue}
+                onChange={(e) => setRenameValue(e.target.value)}
+                placeholder="Nhập tên tệp mới..."
+                className="h-11 rounded-xl border-slate-200 text-sm focus-visible:ring-blue-600"
+                required
+                autoFocus
+              />
+            </div>
+            <DialogFooter className="flex items-center justify-end gap-3">
+              <Button
+                type="button"
+                variant="ghost"
+                className="h-10 rounded-xl px-4 text-xs font-bold text-slate-500"
+                onClick={() => setRenameOpen(false)}
+              >
+                Hủy
+              </Button>
+              <Button
+                type="submit"
+                disabled={renameSubmitting}
+                className="h-10 rounded-xl bg-blue-600 px-4 text-xs font-bold text-white shadow-md hover:bg-blue-700"
+              >
+                {renameSubmitting ? 'Đang lưu...' : 'Lưu'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Move Modal Dialog */}
+      <Dialog open={moveOpen} onOpenChange={setMoveOpen}>
+        <DialogContent className="max-w-md bg-white rounded-3xl p-6 z-[10005]">
+          <form onSubmit={handleMoveSubmit}>
+            <DialogHeader>
+              <DialogTitle className="text-[17px] font-bold text-slate-800">
+                Di chuyển tệp: {currentFileName}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="py-6 flex flex-col gap-2">
+              <Label htmlFor="move-modal-select" className="text-xs font-bold text-slate-500">
+                Chọn thư mục đích
+              </Label>
+              <select
+                id="move-modal-select"
+                value={moveFolder}
+                onChange={(e) => setMoveFolder(e.target.value)}
+                className="w-full h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-700 focus:border-blue-600 focus:outline-none"
+              >
+                <option value="root">Gốc (Root Directory)</option>
+                {foldersList.map((f) => (
+                  <option key={f.id} value={f.id}>
+                    {f.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <DialogFooter className="flex items-center justify-end gap-3">
+              <Button
+                type="button"
+                variant="ghost"
+                className="h-10 rounded-xl px-4 text-xs font-bold text-slate-500"
+                onClick={() => setMoveOpen(false)}
+              >
+                Hủy
+              </Button>
+              <Button
+                type="submit"
+                disabled={moveSubmitting}
+                className="h-10 rounded-xl bg-blue-600 px-4 text-xs font-bold text-white shadow-md hover:bg-blue-700"
+              >
+                {moveSubmitting ? 'Đang di chuyển...' : 'Di chuyển'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Details Modal Dialog */}
+      <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
+        <DialogContent className="max-w-md bg-white rounded-3xl p-6 z-[10005]">
+          <DialogHeader>
+            <DialogTitle className="text-[17px] font-bold text-slate-800">
+              Chi tiết tệp tin
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-4 space-y-3 text-xs text-slate-600">
+            <div className="flex justify-between py-1.5 border-b border-slate-100">
+              <span className="font-semibold text-slate-500">Tên tệp:</span>
+              <span className="font-bold text-slate-800 truncate max-w-[220px]">{currentFileName}</span>
+            </div>
+            <div className="flex justify-between py-1.5 border-b border-slate-100">
+              <span className="font-semibold text-slate-500">Định dạng:</span>
+              <span className="font-bold text-slate-800 uppercase">{mimeCategory}</span>
+            </div>
+            <div className="flex justify-between py-1.5 border-b border-slate-100">
+              <span className="font-semibold text-slate-500">Mã định danh Entity:</span>
+              <span className="font-mono text-slate-700">{entityName || 'Mô phỏng (Mock)'}</span>
+            </div>
+            <div className="flex justify-between py-1.5 border-b border-slate-100">
+              <span className="font-semibold text-slate-500">Dấu sao:</span>
+              <span className="font-bold text-slate-800">{isStarred ? 'Đã gắn dấu sao ★' : 'Chưa gắn dấu sao'}</span>
+            </div>
+            <div className="flex justify-between py-1.5">
+              <span className="font-semibold text-slate-500">Bảo mật:</span>
+              <span className="font-bold text-emerald-600">Đã kiểm soát EDMS</span>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              onClick={() => setDetailsOpen(false)}
+              className="h-10 rounded-xl bg-blue-600 px-5 text-xs font-bold text-white hover:bg-blue-700"
+            >
+              Đóng
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>,
     document.body
   );

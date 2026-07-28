@@ -36,7 +36,12 @@ export const DocumentCanvas = ({
   }
 
   const directUrl = fileUrl || null;
-  const zoomStyle = { transform: `scale(${zoomLevel / 100})`, transformOrigin: 'top center' };
+  const zoomStyle: React.CSSProperties = {
+    zoom: `${zoomLevel}%`,
+    transform: `scale(${zoomLevel / 100})`,
+    transformOrigin: 'top center',
+    transition: 'all 0.2s ease-in-out',
+  };
 
   switch (mimeCategory) {
     case 'image':
@@ -45,8 +50,12 @@ export const DocumentCanvas = ({
           <img
             src={directUrl || blobUrl || ''}
             alt={fileName}
-            style={zoomStyle}
-            className="max-h-[85vh] max-w-full object-contain rounded shadow-2xl transition-transform duration-200"
+            style={{
+              transform: `scale(${zoomLevel / 100})`,
+              transformOrigin: 'center center',
+              transition: 'transform 0.2s ease-in-out',
+            }}
+            className="max-h-[85vh] max-w-full object-contain rounded shadow-2xl"
           />
         </div>
       ) : null;
@@ -54,10 +63,18 @@ export const DocumentCanvas = ({
     case 'pdf':
       return blobUrl ? (
         <div className="flex-1 w-full h-full flex justify-center p-4 overflow-auto">
-          <div style={zoomStyle} className="w-full max-w-5xl h-full transition-transform duration-200">
+          <div
+            style={{
+              width: `${Math.max(100, zoomLevel)}%`,
+              transform: `scale(${zoomLevel / 100})`,
+              transformOrigin: 'top center',
+            }}
+            className="w-full max-w-5xl h-full transition-all duration-200 flex justify-center"
+          >
             <iframe
-              src={blobUrl}
-              className="size-full rounded border-0 shadow-2xl bg-white"
+              key={`pdf-${blobUrl}-${zoomLevel}`}
+              src={`${blobUrl}#zoom=${zoomLevel}`}
+              className="size-full rounded border-0 shadow-2xl bg-white min-h-[85vh]"
               title={fileName}
             />
           </div>
