@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'react-toastify';
 import { profileStore, updateProfileAction } from 'reactjs-platform/utilities';
+import { useTranslation } from '../../i18n';
 import { ProfileHeader } from './profile-header';
 import { PersonalInfoForm } from './personal-info-form';
 import { StorageAnalytics } from './storage-analytics';
@@ -10,6 +11,7 @@ import type { IPersonalInfoFormState } from './profile.type';
 import { getProfileDashboardAPI, updateProfileAPI, type IProfileDashboardData } from 'api';
 
 export const ProfileSection = () => {
+  const { locale } = useTranslation();
   const profile = profileStore((state) => state.profile);
   const [isSaving, setIsSaving] = useState(false);
   const [dashboardData, setDashboardData] = useState<IProfileDashboardData | null>(null);
@@ -204,9 +206,11 @@ export const ProfileSection = () => {
     <div className="space-y-6 pb-12">
       {/* Breadcrumbs and Title */}
       <div className="flex flex-col gap-1">
-        <h2 className="text-3xl font-bold text-slate-900">My Profile</h2>
+        <h2 className="text-3xl font-bold text-slate-900">
+          {locale === 'vi' ? 'Hồ sơ cá nhân' : 'My Profile'}
+        </h2>
         <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
-          Dashboard &gt; Account Settings
+          {locale === 'vi' ? 'Bảng điều khiển > Cài đặt tài khoản' : 'Dashboard > Account Settings'}
         </div>
       </div>
 

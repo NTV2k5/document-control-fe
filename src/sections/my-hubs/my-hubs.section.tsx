@@ -33,6 +33,7 @@ import {
   Label,
 } from 'reactjs-platform/ui';
 import { toast } from 'react-toastify';
+import { useTranslation } from '../../i18n';
 import {
   listFoldersAPI,
   createFolderAPI,
@@ -50,6 +51,7 @@ import {
   shareDriveFileAPI,
   deleteDriveFilesAPI,
   getDocumentByIdAPI,
+  downloadDriveFile,
   type IDriveFileItem,
   type IDocument,
 } from 'api';
@@ -60,6 +62,7 @@ export const MyHubsSection = ({
   initialFolders,
   initialFiles,
 }: IMyHubsSectionProps) => {
+  const { locale } = useTranslation();
   const [folders, setFolders] = useState<IFolderItem[]>(
     initialFolders ?? []
   );
@@ -283,18 +286,7 @@ export const MyHubsSection = ({
     if (action === 'view') {
       handleFilePreview(activity.id, activity.name);
     } else if (action === 'download') {
-      try {
-        const doc = await getDocumentByIdAPI(activity.id);
-        if (doc.file_url) {
-          const fullUrl = doc.file_url.startsWith('http') ? doc.file_url : `${import.meta.env.VITE_API_ENDPOINT || ''}${doc.file_url}`;
-          window.open(fullUrl, '_blank');
-        } else {
-          toast.error("Download URL not available.");
-        }
-      } catch (err) {
-        console.error(err);
-        toast.error("Failed to download.");
-      }
+      void downloadDriveFile(activity.id, activity.name);
     } else if (action === 'delete') {
       if (confirm(`Are you sure you want to delete ${activity.name}?`)) {
         try {
@@ -539,14 +531,14 @@ export const MyHubsSection = ({
     <div className="space-y-6 pb-12">
       {/* Header section */}
       <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold text-slate-900">My Hubs</h2>
+        <h2 className="text-3xl font-bold text-slate-900">{locale === 'vi' ? 'Hubs của tôi' : 'My Hubs'}</h2>
         <Button
           variant="outline"
           className="flex h-10 items-center gap-2 rounded-full border-slate-200 bg-white px-4 text-xs font-bold text-slate-600 shadow-sm transition-all hover:bg-slate-50"
-          onClick={() => toast.info('Filter functionality coming soon!')}
+          onClick={() => toast.info(locale === 'vi' ? 'Chức năng lọc sắp ra mắt!' : 'Filter functionality coming soon!')}
         >
           <SlidersHorizontal className="size-4" />
-          Filter
+          {locale === 'vi' ? 'Bộ lọc' : 'Filter'}
         </Button>
       </div>
 
@@ -556,14 +548,14 @@ export const MyHubsSection = ({
       {/* Folders Section */}
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-slate-800">Folders</h2>
+          <h2 className="text-lg font-bold text-slate-800">{locale === 'vi' ? 'Thư mục' : 'Folders'}</h2>
           <div className="flex items-center gap-3">
             <Button
               className="flex h-10 items-center gap-2 rounded-2xl bg-blue-600 px-4 text-xs font-bold text-white shadow-[0_4px_12px_rgba(37,99,235,0.25)] transition-all hover:bg-blue-700 hover:shadow-[0_6px_16px_rgba(37,99,235,0.35)]"
               onClick={() => setIsOpenFolderDialog(true)}
             >
               <FolderPlus className="size-4" />
-              Create Folder
+              {locale === 'vi' ? 'Tạo thư mục' : 'Create Folder'}
             </Button>
             <Button
               variant="outline"
@@ -571,7 +563,7 @@ export const MyHubsSection = ({
               onClick={() => fileInputRef.current?.click()}
             >
               <FilePlus className="size-4" />
-              Add File
+              {locale === 'vi' ? 'Thêm tệp' : 'Add File'}
             </Button>
             <input
               type="file"
@@ -700,12 +692,7 @@ export const MyHubsSection = ({
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => {
-                      if (file.fileUrl) {
-                        const fullUrl = file.fileUrl.startsWith('http') ? file.fileUrl : `${import.meta.env.VITE_API_ENDPOINT || ''}${file.fileUrl}`;
-                        window.open(fullUrl, '_blank');
-                      } else {
-                        toast.info(`Downloading file ${file.name}`);
-                      }
+                      void downloadDriveFile(file.id, file.name);
                     }}
                   >
                     <Download className="mr-2 size-4 text-slate-500" />

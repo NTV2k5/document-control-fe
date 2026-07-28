@@ -1,12 +1,25 @@
 import { FileText, Image as ImageIcon, Video, FileArchive } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { Card, CardContent } from 'reactjs-platform/ui';
+import { useTranslation } from '../../../i18n';
 
 type FileDistributionProps = {
   data: { name: string; value: number; color: string }[];
 };
 
 export function FileDistribution({ data }: FileDistributionProps) {
+  const { locale } = useTranslation();
+
+  const getDisplayLabel = (name: string, isVi: boolean) => {
+    switch (name.toUpperCase()) {
+      case 'DOCUMENTS': return isVi ? 'Tài liệu' : 'Documents';
+      case 'IMAGES': return isVi ? 'Hình ảnh' : 'Images';
+      case 'VIDEOS': return isVi ? 'Video' : 'Videos';
+      case 'OTHERS': return isVi ? 'Khác' : 'Others';
+      default: return name;
+    }
+  };
+
   const getIcon = (name: string) => {
     switch (name) {
       case 'DOCUMENTS': {
@@ -48,8 +61,12 @@ export function FileDistribution({ data }: FileDistributionProps) {
       <CardContent className="p-8">
         <div className="mb-8 flex items-start justify-between">
           <div>
-            <h3 className="text-xl font-bold text-slate-900">File Distribution</h3>
-            <p className="mt-1 text-sm text-muted-foreground">Split by file type</p>
+            <h3 className="text-xl font-bold text-slate-900">
+              {locale === 'vi' ? 'Phân bổ tài liệu' : 'File Distribution'}
+            </h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {locale === 'vi' ? 'Theo định dạng tập tin' : 'Split by file type'}
+            </p>
           </div>
           <div className="h-16 w-16 shrink-0 flex items-center justify-center">
             <PieChart width={64} height={64}>
@@ -84,7 +101,7 @@ export function FileDistribution({ data }: FileDistributionProps) {
                     style={{ backgroundColor: item.color }}
                   ></div>
                   <span className="text-xs font-bold tracking-wider text-muted-foreground uppercase">
-                    {item.name}
+                    {getDisplayLabel(item.name, locale === 'vi')}
                   </span>
                 </div>
                 <p className="text-2xl font-extrabold text-slate-900">{item.value}</p>

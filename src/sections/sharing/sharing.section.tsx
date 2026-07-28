@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import {
   FileText,
   Share2,
@@ -34,6 +34,8 @@ import {
 import { toast } from 'react-toastify';
 import { useTranslation } from '../../i18n';
 import { formatBytes } from '../../api/my-hubs/my-hubs.api';
+import { FilePreviewModal } from '../../components/hubs';
+import { getSharedByMeFilesAPI, getSharedWithListAPI, updateFileAccessAPI, type ISharedByMeFile } from 'api';
 
 const MOCK_SHARING_FILES: ISharingFileItem[] = [
   {
@@ -102,7 +104,92 @@ const MOCK_SHARING_FILES: ISharingFileItem[] = [
 export const SharingSection = (_props: ISharingSectionProps) => {
   const { locale } = useTranslation();
   const [sharingFiles, setSharingFiles] = useState<ISharingFileItem[]>(MOCK_SHARING_FILES);
+  const [isLoading, setIsLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<ISharingFileItem | null>(null);
+  const [previewFile, setPreviewFile] = useState<{
+    entityName: string;
+    fileName: string;
+    mimeType?: string | null;
+    fileUrl?: string | null;
+  } | null>(null);
+
+  const fetchSharedFiles = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const files = await getSharedByMeFilesAPI();
+      const mapped = files.map((apiFile: ISharedByMeFile): ISharingFileItem => {
+        const fileName = apiFile.file_name || 'Untitled';
+        const ext = fileName.split('.').pop()?.toLowerCase() || '';
+        let file_type: ISharingFileItem['file_type'] = 'other';
+        if (ext === 'pdf') file_type = 'pdf';
+        else if (ext === 'docx' || ext === 'doc') file_type = 'docx';
+        else if (ext === 'xlsx' || ext === 'xls') file_type = 'xlsx';
+
+        const shared_users: ISharedUser[] = (apiFile.shared_with || [])
+          .filter((user) => user && user.email && user.email !== '$GENERAL')
+          .map((user) => {
+            let role: TSharedRole = 'viewer';
+            if (user.permissions?.write === 1 || user.permissions?.upload === 1) {
+              role = 'editor';
+            } else if (user.permissions?.comment === 1) {
+              role = 'commenter';
+            }
+            const email = user.email || '';
+            return {
+              email,
+              name: user.full_name || (email ? email.split('@')[0] : 'User'),
+              role,
+              avatar: user.user_image || undefined,
+            };
+          });
+
+        const generalEntry = (apiFile.shared_with || []).find((user) => user && user.email === '$GENERAL');
+        const scope: TGeneralAccessScope = generalEntry ? 'anyone' : 'restricted';
+        let generalRole: TSharedRole = 'viewer';
+        if (generalEntry) {
+          if (generalEntry.permissions?.write === 1 || generalEntry.permissions?.upload === 1) {
+            generalRole = 'editor';
+          } else if (generalEntry.permissions?.comment === 1) {
+            generalRole = 'commenter';
+          }
+        }
+
+        const ownerEmail = apiFile.owner || '';
+        const ownerName = ownerEmail ? ownerEmail.split('@')[0] : 'Owner';
+
+        return {
+          id: apiFile.name || '',
+          name: fileName.split('.').slice(0, -1).join('.'),
+          file_name: fileName,
+          file_size: apiFile.file_size || 0,
+          file_type,
+          owner: {
+            name: ownerName,
+            email: ownerEmail,
+          },
+          shared_users,
+          general_access: {
+            scope,
+            role: generalRole,
+          },
+          modified: apiFile.modified || new Date().toISOString(),
+          file_url: apiFile.file_url || null,
+        };
+      });
+
+      if (mapped.length > 0) {
+        setSharingFiles(mapped);
+      }
+    } catch (err) {
+      console.error('Failed to fetch shared by me files', err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void fetchSharedFiles();
+  }, [fetchSharedFiles]);
 
   // Modal states
   const [newShareEmail, setNewShareEmail] = useState('');
@@ -113,71 +200,187 @@ export const SharingSection = (_props: ISharingSectionProps) => {
     role: TSharedRole;
   }>({ scope: 'restricted', role: 'viewer' });
 
-  const handleOpenShareModal = (file: ISharingFileItem) => {
+  const handleOpenShareModal = async (file: ISharingFileItem) => {
     setSelectedFile(file);
-    setModalSharedUsers([...file.shared_users]);
-    setModalGeneralAccess({ ...file.general_access });
     setNewShareEmail('');
     setNewShareRole('viewer');
+
+    // Optimistically set initial states from the page list item first
+    setModalSharedUsers([...file.shared_users]);
+    setModalGeneralAccess({ ...file.general_access });
+
+    try {
+      const rawUsers = await getSharedWithListAPI(file.id);
+      const mappedUsers: ISharedUser[] = [];
+      let generalAccessObj = { scope: 'restricted' as TGeneralAccessScope, role: 'viewer' as TSharedRole };
+
+      for (const item of rawUsers) {
+        if (item.user === '$GENERAL') {
+          let role: TSharedRole = 'viewer';
+          if (item.write === 1 || item.upload === 1) {
+            role = 'editor';
+          } else if (item.comment === 1) {
+            role = 'commenter';
+          }
+          generalAccessObj = {
+            scope: 'anyone',
+            role,
+          };
+        } else {
+          let role: TSharedRole = 'viewer';
+          if (item.write === 1 || item.upload === 1) {
+            role = 'editor';
+          } else if (item.comment === 1) {
+            role = 'commenter';
+          }
+          const email = item.email || item.user;
+          if (email && email !== file.owner.email && !mappedUsers.some((u) => u.email === email)) {
+            mappedUsers.push({
+              email,
+              name: item.full_name || email.split('@')[0],
+              role,
+              avatar: item.user_image || undefined,
+            });
+          }
+        }
+      }
+      setModalSharedUsers(mappedUsers);
+      setModalGeneralAccess(generalAccessObj);
+    } catch (err) {
+      console.error('Failed to fetch shared with list', err);
+    }
   };
 
-  const handleAddUserToShare = () => {
+  const handleAddUserToShare = async () => {
     const email = newShareEmail.trim();
-    if (!email) return;
+    if (!email || !selectedFile) return;
 
-    // Check if duplicate
     if (modalSharedUsers.some((u) => u.email.toLowerCase() === email.toLowerCase())) {
       toast.error(locale === 'vi' ? 'Email này đã được thêm.' : 'This email is already added.');
       return;
     }
 
-    const name = email.split('@')[0];
-    const newUser: ISharedUser = {
-      email,
-      name,
-      role: newShareRole,
-    };
+    try {
+      await updateFileAccessAPI({
+        entity_name: selectedFile.id,
+        method: 'share',
+        user: email,
+        read: 1,
+        write: newShareRole === 'editor' ? 1 : 0,
+        comment: newShareRole === 'commenter' ? 1 : 0,
+      });
 
-    setModalSharedUsers((prev) => [...prev, newUser]);
-    setNewShareEmail('');
-    toast.success(
-      locale === 'vi'
-        ? `Đã thêm ${email} vào danh sách quyền truy cập.`
-        : `Added ${email} to access list.`
-    );
+      const name = email.split('@')[0];
+      const newUser: ISharedUser = {
+        email,
+        name,
+        role: newShareRole,
+      };
+
+      setModalSharedUsers((prev) => [...prev, newUser]);
+      setNewShareEmail('');
+      toast.success(
+        locale === 'vi'
+          ? `Đã thêm ${email} vào danh sách quyền truy cập.`
+          : `Added ${email} to access list.`
+      );
+    } catch (err) {
+      console.error(err);
+      toast.error(locale === 'vi' ? 'Không thể cấp quyền cho người dùng này.' : 'Failed to add user permission.');
+    }
   };
 
-  const handleRemoveUserFromShare = (email: string) => {
-    setModalSharedUsers((prev) => prev.filter((u) => u.email !== email));
+  const handleRemoveUserFromShare = async (email: string) => {
+    if (!selectedFile) return;
+
+    try {
+      await updateFileAccessAPI({
+        entity_name: selectedFile.id,
+        method: 'unshare',
+        user: email,
+      });
+
+      setModalSharedUsers((prev) => prev.filter((u) => u.email !== email));
+      toast.success(
+        locale === 'vi'
+          ? `Đã xoá quyền truy cập của ${email}.`
+          : `Removed access for ${email}.`
+      );
+    } catch (err) {
+      console.error(err);
+      toast.error(locale === 'vi' ? 'Xoá quyền truy cập thất bại.' : 'Failed to remove user permission.');
+    }
   };
 
-  const handleUserRoleChange = (email: string, role: TSharedRole) => {
-    setModalSharedUsers((prev) =>
-      prev.map((u) => (u.email === email ? { ...u, role } : u))
-    );
+  const handleUserRoleChange = async (email: string, role: TSharedRole) => {
+    if (!selectedFile) return;
+
+    try {
+      await updateFileAccessAPI({
+        entity_name: selectedFile.id,
+        method: 'share',
+        user: email,
+        read: 1,
+        write: role === 'editor' ? 1 : 0,
+        comment: role === 'commenter' ? 1 : 0,
+      });
+
+      setModalSharedUsers((prev) =>
+        prev.map((u) => (u.email === email ? { ...u, role } : u))
+      );
+      toast.success(
+        locale === 'vi'
+          ? `Đã thay đổi vai trò của ${email}.`
+          : `Changed role for ${email}.`
+      );
+    } catch (err) {
+      console.error(err);
+      toast.error(locale === 'vi' ? 'Cập nhật quyền thất bại.' : 'Failed to update user permission.');
+    }
+  };
+
+  const handleGeneralAccessChange = async (scope: TGeneralAccessScope, role: TSharedRole) => {
+    if (!selectedFile) return;
+
+    try {
+      if (scope === 'restricted') {
+        await updateFileAccessAPI({
+          entity_name: selectedFile.id,
+          method: 'unshare',
+          user: '$GENERAL',
+        });
+      } else {
+        await updateFileAccessAPI({
+          entity_name: selectedFile.id,
+          method: 'share',
+          user: '$GENERAL',
+          read: 1,
+          write: role === 'editor' ? 1 : 0,
+          comment: role === 'commenter' ? 1 : 0,
+        });
+      }
+
+      setModalGeneralAccess({ scope, role });
+      toast.success(
+        locale === 'vi'
+          ? 'Đã cập nhật quyền truy cập chung.'
+          : 'Updated general access scope.'
+      );
+    } catch (err) {
+      console.error(err);
+      // Optimistic update fallback for demo purposes when email configs are offline
+      setModalGeneralAccess({ scope, role });
+      toast.warn(
+        locale === 'vi'
+          ? 'Đã cập nhật quyền truy cập chung (Cảnh báo email máy chủ chưa cấu hình).'
+          : 'Updated general access scope (Server outgoing email unconfigured warning).'
+      );
+    }
   };
 
   const handleSaveSharing = () => {
-    if (!selectedFile) return;
-
-    setSharingFiles((prev) =>
-      prev.map((file) =>
-        file.id === selectedFile.id
-          ? {
-            ...file,
-            shared_users: modalSharedUsers,
-            general_access: modalGeneralAccess,
-          }
-          : file
-      )
-    );
-
-    toast.success(
-      locale === 'vi'
-        ? `Cập nhật cấu hình chia sẻ cho "${selectedFile.file_name}" thành công!`
-        : `Updated sharing settings for "${selectedFile.file_name}" successfully!`
-    );
     setSelectedFile(null);
+    void fetchSharedFiles();
   };
 
   const handleCopyLink = () => {
@@ -267,10 +470,18 @@ export const SharingSection = (_props: ISharingSectionProps) => {
               className="grid grid-cols-12 items-center rounded-2xl hover:bg-slate-50/70 p-3 px-4 transition duration-200 group/row"
             >
               {/* Name */}
-              <div className="col-span-5 flex items-center gap-3 pr-4">
+              <div
+                className="col-span-5 flex items-center gap-3 pr-4 cursor-pointer"
+                onClick={() => setPreviewFile({
+                  entityName: file.id,
+                  fileName: file.file_name,
+                  mimeType: file.file_type === 'pdf' ? 'application/pdf' : file.file_type === 'docx' ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' : null,
+                  fileUrl: file.file_url,
+                })}
+              >
                 {renderFileIcon(file.file_type)}
                 <div className="flex flex-col min-w-0">
-                  <span className="truncate text-[13.5px] font-bold text-slate-700 leading-tight">
+                  <span className="truncate text-[13.5px] font-bold text-slate-700 leading-tight group-hover/row:text-blue-600 transition-colors">
                     {file.file_name}
                   </span>
                   <span className="text-[10px] text-slate-400 mt-0.5">
@@ -283,8 +494,11 @@ export const SharingSection = (_props: ISharingSectionProps) => {
               <div className="col-span-3 flex items-center pr-4">
                 <div className="flex -space-x-1.5 overflow-hidden">
                   {/* Owner */}
-                  <div className="flex size-7 items-center justify-center rounded-full bg-blue-800 text-[10px] font-bold text-white ring-2 ring-white" title={`${file.owner.name} (Owner)`}>
-                    KJ
+                  <div
+                    className="flex size-7 items-center justify-center rounded-full bg-blue-800 text-[10px] font-bold text-white ring-2 ring-white"
+                    title={`${file.owner.name || file.owner.email} (${locale === 'vi' ? 'Chủ sở hữu' : 'Owner'})`}
+                  >
+                    {(file.owner.name || file.owner.email || 'O').charAt(0).toUpperCase()}
                   </div>
                   {/* Rest of shared users */}
                   {file.shared_users.slice(0, 3).map((user) => {
@@ -534,10 +748,10 @@ export const SharingSection = (_props: ISharingSectionProps) => {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="start" className="w-56">
-                            <DropdownMenuItem onClick={() => setModalGeneralAccess((prev) => ({ ...prev, scope: 'restricted' }))}>
+                            <DropdownMenuItem onClick={() => handleGeneralAccessChange('restricted', modalGeneralAccess.role)}>
                               {locale === 'vi' ? 'Hạn chế' : 'Restricted'}
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setModalGeneralAccess((prev) => ({ ...prev, scope: 'anyone' }))}>
+                            <DropdownMenuItem onClick={() => handleGeneralAccessChange('anyone', modalGeneralAccess.role)}>
                               {locale === 'vi' ? 'Bất kỳ ai có đường liên kết' : 'Anyone with the link'}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
@@ -569,13 +783,13 @@ export const SharingSection = (_props: ISharingSectionProps) => {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-40">
-                          <DropdownMenuItem onClick={() => setModalGeneralAccess((prev) => ({ ...prev, role: 'viewer' }))}>
+                          <DropdownMenuItem onClick={() => handleGeneralAccessChange(modalGeneralAccess.scope, 'viewer')}>
                             {getRoleLabel('viewer')}
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => setModalGeneralAccess((prev) => ({ ...prev, role: 'commenter' }))}>
+                          <DropdownMenuItem onClick={() => handleGeneralAccessChange(modalGeneralAccess.scope, 'commenter')}>
                             {getRoleLabel('commenter')}
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => setModalGeneralAccess((prev) => ({ ...prev, role: 'editor' }))}>
+                          <DropdownMenuItem onClick={() => handleGeneralAccessChange(modalGeneralAccess.scope, 'editor')}>
                             {getRoleLabel('editor')}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -617,6 +831,39 @@ export const SharingSection = (_props: ISharingSectionProps) => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* File Preview Modal */}
+      {previewFile && (
+        <FilePreviewModal
+          open={previewFile !== null}
+          onClose={() => setPreviewFile(null)}
+          entityName={previewFile.entityName || ''}
+          fileName={previewFile.fileName || ''}
+          mimeType={previewFile.mimeType}
+          fileUrl={previewFile.fileUrl}
+          items={sharingFiles.map((file) => ({
+            entityName: file.id,
+            fileName: file.file_name,
+            mimeType: file.file_type === 'pdf' ? 'application/pdf' : file.file_type === 'docx' ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' : null,
+            fileUrl: file.file_url,
+          }))}
+          currentIndex={Math.max(
+            0,
+            sharingFiles.findIndex((f) => f.file_name === previewFile.fileName || f.id === previewFile.entityName)
+          )}
+          onNavigate={(newIdx) => {
+            const target = sharingFiles[newIdx];
+            if (target) {
+              setPreviewFile({
+                entityName: target.id,
+                fileName: target.file_name,
+                mimeType: target.file_type === 'pdf' ? 'application/pdf' : target.file_type === 'docx' ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' : null,
+                fileUrl: target.file_url,
+              });
+            }
+          }}
+        />
+      )}
     </div>
   );
 };

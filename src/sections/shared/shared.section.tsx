@@ -28,7 +28,10 @@ import {
 } from 'reactjs-platform/ui';
 import { toast } from 'react-toastify';
 import { useTranslation } from '../../i18n';
-import { formatBytes } from '../../api/my-hubs/my-hubs.api';
+import { FilePreviewModal } from '../../components/hubs';
+import { formatBytes, listSharedFilesAPI, downloadDriveFile, shareDriveFileAPI, mapFileType } from 'api';
+import { profileStore } from 'reactjs-platform/utilities';
+import { useCallback, useEffect } from 'react';
 
 // Helper to format date relative to locale
 const formatDate = (isoString: string, locale: string) => {
@@ -47,113 +50,54 @@ const formatDate = (isoString: string, locale: string) => {
   }
 };
 
-const MOCK_SHARED_FILES: ISharedFileItem[] = [
-  {
-    id: 'sh-1',
-    name: 'ZALO_MINI_APP',
-    file_name: 'ZALO_MINI_APP.docx',
-    file_size: 452000,
-    file_type: 'docx',
-    shared_by: {
-      name: 'Nguyễn Văn Sơn',
-      email: '51gold141@gmail.com',
-    },
-    shared_at: '2026-07-17T10:00:00.000Z',
-    creation: '2026-07-17T10:00:00.000Z',
-    modified: '2026-07-17T10:00:00.000Z',
-    file_url: null,
-  },
-  {
-    id: 'sh-2',
-    name: 'Document Management (Checklist)',
-    file_name: 'Document Management (Checklist).docx',
-    file_size: 1845000,
-    file_type: 'docx',
-    shared_by: {
-      name: 'Trần Gia Long',
-      email: 'trangialongskd18@gmail.com',
-    },
-    shared_at: '2026-07-16T15:30:00.000Z',
-    creation: '2026-07-16T15:30:00.000Z',
-    modified: '2026-07-16T15:30:00.000Z',
-    file_url: null,
-  },
-  {
-    id: 'sh-3',
-    name: 'Ban giao Doc Control',
-    file_name: 'Ban giao Doc Control.pdf',
-    file_size: 8932000,
-    file_type: 'pdf',
-    shared_by: {
-      name: 'Tâm Phan',
-      email: 'tamphan1509.work@gmail.com',
-    },
-    shared_at: '2026-07-06T09:15:00.000Z',
-    creation: '2026-07-06T09:15:00.000Z',
-    modified: '2026-07-06T09:15:00.000Z',
-    file_url: null,
-  },
-  {
-    id: 'sh-4',
-    name: 'Mẫu 2_Báo cáo thực tập',
-    file_name: 'Mẫu 2_Báo cáo thực tập.xlsx',
-    file_size: 142000,
-    file_type: 'xlsx',
-    shared_by: {
-      name: 'Nguyễn Hữu Tài',
-      email: 'nhon.ta@samedtech.edu.vn',
-    },
-    shared_at: '2026-03-26T08:00:00.000Z',
-    creation: '2026-03-26T08:00:00.000Z',
-    modified: '2026-03-26T08:00:00.000Z',
-    file_url: null,
-  },
-  {
-    id: 'sh-5',
-    name: 'Moodle system overview presentation',
-    file_name: 'Moodle system overview presentation.pdf',
-    file_size: 12450000,
-    file_type: 'pdf',
-    shared_by: {
-      name: 'Vinh Đỗ',
-      email: 'vinhdzcx111@gmail.com',
-    },
-    shared_at: '2025-12-29T14:20:00.000Z',
-    creation: '2025-12-29T14:20:00.000Z',
-    modified: '2025-12-29T14:20:00.000Z',
-    file_url: null,
-  },
-  {
-    id: 'sh-6',
-    name: 'task_management',
-    file_name: 'task_management.xlsx',
-    file_size: 32000,
-    file_type: 'xlsx',
-    shared_by: {
-      name: 'Đinh Tiến Quốc',
-      email: 'dinh.tquoc@gmail.com',
-    },
-    shared_at: '2025-12-16T11:05:00.000Z',
-    creation: '2025-12-16T11:05:00.000Z',
-    modified: '2025-12-16T11:05:00.000Z',
-    file_url: null,
-  },
-];
-
 export const SharedSection = (_props: ISharedSectionProps) => {
   const { locale } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTypeFilter, setSelectedTypeFilter] = useState<'all' | 'pdf' | 'docx' | 'xlsx'>('all');
   const [selectedDateSort, setSelectedDateSort] = useState<'desc' | 'asc'>('desc');
-  const [sharedFiles, setSharedFiles] = useState<ISharedFileItem[]>(MOCK_SHARED_FILES);
+  const [sharedFiles, setSharedFiles] = useState<ISharedFileItem[]>([]);
+  const [loading, setLoading] = useState(false);
   const [selectedFileDetails, setSelectedFileDetails] = useState<ISharedFileItem | null>(null);
+  const [previewFile, setPreviewFile] = useState<{
+    entityName: string;
+    fileName: string;
+    mimeType?: string | null;
+    fileUrl?: string | null;
+  } | null>(null);
+  const profile = profileStore((state) => state.profile);
 
-  // Group files by time relative to now (July 2026 in mockup timeline)
-  // For the mockup's date, we use:
-  // Week ago: id sh-1, sh-2
-  // Earlier this month: id sh-3
-  // Earlier this year: id sh-4
-  // Older: id sh-5, sh-6
+  const fetchSharedFiles = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await listSharedFilesAPI();
+      const mapped = data.map((item: any): ISharedFileItem => ({
+        id: item.name,
+        name: item.file_name || 'Untitled',
+        file_name: item.file_name || 'Untitled',
+        file_size: item.file_size || 0,
+        file_type: mapFileType(item.file_type || item.mime_type || '', item.file_name),
+        shared_by: {
+          name: item.owner_full_name || item.owner || 'System',
+          email: item.owner || '',
+        },
+        shared_at: item.modified || item.creation || new Date().toISOString(),
+        creation: item.creation || new Date().toISOString(),
+        modified: item.modified || new Date().toISOString(),
+        file_url: item.file_url || null,
+      }));
+      setSharedFiles(mapped);
+    } catch (err) {
+      console.error(err);
+      toast.error(locale === 'vi' ? 'Không thể tải danh sách chia sẻ.' : 'Failed to load shared files.');
+    } finally {
+      setLoading(false);
+    }
+  }, [locale]);
+
+  useEffect(() => {
+    void fetchSharedFiles();
+  }, [fetchSharedFiles]);
+
   const filteredFiles = useMemo(() => {
     let result = [...sharedFiles];
 
@@ -194,28 +138,18 @@ export const SharedSection = (_props: ISharedSectionProps) => {
         { id: 'older', titleVi: 'Cũ hơn', titleEn: 'Older', items: [] },
       ];
 
+    const now = new Date();
     filteredFiles.forEach((file) => {
       const date = new Date(file.shared_at);
-      const year = date.getFullYear();
-      const month = date.getMonth() + 1; // 0-indexed
-
-      // Mock date categorization matching the dates:
-      // sh-1 (17 thg 7, 2026) -> week
-      // sh-2 (16 thg 7, 2026) -> week
-      // sh-3 (6 thg 7, 2026) -> month
-      // sh-4 (26 thg 3, 2026) -> year
-      // sh-5, sh-6 (Dec 2025) -> older
-      if (year === 2026) {
-        if (month === 7) {
-          const day = date.getDate();
-          if (day >= 10) {
-            groups[0].items.push(file);
-          } else {
-            groups[1].items.push(file);
-          }
-        } else {
-          groups[2].items.push(file);
-        }
+      const diffTime = Math.abs(now.getTime() - date.getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (diffDays <= 7) {
+        groups[0].items.push(file);
+      } else if (diffDays <= 30) {
+        groups[1].items.push(file);
+      } else if (date.getFullYear() === now.getFullYear()) {
+        groups[2].items.push(file);
       } else {
         groups[3].items.push(file);
       }
@@ -253,21 +187,29 @@ export const SharedSection = (_props: ISharedSectionProps) => {
     }
   };
 
-  const handleDownload = (file: ISharedFileItem) => {
-    toast.info(
-      locale === 'vi'
-        ? `Đang tải xuống tệp: ${file.file_name}`
-        : `Downloading file: ${file.file_name}`
-    );
+  const handleDownload = async (file: ISharedFileItem) => {
+    await downloadDriveFile(file.id, file.file_name);
   };
 
-  const handleRemoveAccess = (id: string, name: string) => {
-    setSharedFiles((prev) => prev.filter((f) => f.id !== id));
-    toast.success(
-      locale === 'vi'
-        ? `Đã xoá tệp "${name}" khỏi danh sách chia sẻ.`
-        : `Removed "${name}" from shared files list.`
-    );
+  const handleRemoveAccess = async (id: string, name: string) => {
+    try {
+      await shareDriveFileAPI({
+        entity_name: id,
+        method: 'unshare',
+        user: profile?.email || '',
+        read: 0,
+      });
+      setSharedFiles((prev) => prev.filter((f) => f.id !== id));
+      toast.success(
+        locale === 'vi'
+          ? `Đã xoá quyền truy cập tệp "${name}".`
+          : `Removed access to file "${name}".`
+      );
+      window.dispatchEvent(new Event('drive-updated'));
+    } catch (err) {
+      console.error(err);
+      toast.error(locale === 'vi' ? 'Gỡ quyền truy cập thất bại.' : 'Failed to remove access.');
+    }
   };
 
   return (
@@ -363,8 +305,17 @@ export const SharedSection = (_props: ISharedSectionProps) => {
           <div className="col-span-1 text-right">{locale === 'vi' ? 'Sắp xếp' : 'Actions'}</div>
         </div>
 
+        {/* Loading state */}
+        {loading && (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <p className="text-sm font-semibold text-slate-400 animate-pulse">
+              {locale === 'vi' ? 'Đang tải dữ liệu...' : 'Loading shared files...'}
+            </p>
+          </div>
+        )}
+
         {/* If no files */}
-        {filteredFiles.length === 0 && (
+        {!loading && filteredFiles.length === 0 && (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <div className="flex size-14 items-center justify-center rounded-2xl bg-slate-50 text-slate-400 mb-3">
               <Info className="size-6" />
@@ -376,7 +327,7 @@ export const SharedSection = (_props: ISharedSectionProps) => {
         )}
 
         {/* Render Groups */}
-        {groupedFiles.map((group) => (
+        {!loading && groupedFiles.map((group) => (
           <div key={group.id} className="mt-6 first:mt-3">
             {/* Group Title */}
             <h3 className="mb-3 px-4 text-xs font-bold uppercase tracking-wider text-slate-400">
@@ -394,7 +345,15 @@ export const SharedSection = (_props: ISharedSectionProps) => {
                     className="grid grid-cols-12 items-center rounded-2xl hover:bg-slate-50/70 p-3 px-4 transition duration-200 group/row"
                   >
                     {/* Name Column */}
-                    <div className="col-span-6 flex items-center gap-3 pr-4">
+                    <div
+                      className="col-span-6 flex items-center gap-3 pr-4 cursor-pointer animate-fade-in"
+                      onClick={() => setPreviewFile({
+                        entityName: file.id,
+                        fileName: file.file_name,
+                        mimeType: file.file_type === 'pdf' ? 'application/pdf' : file.file_type === 'docx' ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' : null,
+                        fileUrl: file.file_url,
+                      })}
+                    >
                       {renderFileIcon(file.file_type)}
                       <div className="flex flex-col min-w-0">
                         <span className="truncate text-[13.5px] font-bold text-slate-700 leading-tight group-hover/row:text-blue-600 transition-colors">
@@ -542,6 +501,39 @@ export const SharedSection = (_props: ISharedSectionProps) => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* File Preview Modal */}
+      {previewFile && (
+        <FilePreviewModal
+          open={previewFile !== null}
+          onClose={() => setPreviewFile(null)}
+          entityName={previewFile.entityName || ''}
+          fileName={previewFile.fileName || ''}
+          mimeType={previewFile.mimeType}
+          fileUrl={previewFile.fileUrl}
+          items={sharedFiles.map((file) => ({
+            entityName: file.id,
+            fileName: file.file_name,
+            mimeType: file.file_type === 'pdf' ? 'application/pdf' : file.file_type === 'docx' ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' : null,
+            fileUrl: file.file_url,
+          }))}
+          currentIndex={Math.max(
+            0,
+            sharedFiles.findIndex((f) => f.file_name === previewFile.fileName || f.id === previewFile.entityName)
+          )}
+          onNavigate={(newIdx) => {
+            const target = sharedFiles[newIdx];
+            if (target) {
+              setPreviewFile({
+                entityName: target.id,
+                fileName: target.file_name,
+                mimeType: target.file_type === 'pdf' ? 'application/pdf' : target.file_type === 'docx' ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' : null,
+                fileUrl: target.file_url,
+              });
+            }
+          }}
+        />
+      )}
     </div>
   );
 };

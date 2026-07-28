@@ -1,6 +1,7 @@
 import { Bot } from 'lucide-react';
 import { Button, Card, CardContent } from 'reactjs-platform/ui';
 import { useNavigate } from '@tanstack/react-router';
+import { useTranslation } from '../../../i18n';
 
 type OverviewBannerProps = {
   trendingData: { rank: string | number; title: string; dept: string; id: string }[];
@@ -9,25 +10,15 @@ type OverviewBannerProps = {
 
 export function OverviewBanner({ trendingData, onItemClick }: OverviewBannerProps) {
   const navigate = useNavigate();
+  const { locale } = useTranslation();
 
   return (
     <div>
       {/* Page title row */}
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-3xl font-bold text-slate-900">Overview</h2>
-        <div className="flex -space-x-2">
-          {[1, 2].map((i) => (
-            <img
-              key={i}
-              src={`https://i.pravatar.cc/150?u=${i}`}
-              alt={`User ${i}`}
-              className="h-8 w-8 rounded-full border-2 border-white object-cover shadow-sm"
-            />
-          ))}
-          <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-slate-900 text-[10px] font-bold text-white shadow-sm">
-            +24
-          </div>
-        </div>
+        <h2 className="text-3xl font-bold text-slate-900">
+          {locale === 'vi' ? 'Tổng quan' : 'Overview'}
+        </h2>
       </div>
 
       {/* Banner + Trending grid */}
@@ -51,24 +42,28 @@ export function OverviewBanner({ trendingData, onItemClick }: OverviewBannerProp
             <div className="w-full rounded-2xl border border-white/15 bg-white/10 p-4 sm:p-6 backdrop-blur-md md:max-w-[480px]">
               <h1 className="mb-3 text-2xl leading-tight font-extrabold text-white md:text-3xl">
                 GDU Portal <br />
-                <span className="text-cyan-400 sm:whitespace-nowrap">Document Control</span>
+                <span className="text-cyan-400 sm:whitespace-nowrap">
+                  {locale === 'vi' ? 'Kiểm soát tài liệu' : 'Document Control'}
+                </span>
               </h1>
               <p className="mb-4 text-sm leading-relaxed font-medium text-slate-200">
-                Experience a centralized, transparent, and AI-driven ecosystem for university-wide
-                policy management.
+                {locale === 'vi'
+                  ? 'Trải nghiệm hệ sinh thái tập trung, minh bạch và định hướng AI để quản lý chính sách toàn trường.'
+                  : 'Experience a centralized, transparent, and AI-driven ecosystem for university-wide policy management.'}
               </p>
               <div className="flex flex-wrap gap-3">
                 <Button
                   onClick={() => navigate({ to: '/documents' })}
                   className="h-10 rounded-full bg-blue-600 px-6 text-sm font-bold text-white shadow-md hover:bg-blue-700"
                 >
-                  Get Started
+                  {locale === 'vi' ? 'Bắt đầu' : 'Get Started'}
                 </Button>
                 <Button
                   variant="outline"
                   className="h-10 rounded-full border-white/20 bg-white/10 px-5 text-sm font-bold text-white backdrop-blur-sm hover:bg-white/20 hover:border-white/40"
                 >
-                  <Bot className="mr-2 h-4 w-4" /> AI Assist
+                  <Bot className="mr-2 h-4 w-4" />
+                  {locale === 'vi' ? 'Trợ lý AI' : 'AI Assist'}
                 </Button>
               </div>
             </div>
@@ -89,7 +84,7 @@ export function OverviewBanner({ trendingData, onItemClick }: OverviewBannerProp
           <div className="pointer-events-none absolute -right-12 -top-12 rounded-full bg-blue-500/40 p-24 blur-2xl" />
           <CardContent className="relative z-10 p-6">
             <h3 className="mb-4 text-xs font-bold tracking-widest text-blue-100 uppercase">
-              TRENDING NOW
+              {locale === 'vi' ? 'XU HƯỚNG BÂY GIỜ' : 'TRENDING NOW'}
             </h3>
             <div className="space-y-3">
               {trendingData.map((item, i) => (

@@ -44,6 +44,7 @@ export const vi = {
     documentInputAgent: 'Trợ lý nhập liệu tài liệu',
     documentInputAgentHistory: 'Lịch sử trò chuyện trợ lý',
     documents: 'Tài liệu',
+    publishedDocuments: 'Tài liệu đã ban hành',
     admin: 'Quản lý người dùng',
     collapse: 'Thu gọn',
     changePassword: 'Đổi mật khẩu',

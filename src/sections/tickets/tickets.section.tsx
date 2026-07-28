@@ -11,6 +11,7 @@ import { listTicketsAPI } from 'api';
 import type { ITicketAPIItem } from 'api';
 import { toast } from 'react-toastify';
 import { profileStore } from 'reactjs-platform/utilities';
+import { useTranslation } from '../../i18n';
 
 const PAGE_SIZE = 6;
 
@@ -85,44 +86,45 @@ const mapApiItemToTicket = (item: ITicketAPIItem): ITicket => ({
 
 const buildTicketStatsFromAPI = (
   stats: { total: number; need_action: number; processing: number; overdue: number; completed: number },
+  locale: string = 'vi'
 ): ITicketStatsCard[] => [
   {
     key: 'total',
-    label: 'Tổng số ticket',
+    label: locale === 'vi' ? 'Tổng số ticket' : 'Total Tickets',
     value: stats.total,
-    subLabel: '+32 tháng này',
+    subLabel: locale === 'vi' ? '+32 tháng này' : '+32 this month',
     color: 'blue',
     icon: 'layers',
   },
   {
     key: 'assigned_to_me',
-    label: 'Cần tôi xử lý',
+    label: locale === 'vi' ? 'Cần tôi xử lý' : 'Action Required',
     value: stats.need_action,
-    subLabel: 'Theo người phụ trách',
+    subLabel: locale === 'vi' ? 'Theo người phụ trách' : 'Assigned to me',
     color: 'yellow',
     icon: 'user',
   },
   {
     key: 'in_progress',
-    label: 'Đang xử lý',
+    label: locale === 'vi' ? 'Đang xử lý' : 'In Progress',
     value: stats.processing,
-    subLabel: '5 ngày gần nhất',
+    subLabel: locale === 'vi' ? '5 ngày gần nhất' : 'Last 5 days',
     color: 'orange',
     icon: 'clock',
   },
   {
     key: 'overdue',
-    label: 'Quá hạn SLA',
+    label: locale === 'vi' ? 'Quá hạn SLA' : 'SLA Overdue',
     value: stats.overdue,
-    subLabel: 'Cần xử lý gấp',
+    subLabel: locale === 'vi' ? 'Cần xử lý gấp' : 'Urgent attention',
     color: 'red',
     icon: 'alert-triangle',
   },
   {
     key: 'completed',
-    label: 'Đã hoàn tất',
+    label: locale === 'vi' ? 'Đã hoàn tất' : 'Completed',
     value: stats.completed,
-    subLabel: 'Đạt SLA 95%',
+    subLabel: locale === 'vi' ? 'Đạt SLA 95%' : '95% SLA Met',
     color: 'green',
     icon: 'check-circle',
   },
@@ -133,9 +135,10 @@ const DEFAULT_STATS: ITicketStatsCard[] = buildTicketStatsFromAPI({
 });
 
 export const TicketsSection = (_props: ITicketsSectionProps) => {
+  const { locale } = useTranslation();
   /* ─── State ───────────────────────────────────────────── */
   const [tickets, setTickets] = useState<ITicket[]>([]);
-  const [statsCards, setStatsCards] = useState<ITicketStatsCard[]>(DEFAULT_STATS);
+  const [apiStats, setApiStats] = useState({ total: 0, need_action: 0, processing: 0, overdue: 0, completed: 0 });
   const [filter, setFilter] = useState<ITicketFilter>({
     search: '',
     type: '',
@@ -156,17 +159,23 @@ export const TicketsSection = (_props: ITicketsSectionProps) => {
     listTicketsAPI({ start: 0, page_size: 1000 })
       .then((data) => {
         setTickets((data.tickets ?? []).map(mapApiItemToTicket));
-        setStatsCards(buildTicketStatsFromAPI(data.stats ?? { total: 0, need_action: 0, processing: 0, overdue: 0, completed: 0 }));
+        if (data.stats) {
+          setApiStats(data.stats);
+        }
       })
       .catch((err) => {
         console.error('Failed to fetch tickets:', err);
-        toast.error('Không thể tải danh sách ticket.');
+        toast.error(locale === 'vi' ? 'Không thể tải danh sách ticket.' : 'Failed to load tickets list.');
       });
-  }, []);
+  }, [locale]);
 
   useEffect(() => {
     fetchTickets();
   }, [fetchTickets]);
+
+  const statsCards = useMemo(() => {
+    return buildTicketStatsFromAPI(apiStats, locale);
+  }, [apiStats, locale]);
 
   /* ─── Derived ─────────────────────────────────────────── */
 
@@ -261,14 +270,16 @@ export const TicketsSection = (_props: ITicketsSectionProps) => {
     <div className="space-y-5 pb-10">
       {/* Breadcrumb */}
       <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
-        Vận hành · Đo bảng chỉ số
+        {locale === 'vi' ? 'Vận hành · Đo bảng chỉ số' : 'Operations · Dashboard Metrics'}
       </div>
 
       {/* Title */}
       <div>
-        <h2 className="text-3xl font-bold text-slate-900">Quản lý ticket</h2>
+        <h2 className="text-3xl font-bold text-slate-900">{locale === 'vi' ? 'Quản lý ticket' : 'Ticket Management'}</h2>
         <p className="mt-1 max-w-3xl text-xs leading-relaxed text-slate-500">
-          Dashboard quản lý ticket cho toàn bộ phòng/ban. Ticket phát sinh từ Q&A hoặc tự tạo sau khi sinh viên thanh toán QR. Mỗi ticket ghi rõ ngày nhận, thời gian muốn phản hồi, loại, hình thức, SLA và trạng thái — duyệt online, ký số đóng dấu và trả kết quả qua email.
+          {locale === 'vi'
+            ? 'Dashboard quản lý ticket cho toàn bộ phòng/ban. Ticket phát sinh từ Q&A hoặc tự tạo sau khi sinh viên thanh toán QR. Mỗi ticket ghi rõ ngày nhận, thời gian muốn phản hồi, loại, hình thức, SLA và trạng thái — duyệt online, ký số đóng dấu và trả kết quả qua email.'
+            : 'Ticket management dashboard for all departments. Tickets originate from Q&A or created after student QR payment. Each ticket specifies receipt date, response SLA, type, format, and status.'}
         </p>
       </div>
 

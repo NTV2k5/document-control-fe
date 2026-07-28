@@ -1,18 +1,25 @@
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { Card, CardContent } from 'reactjs-platform/ui';
+import { useTranslation } from '../../../i18n';
 
 type EngagementAnalyticsProps = {
   data: { name: string; views: number }[];
 };
 
 export function EngagementAnalytics({ data }: EngagementAnalyticsProps) {
+  const { locale } = useTranslation();
+
   return (
     <Card className="rounded-2xl border-none shadow-sm ring-1 ring-slate-100">
       <CardContent className="p-8">
         <div className="mb-8 flex items-start justify-between">
           <div>
-            <h3 className="text-xl font-bold text-slate-900">Engagement Analytics</h3>
-            <p className="mt-1 text-sm text-muted-foreground">File views last week</p>
+            <h3 className="text-xl font-bold text-slate-900">
+              {locale === 'vi' ? 'Phân tích tương tác' : 'Engagement Analytics'}
+            </h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {locale === 'vi' ? 'Lượt xem tài liệu tuần qua' : 'File views last week'}
+            </p>
           </div>
           <div className="text-right">
             <p className="text-3xl font-extrabold text-blue-600">24.5k</p>

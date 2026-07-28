@@ -167,13 +167,13 @@ export const HomeSection = (_props: IHomeSectionProps) => {
       publishedFiles: {
         label: locale === 'vi' ? 'Tài liệu đã xuất bản' : 'Published Files',
         value: summaryStats ? String(summaryStats.published_files) : '0',
-        trend: '↗ +12% this month',
+        trend: locale === 'vi' ? '↗ +12% tháng này' : '↗ +12% this month',
         trendColor: 'text-green-600',
       },
       myFiles: {
         label: locale === 'vi' ? 'Tài liệu của tôi' : 'My Files',
         value: summaryStats ? String(summaryStats.my_files) : '0',
-        trend: '↗ +5% increase this month',
+        trend: locale === 'vi' ? '↗ +5% tăng tháng này' : '↗ +5% increase this month',
         trendColor: 'text-green-600',
       },
       sharingFiles: {

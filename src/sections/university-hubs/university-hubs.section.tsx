@@ -38,6 +38,7 @@ import {
   Label,
 } from 'reactjs-platform/ui';
 import { toast } from 'react-toastify';
+import { useTranslation } from '../../i18n';
 import {
   listDepartmentsAPI,
   archiveDepartmentAPI,
@@ -53,6 +54,7 @@ import {
   shareDriveFileAPI,
   deleteDriveFilesAPI,
   getDocumentByIdAPI,
+  downloadDriveFile,
   type IDriveFileItem,
   type IDocument,
 } from 'api';
@@ -63,6 +65,7 @@ export const UniversityHubsSection = ({
   initialDepartments,
   initialProjects,
 }: IUniversityHubsSectionProps) => {
+  const { locale } = useTranslation();
   const [departments, setDepartments] = useState<IDepartmentItem[]>(
     initialDepartments ?? []
   );
@@ -171,18 +174,7 @@ export const UniversityHubsSection = ({
     if (action === 'view') {
       handleFileClick(activity.id);
     } else if (action === 'download') {
-      try {
-        const doc = await getDocumentByIdAPI(activity.id);
-        if (doc.file_url) {
-          const fullUrl = doc.file_url.startsWith('http') ? doc.file_url : `${import.meta.env.VITE_API_ENDPOINT || ''}${doc.file_url}`;
-          window.open(fullUrl, '_blank');
-        } else {
-          toast.error("Download URL not available.");
-        }
-      } catch (err) {
-        console.error(err);
-        toast.error("Failed to download.");
-      }
+      void downloadDriveFile(activity.id, activity.name);
     } else if (action === 'delete') {
       if (confirm(`Are you sure you want to delete ${activity.name}?`)) {
         try {
@@ -437,14 +429,14 @@ export const UniversityHubsSection = ({
     <div className="space-y-6 pb-12">
       {/* Header section */}
       <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold text-slate-900">University Hub</h2>
+        <h2 className="text-3xl font-bold text-slate-900">{locale === 'vi' ? 'Hubs Trường' : 'University Hub'}</h2>
         <Button
           variant="outline"
           className="flex h-10 items-center gap-2 rounded-full border-slate-200 bg-white px-4 text-xs font-bold text-slate-600 shadow-sm transition-all hover:bg-slate-50"
-          onClick={() => toast.info('Filter functionality coming soon!')}
+          onClick={() => toast.info(locale === 'vi' ? 'Chức năng lọc sắp ra mắt!' : 'Filter functionality coming soon!')}
         >
           <SlidersHorizontal className="size-4" />
-          Filter
+          {locale === 'vi' ? 'Bộ lọc' : 'Filter'}
         </Button>
       </div>
 
@@ -456,14 +448,14 @@ export const UniversityHubsSection = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Landmark className="size-5 text-slate-500" />
-            <h2 className="text-lg font-bold text-slate-800">Departments</h2>
+            <h2 className="text-lg font-bold text-slate-800">{locale === 'vi' ? 'Phòng ban' : 'Departments'}</h2>
           </div>
           <button
             type="button"
             className="text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors"
-            onClick={() => toast.info('Navigating to Departments Directory...')}
+            onClick={() => toast.info(locale === 'vi' ? 'Đang chuyển đến danh bạ Phòng ban...' : 'Navigating to Departments Directory...')}
           >
-            View Directory
+            {locale === 'vi' ? 'Xem danh bạ' : 'View Directory'}
           </button>
         </div>
 
@@ -496,32 +488,32 @@ export const UniversityHubsSection = ({
                       onClick={() => handleRename(dept.id, dept.name, true)}
                     >
                       <Pencil className="mr-2 size-4 text-slate-500" />
-                      Rename Dept
+                      {locale === 'vi' ? 'Đổi tên Phòng ban' : 'Rename Dept'}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => toast.success(`Downloading files from ${dept.name}`)}
                     >
                       <Download className="mr-2 size-4 text-slate-500" />
-                      Download All
+                      {locale === 'vi' ? 'Tải tất cả' : 'Download All'}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handleMove(dept.id, dept.name)}
                     >
                       <FolderInput className="mr-2 size-4 text-slate-500" />
-                      Move Directory
+                      {locale === 'vi' ? 'Di chuyển thư mục' : 'Move Directory'}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handleShare(dept.id, dept.name)}
                     >
                       <Share2 className="mr-2 size-4 text-slate-500" />
-                      Share Access
+                      {locale === 'vi' ? 'Chia sẻ truy cập' : 'Share Access'}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       className="text-red-600 focus:text-red-600 focus:bg-red-50"
                       onClick={() => handleArchiveDept(dept.id, dept.name)}
                     >
                       <Archive className="mr-2 size-4 text-red-500" />
-                      Archive Dept
+                      {locale === 'vi' ? 'Lưu trữ Phòng ban' : 'Archive Dept'}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -532,7 +524,7 @@ export const UniversityHubsSection = ({
                   {dept.name}
                 </span>
                 <span className="text-[11px] font-bold text-slate-400">
-                  {dept.size} • {dept.filesCount} files
+                  {dept.size} • {dept.filesCount} {locale === 'vi' ? 'tệp' : 'files'}
                 </span>
               </div>
             </div>
@@ -545,14 +537,14 @@ export const UniversityHubsSection = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Atom className="size-5 text-slate-500" />
-            <h2 className="text-lg font-bold text-slate-800">Active Projects</h2>
+            <h2 className="text-lg font-bold text-slate-800">{locale === 'vi' ? 'Dự án đang hoạt động' : 'Active Projects'}</h2>
           </div>
           <button
             type="button"
             className="text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors"
-            onClick={() => toast.info('Navigating to Projects Directory...')}
+            onClick={() => toast.info(locale === 'vi' ? 'Đang chuyển đến danh bạ Dự án...' : 'Navigating to Projects Directory...')}
           >
-            View All Projects
+            {locale === 'vi' ? 'Xem tất cả dự án' : 'View All Projects'}
           </button>
         </div>
 
@@ -582,32 +574,32 @@ export const UniversityHubsSection = ({
                       onClick={() => handleRename(proj.id, proj.name, false)}
                     >
                       <Pencil className="mr-2 size-4 text-slate-500" />
-                      Rename Project
+                      {locale === 'vi' ? 'Đổi tên Dự án' : 'Rename Project'}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => toast.success(`Downloading files from ${proj.name}`)}
                     >
                       <Download className="mr-2 size-4 text-slate-500" />
-                      Download All
+                      {locale === 'vi' ? 'Tải tất cả' : 'Download All'}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handleMove(proj.id, proj.name)}
                     >
                       <FolderInput className="mr-2 size-4 text-slate-500" />
-                      Move Directory
+                      {locale === 'vi' ? 'Di chuyển thư mục' : 'Move Directory'}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handleShare(proj.id, proj.name)}
                     >
                       <Share2 className="mr-2 size-4 text-slate-500" />
-                      Share Access
+                      {locale === 'vi' ? 'Chia sẻ truy cập' : 'Share Access'}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       className="text-red-600 focus:text-red-600 focus:bg-red-50"
                       onClick={() => handleArchiveProject(proj.id, proj.name)}
                     >
                       <Archive className="mr-2 size-4 text-red-500" />
-                      Archive Project
+                      {locale === 'vi' ? 'Lưu trữ Dự án' : 'Archive Project'}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -639,18 +631,18 @@ export const UniversityHubsSection = ({
         <DialogContent className="max-w-lg bg-white rounded-3xl p-6">
           <DialogHeader>
             <DialogTitle className="text-lg font-bold text-slate-800">
-              Folder Contents: {selectedFolder?.name}
+              {locale === 'vi' ? 'Nội dung thư mục' : 'Folder Contents'}: {selectedFolder?.name}
             </DialogTitle>
           </DialogHeader>
           
           <div className="my-4 max-h-[300px] overflow-y-auto space-y-3">
             {loadingFolderFiles ? (
               <div className="text-center py-6 text-sm text-slate-400 font-medium">
-                Loading files...
+                {locale === 'vi' ? 'Đang tải tệp...' : 'Loading files...'}
               </div>
             ) : folderFiles.length === 0 ? (
               <div className="text-center py-6 text-sm text-slate-400 font-medium">
-                This folder is empty.
+                {locale === 'vi' ? 'Thư mục này trống.' : 'This folder is empty.'}
               </div>
             ) : (
               folderFiles.map((file) => (
@@ -683,7 +675,7 @@ export const UniversityHubsSection = ({
               onClick={() => setSelectedFolder(null)}
               className="rounded-xl bg-blue-600 hover:bg-blue-700 font-bold px-5 text-xs text-white"
             >
-              Close
+              {locale === 'vi' ? 'Đóng' : 'Close'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -695,18 +687,18 @@ export const UniversityHubsSection = ({
           <form onSubmit={handleRenameSubmit}>
             <DialogHeader>
               <DialogTitle className="text-[17px] font-bold text-slate-800">
-                Rename {activeModal?.isDept ? 'Department' : 'Project'}
+                {locale === 'vi' ? 'Đổi tên' : 'Rename'} {activeModal?.isDept ? (locale === 'vi' ? 'Phòng ban' : 'Department') : (locale === 'vi' ? 'Dự án' : 'Project')}
               </DialogTitle>
             </DialogHeader>
             <div className="py-6 flex flex-col gap-2">
               <Label htmlFor="rename-input" className="text-xs font-bold text-slate-500">
-                New Name
+                {locale === 'vi' ? 'Tên mới' : 'New Name'}
               </Label>
               <Input
                 id="rename-input"
                 value={renameValue}
                 onChange={(e) => setRenameValue(e.target.value)}
-                placeholder="Enter new name..."
+                placeholder={locale === 'vi' ? 'Nhập tên mới...' : 'Enter new name...'}
                 className="h-11 rounded-xl border-slate-200 text-sm focus-visible:ring-blue-600"
                 autoFocus
               />
@@ -718,13 +710,13 @@ export const UniversityHubsSection = ({
                 className="h-10 rounded-xl px-4 text-xs font-bold text-slate-500"
                 onClick={() => setActiveModal(null)}
               >
-                Cancel
+                {locale === 'vi' ? 'Hủy' : 'Cancel'}
               </Button>
               <Button
                 type="submit"
                 className="h-10 rounded-xl bg-blue-600 px-4 text-xs font-bold text-white shadow-md hover:bg-blue-700"
               >
-                Save
+                {locale === 'vi' ? 'Lưu' : 'Save'}
               </Button>
             </DialogFooter>
           </form>
@@ -737,12 +729,12 @@ export const UniversityHubsSection = ({
           <form onSubmit={handleMoveSubmit}>
             <DialogHeader>
               <DialogTitle className="text-[17px] font-bold text-slate-800">
-                Move {activeModal?.name}
+                {locale === 'vi' ? 'Di chuyển' : 'Move'} {activeModal?.name}
               </DialogTitle>
             </DialogHeader>
             <div className="py-6 flex flex-col gap-2">
               <Label htmlFor="move-select" className="text-xs font-bold text-slate-500">
-                Select Destination Folder
+                {locale === 'vi' ? 'Chọn thư mục đích' : 'Select Destination Folder'}
               </Label>
               <select
                 id="move-select"
@@ -751,7 +743,7 @@ export const UniversityHubsSection = ({
                 className="w-full h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-700 focus:border-blue-600 focus:outline-none"
               >
                 <option value="root">Root</option>
-                <optgroup label="Departments">
+                <optgroup label={locale === 'vi' ? 'Phòng ban' : 'Departments'}>
                   {departments
                     .filter((d) => d.id !== activeModal?.id)
                     .map((d) => (
@@ -760,7 +752,7 @@ export const UniversityHubsSection = ({
                       </option>
                     ))}
                 </optgroup>
-                <optgroup label="Projects">
+                <optgroup label={locale === 'vi' ? 'Dự án' : 'Projects'}>
                   {projects
                     .filter((p) => p.id !== activeModal?.id)
                     .map((p) => (
@@ -778,13 +770,13 @@ export const UniversityHubsSection = ({
                 className="h-10 rounded-xl px-4 text-xs font-bold text-slate-500"
                 onClick={() => setActiveModal(null)}
               >
-                Cancel
+                {locale === 'vi' ? 'Hủy' : 'Cancel'}
               </Button>
               <Button
                 type="submit"
                 className="h-10 rounded-xl bg-blue-600 px-4 text-xs font-bold text-white shadow-md hover:bg-blue-700"
               >
-                Move
+                {locale === 'vi' ? 'Di chuyển' : 'Move'}
               </Button>
             </DialogFooter>
           </form>
@@ -797,19 +789,19 @@ export const UniversityHubsSection = ({
           <form onSubmit={handleShareSubmit}>
             <DialogHeader>
               <DialogTitle className="text-[17px] font-bold text-slate-800">
-                Share Access
+                {locale === 'vi' ? 'Chia sẻ truy cập' : 'Share Access'}
               </DialogTitle>
             </DialogHeader>
             <div className="py-6 flex flex-col gap-2">
               <Label htmlFor="share-email" className="text-xs font-bold text-slate-500">
-                User Email
+                {locale === 'vi' ? 'Email người dùng' : 'User Email'}
               </Label>
               <Input
                 id="share-email"
                 type="email"
                 value={shareEmail}
                 onChange={(e) => setShareEmail(e.target.value)}
-                placeholder="Enter user email..."
+                placeholder={locale === 'vi' ? 'Nhập email người dùng...' : 'Enter user email...'}
                 className="h-11 rounded-xl border-slate-200 text-sm focus-visible:ring-blue-600"
                 required
                 autoFocus
@@ -822,13 +814,13 @@ export const UniversityHubsSection = ({
                 className="h-10 rounded-xl px-4 text-xs font-bold text-slate-500"
                 onClick={() => setActiveModal(null)}
               >
-                Cancel
+                {locale === 'vi' ? 'Hủy' : 'Cancel'}
               </Button>
               <Button
                 type="submit"
                 className="h-10 rounded-xl bg-blue-600 px-4 text-xs font-bold text-white shadow-md hover:bg-blue-700"
               >
-                Share
+                {locale === 'vi' ? 'Chia sẻ' : 'Share'}
               </Button>
             </DialogFooter>
           </form>
@@ -840,11 +832,13 @@ export const UniversityHubsSection = ({
         <DialogContent className="max-w-md bg-white rounded-3xl p-6">
           <DialogHeader>
             <DialogTitle className="text-[17px] font-bold text-slate-800">
-              Confirm Archive
+              {locale === 'vi' ? 'Xác nhận lưu trữ' : 'Confirm Archive'}
             </DialogTitle>
           </DialogHeader>
           <div className="py-6 text-sm text-slate-600">
-            Are you sure you want to archive {activeModal?.isDept ? 'department' : 'project'}: <strong>{activeModal?.name}</strong>?
+            {locale === 'vi'
+              ? <>{locale === 'vi' ? 'Bạn có chắc chắn muốn lưu trữ' : 'Are you sure you want to archive'} {activeModal?.isDept ? (locale === 'vi' ? 'phòng ban' : 'department') : (locale === 'vi' ? 'dự án' : 'project')}: <strong>{activeModal?.name}</strong>?</>
+              : <>Are you sure you want to archive {activeModal?.isDept ? 'department' : 'project'}: <strong>{activeModal?.name}</strong>?</>}
           </div>
           <DialogFooter className="flex items-center justify-end gap-3">
             <Button
@@ -853,14 +847,14 @@ export const UniversityHubsSection = ({
               className="h-10 rounded-xl px-4 text-xs font-bold text-slate-500"
               onClick={() => setActiveModal(null)}
             >
-              Cancel
+              {locale === 'vi' ? 'Hủy' : 'Cancel'}
             </Button>
             <Button
               type="button"
               onClick={handleConfirmArchive}
               className="h-10 rounded-xl bg-red-600 px-4 text-xs font-bold text-white shadow-md hover:bg-red-700"
             >
-              Archive
+              {locale === 'vi' ? 'Lưu trữ' : 'Archive'}
             </Button>
           </DialogFooter>
         </DialogContent>

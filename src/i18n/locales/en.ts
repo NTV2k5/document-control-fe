@@ -34,7 +34,7 @@ export const en = {
   },
   navigation: {
     home: 'Home',
-    dashboard: 'Dashboard',
+    dashboard: 'Overview',
     templates: 'Templates',
     templateVariables: 'Variable config',
     templateVariableDocs: 'Variable docs',
@@ -44,6 +44,7 @@ export const en = {
     documentInputAgent: 'Document input agent',
     documentInputAgentHistory: 'Agent conversation history',
     documents: 'Documents',
+    publishedDocuments: 'Published Documents',
     admin: 'User management',
     collapse: 'Collapse',
     changePassword: 'Change password',

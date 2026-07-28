@@ -8,6 +8,7 @@ import {
   Video,
 } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
+import { useTranslation } from '../../../i18n';
 
 type RecentlyInteractedProps = {
   docs: {
@@ -46,6 +47,7 @@ const getDocIcon = (type: string, className: string) => {
 
 export function RecentlyInteracted({ docs, onItemClick }: RecentlyInteractedProps) {
   const navigate = useNavigate();
+  const { locale } = useTranslation();
 
   return (
     <div>
@@ -53,14 +55,14 @@ export function RecentlyInteracted({ docs, onItemClick }: RecentlyInteractedProp
       <div className="mb-4 flex items-center justify-between">
         <h3 className="flex items-center gap-2 text-xl font-bold text-slate-900">
           <History className="h-5 w-5 text-blue-600" strokeWidth={2.5} />
-          Recently Interacted
+          {locale === 'vi' ? 'Tương tác gần đây' : 'Recently Interacted'}
         </h3>
         <button
           type="button"
           onClick={() => navigate({ to: '/documents' })}
           className="text-sm font-bold text-blue-600 hover:underline"
         >
-          View History
+          {locale === 'vi' ? 'Xem lịch sử' : 'View History'}
         </button>
       </div>
 
@@ -110,7 +112,9 @@ export function RecentlyInteracted({ docs, onItemClick }: RecentlyInteractedProp
                   {doc.description}
                 </p>
                 <div className="flex items-center justify-between border-t border-slate-100 pt-2.5">
-                  <p className="text-[10px] font-semibold text-slate-400">Edited {doc.edited}</p>
+                  <p className="text-[10px] font-semibold text-slate-400">
+                    {locale === 'vi' ? 'Đã sửa ' : 'Edited '}{doc.edited}
+                  </p>
                   {/* User avatars */}
                   <div className="flex -space-x-1.5">
                     {[1, 2, 3].map((i) => (

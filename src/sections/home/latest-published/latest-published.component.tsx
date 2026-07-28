@@ -1,5 +1,6 @@
 import { FileText, FileSpreadsheet, FileImage, FileVideo, Presentation, File, Scale, ShieldUser } from 'lucide-react';
 import { Badge, Card, CardContent } from 'reactjs-platform/ui';
+import { useTranslation } from '../../../i18n';
 
 type LatestPublishedProps = {
   docs: {
@@ -16,6 +17,8 @@ type LatestPublishedProps = {
 };
 
 export function LatestPublished({ docs, onItemClick }: LatestPublishedProps) {
+  const { locale } = useTranslation();
+
   const getBadgeClasses = (type: string) => {
     const t = type.toUpperCase();
     if (t === 'PDF') return 'bg-red-100 text-red-600 hover:bg-red-100 shadow-[0_2px_8px_rgba(239,68,68,0.2)]';
@@ -45,9 +48,11 @@ export function LatestPublished({ docs, onItemClick }: LatestPublishedProps) {
   return (
     <div>
       <div className="mb-6 flex items-center justify-between px-1">
-        <h3 className="text-xl font-bold text-slate-900">Latest Published</h3>
+        <h3 className="text-xl font-bold text-slate-900">
+          {locale === 'vi' ? 'Xuất bản mới nhất' : 'Latest Published'}
+        </h3>
         <button className="text-sm font-bold text-blue-600 hover:underline">
-          View All Documents
+          {locale === 'vi' ? 'Xem tất cả tài liệu' : 'View All Documents'}
         </button>
       </div>
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
