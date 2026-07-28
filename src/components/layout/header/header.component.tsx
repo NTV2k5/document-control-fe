@@ -1,7 +1,9 @@
 import { useNavigate } from '@tanstack/react-router';
-import { Bell, Filter, Mic, Search, Menu } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { Bell, Mic, Search, Menu, FileText } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from '../../../i18n/use-translation';
+import { searchFilesAPI, type ISearchFileResult } from 'api';
+import { FilePreviewModal } from '../../hubs';
 
 const TRENDING_TAGS = [
   '#AIEthics',
@@ -25,10 +27,47 @@ export const Header = ({ isSidebarCollapsed, onSidebarCollapsedChange }: IHeader
   const activeLang = locale === 'vi' ? 'VN' : 'EN';
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Suggestions search states
+  const [suggestions, setSuggestions] = useState<ISearchFileResult[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const [previewFile, setPreviewFile] = useState<{
+    entityName: string;
+    fileName: string;
+    mimeType?: string | null;
+    fileUrl?: string | null;
+  } | null>(null);
+
+  // Debounced search for suggestions
+  useEffect(() => {
+    const q = searchQuery.trim();
+    if (!q) {
+      setSuggestions([]);
+      return;
+    }
+
+    const handler = setTimeout(async () => {
+      try {
+        setIsSearching(true);
+        const results = await searchFilesAPI(q);
+        setSuggestions(results);
+      } catch (err) {
+        console.error('Failed to search files', err);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 300);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchQuery]);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     const q = searchQuery.trim();
     if (!q) return;
+    setShowSuggestions(false);
     navigate({ to: '/documents', search: { search: q } as never });
   };
 
@@ -53,26 +92,21 @@ export const Header = ({ isSidebarCollapsed, onSidebarCollapsedChange }: IHeader
         {/* Search bar pill */}
         <form
           onSubmit={handleSearch}
-          className="flex h-11 flex-1 items-center gap-2 rounded-full border border-slate-200 bg-white pl-4 pr-1.5 transition-colors focus-within:border-blue-400 focus-within:shadow-sm">
+          className="relative flex h-11 flex-1 items-center gap-2 rounded-full border border-slate-200 bg-white pl-4 pr-1.5 transition-colors focus-within:border-blue-400 focus-within:shadow-sm">
           <Search className="size-4 text-slate-400 shrink-0" aria-hidden="true" />
           <input
             ref={inputRef}
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            onFocus={() => setShowSuggestions(true)}
+            onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
             placeholder={t('header.searchPlaceholder')}
             className="min-w-0 flex-1 bg-transparent text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none"
           />
 
-          {/* Right side of pill: Filter, Mic, Search Btn */}
+          {/* Right side of pill: Mic, Search Btn */}
           <div className="flex items-center gap-1 border-l border-slate-200 pl-2">
-            <button
-              type="button"
-              title={t('header.filter')}
-              className="flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs font-semibold text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700">
-              <Filter className="size-3.5" />
-              <span className="hidden sm:inline">Filter</span>
-            </button>
             <button
               type="button"
               title={t('header.voiceSearch')}
@@ -86,6 +120,50 @@ export const Header = ({ isSidebarCollapsed, onSidebarCollapsedChange }: IHeader
               Search
             </button>
           </div>
+
+          {/* Suggestions Dropdown */}
+          {showSuggestions && searchQuery.trim().length > 0 && (
+            <div className="absolute left-0 right-0 top-12 z-50 mt-1 max-h-[300px] overflow-y-auto rounded-2xl border border-slate-100 bg-white p-3 shadow-xl">
+              {isSearching ? (
+                <div className="py-4 text-center text-xs font-semibold text-slate-400">
+                  {locale === 'vi' ? 'Đang tìm kiếm...' : 'Searching...'}
+                </div>
+              ) : suggestions.length === 0 ? (
+                <div className="py-4 text-center text-xs font-semibold text-slate-400">
+                  {locale === 'vi' ? 'Không tìm thấy kết quả nào' : 'No results found'}
+                </div>
+              ) : (
+                <div className="space-y-1">
+                  {suggestions.map((item) => (
+                    <button
+                      key={item.name}
+                      type="button"
+                      onClick={() => {
+                        setPreviewFile({
+                          entityName: item.name,
+                          fileName: item.file_name,
+                          mimeType: item.file_type === 'Video' ? 'video/mp4' : null,
+                          fileUrl: `/api/method/drive.api.s3.fetch?path=${encodeURIComponent(item.user_name)}/${encodeURIComponent(item.file_name)}`,
+                        });
+                        setShowSuggestions(false);
+                      }}
+                      className="flex w-full items-center gap-3 rounded-xl p-2.5 text-left transition-colors hover:bg-slate-50"
+                    >
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+                        <FileText className="size-4" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-xs font-bold text-slate-700">{item.file_name}</p>
+                        <p className="mt-0.5 text-[10px] text-slate-400 truncate">
+                          {locale === 'vi' ? 'Bởi ' : 'By '}{item.full_name || item.user_name}
+                        </p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </form>
 
         {/* Right side actions */}
@@ -141,6 +219,17 @@ export const Header = ({ isSidebarCollapsed, onSidebarCollapsedChange }: IHeader
           ))}
         </div>
       </div>
+
+      {previewFile && (
+        <FilePreviewModal
+          open={previewFile !== null}
+          onClose={() => setPreviewFile(null)}
+          entityName={previewFile.entityName}
+          fileName={previewFile.fileName}
+          mimeType={previewFile.mimeType}
+          fileUrl={previewFile.fileUrl}
+        />
+      )}
     </header>
   );
 };

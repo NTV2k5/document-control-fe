@@ -2137,6 +2137,242 @@ export const handlers = [
     return HttpResponse.json({});
   }),
 
+  http.get(getApiUrl('/api/method/drive.api.list.trash'), () => {
+    return HttpResponse.json({
+      message: [
+        {
+          name: "ee1b558179",
+          file_name: "Book1.xlsx",
+          folder: "a0d848fc51",
+          file_url: null,
+          file_size: 11172,
+          file_type: "Spreadsheet",
+          is_folder: 0,
+          team: "d65h7s6irv",
+          creation: "2026-07-22 17:52:02.922109",
+          modified: "2026-07-23 14:24:08.427517",
+          owner: "khanhlmht.139@gmail.com",
+          owner_full_name: "Phan Quốc Khánh",
+          owner_image: null,
+          is_favourite: null,
+          accessed: null,
+          child_count: 0,
+          share_count: 0,
+          kind: "native",
+          read: 1,
+          comment: 1,
+          share: 1,
+          upload: 1,
+          write: 1,
+          type: "admin"
+        },
+        {
+          name: "7c33ed1385",
+          file_name: "Hướng dẫn sử dụng Virtual Tour.docx",
+          folder: "69cde67f26",
+          file_url: null,
+          file_size: 12443424,
+          file_type: "Document",
+          is_folder: 0,
+          team: "d65h7s6irv",
+          creation: "2026-07-22 17:50:27.202833",
+          modified: "2026-07-23 14:52:43.701222",
+          owner: "khanhlmht.139@gmail.com",
+          owner_full_name: "Phan Quốc Khánh",
+          owner_image: null,
+          is_favourite: null,
+          accessed: null,
+          child_count: 0,
+          share_count: 0,
+          kind: "native",
+          read: 1,
+          comment: 1,
+          share: 1,
+          upload: 1,
+          write: 1,
+          type: "admin"
+        }
+      ]
+    });
+  }),
+
+  http.get(getApiUrl('/api/method/drive.api.list.shared'), () => {
+    return HttpResponse.json({
+      message: [
+        {
+          name: "86ac38a6be",
+          file_name: "Meeting minutes Chatbot Trải nghiệm sinh viên.docx",
+          folder: "8d2e20f5e8",
+          file_url: null,
+          file_size: 8725,
+          file_type: "Document",
+          is_folder: 0,
+          team: "d65h7s6irv",
+          creation: "2026-07-24 15:25:19.999668",
+          modified: "2026-07-27 14:05:35.690393",
+          owner: "khanhlmht.139@gmail.com",
+          owner_full_name: "Phan Quốc Khánh",
+          owner_image: null,
+          shared_team: "khanhlmht.139@gmail.com",
+          is_favourite: null,
+          accessed: null,
+          child_count: 0,
+          share_count: 3,
+          kind: "native",
+          read: 1,
+          comment: 1,
+          share: 1,
+          upload: 1,
+          write: 1,
+          type: "admin"
+        }
+      ]
+    });
+  }),
+
+  http.get(getApiUrl('/api/method/drive_edms.api.sharing.get_shared_by_me'), () => {
+    return HttpResponse.json({
+      message: {
+        total_count: 3,
+        files: [
+          {
+            name: "86ac38a6be",
+            file_name: "Meeting minutes Chatbot Trải nghiệm sinh viên.docx",
+            is_folder: 0,
+            mime_type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            file_size: 8725,
+            file_url: "/api/method/drive.api.s3.fetch?path=khanhlmht.139%40gmail.com%20%28khanhlmht.139%40gmail.com%29/Meeting%20minutes%20Chatbot%20Tr%E1%BA%A3i%20nghi%E1%BB%87m%20sinh%20vi%C3%AAn.docx",
+            owner: "khanhlmht.139@gmail.com",
+            creation: "2026-07-24 15:25:19.999668",
+            modified: "2026-07-24 15:25:20.064274",
+            folder: "8d2e20f5e8",
+            _user_tags: null,
+            shared_with: [
+              {
+                email: "tetsuyakuroko0369@gmail.com",
+                full_name: "tetsuyakuroko0369@gmail.com",
+                user_image: null,
+                permissions: {
+                  read: 1,
+                  comment: 0,
+                  share: 0,
+                  write: 0,
+                  upload: 0
+                }
+              },
+              {
+                email: "khanhphan.01905@gmail.com",
+                full_name: "Phan phạm quốc khánh",
+                user_image: null,
+                permissions: {
+                  read: 1,
+                  comment: 0,
+                  share: 0,
+                  write: 0,
+                  upload: 0
+                }
+              }
+            ]
+          },
+          {
+            name: "565cfabe23",
+            file_name: "Kế hoạch thực tập khóa 17.pdf",
+            is_folder: 0,
+            mime_type: "application/pdf",
+            file_size: 5324277,
+            file_url: "private/files/khanhlmht.139@gmail.com (khanhlmht.139@gmail.com)/New Folder/Kế hoạch thực tập khóa 17.pdf",
+            owner: "khanhlmht.139@gmail.com",
+            creation: "2026-07-23 14:22:31.226284",
+            modified: "2026-07-23 14:23:42.377511",
+            folder: "a0d848fc51",
+            _user_tags: null,
+            shared_with: [
+              {
+                email: "khanhphan.01905@gmail.com",
+                full_name: "Phan phạm quốc khánh",
+                user_image: null,
+                permissions: {
+                  read: 1,
+                  comment: 0,
+                  share: 0,
+                  write: 0,
+                  upload: 0
+                }
+              }
+            ]
+          },
+          {
+            name: "4f26476107",
+            file_name: "ALuong.jpg",
+            is_folder: 0,
+            mime_type: "image/jpeg",
+            file_size: 45818,
+            file_url: "private/files/khanhlmht.139@gmail.com (khanhlmht.139@gmail.com)/Test Create Folder/ALuong.jpg",
+            owner: "khanhlmht.139@gmail.com",
+            creation: "2026-07-22 15:50:55.740865",
+            modified: "2026-07-22 16:54:03.412245",
+            folder: "69cde67f26",
+            _user_tags: null,
+            shared_with: [
+              {
+                email: "khanhphan.01905@gmail.com",
+                full_name: "Phan phạm quốc khánh",
+                user_image: null,
+                permissions: {
+                  read: 1,
+                  comment: 0,
+                  share: 0,
+                  write: 0,
+                  upload: 0
+                }
+              }
+            ]
+          }
+        ]
+      }
+    });
+  }),
+
+  http.get(getApiUrl('/api/method/drive.api.permissions.get_shared_with_list'), () => {
+    return HttpResponse.json({
+      message: [
+        {
+          user_image: "/files/68adad02ddeb5cb505fa (1).jpg",
+          full_name: "Phan Quốc Khánh",
+          user: "khanhlmht.139@gmail.com",
+          email: "khanhlmht.139@gmail.com"
+        },
+        {
+          user: "$GENERAL",
+          read: 1,
+          write: 0,
+          comment: 0,
+          upload: 0,
+          share: 0
+        },
+        {
+          user: "khanhlmht.139@gmail.com",
+          read: 1,
+          write: 0,
+          comment: 0,
+          upload: 0,
+          share: 0,
+          user_image: "/files/68adad02ddeb5cb505fa (1).jpg",
+          full_name: "Phan Quốc Khánh",
+          email: "khanhlmht.139@gmail.com"
+        },
+        {
+          user: "tetsuyakuroko0369@gmail.com",
+          read: 1,
+          write: 0,
+          comment: 0,
+          upload: 0,
+          share: 0
+        }
+      ]
+    });
+  }),
+
   // --- TEMPLATES ---
   http.get(getApiUrl('/api/v1/templates/document-input-agent/settings'), () => {
     return HttpResponse.json({ data: mockAgentSettings });

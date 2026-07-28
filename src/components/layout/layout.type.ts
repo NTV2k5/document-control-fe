@@ -7,6 +7,7 @@ export interface IRouteConfig {
   icon: ReactNode;
   match: (path: string) => boolean;
   isPrefresh?: boolean;
+  disabled?: boolean;
 }
 
 export interface ISidebarItemProps {
@@ -16,6 +17,7 @@ export interface ISidebarItemProps {
   is_active: boolean;
   isCollapsed: boolean;
   isPrefresh?: boolean;
+  disabled?: boolean;
 }
 
 export interface ISidebarProps {

@@ -195,6 +195,20 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
       (isAdmin ? 'Quản trị viên' : 'Người dùng')
     : null;
 
+  const getDisplayRole = (role: string | null | undefined, isAdminUser: boolean) => {
+    if (!role) {
+      return isAdminUser ? (locale === 'vi' ? 'Quản trị viên' : 'Admin') : (locale === 'vi' ? 'Sinh viên' : 'Student');
+    }
+    const normalized = role.toLowerCase().trim();
+    if (normalized === 'drive user' || normalized === 'student' || normalized === 'sinh viên' || normalized === 'user' || normalized === 'người dùng') {
+      return locale === 'vi' ? 'Sinh viên' : 'Student';
+    }
+    if (normalized === 'admin' || normalized === 'quản trị viên' || normalized === 'administrator') {
+      return locale === 'vi' ? 'Quản trị viên' : 'Admin';
+    }
+    return role;
+  };
+
   const [agentSidebarSettings, setAgentSidebarSettings] = useState<TAgentSidebarSettings | null>(
     readAgentSidebarSettingsCache,
   );
@@ -309,7 +323,7 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
 
   const sharingRoute: IRouteConfig = {
     key: 'sharing',
-    label: 'Sharing',
+    label: t('navigation.sharing'),
     href: '/dashboard/sharing',
     icon: <Share2 className="size-5" />,
     match: (path) => path.startsWith('/dashboard/sharing'),
@@ -317,7 +331,7 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
 
   const sharedRoute: IRouteConfig = {
     key: 'shared',
-    label: 'Shared',
+    label: t('navigation.shared'),
     href: '/dashboard/shared',
     icon: <Users className="size-5" />,
     match: (path) => path.startsWith('/dashboard/shared'),
@@ -325,7 +339,7 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
 
   const recycleBinRoute: IRouteConfig = {
     key: 'recycle-bin',
-    label: 'Recycle Bin',
+    label: t('navigation.recycleBin'),
     href: '/dashboard/recycle-bin',
     icon: <Trash2 className="size-5" />,
     match: (path) => path.startsWith('/dashboard/recycle-bin'),
@@ -333,7 +347,7 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
 
   const ticketsRoute: IRouteConfig = {
     key: 'tickets',
-    label: 'Tickets',
+    label: t('navigation.tickets'),
     href: '/dashboard/tickets',
     icon: <Ticket className="size-5" />,
     match: (path) => path.startsWith('/dashboard/tickets'),
@@ -360,28 +374,28 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
   const primaryRoutes: IRouteConfig[] = [
     {
       key: 'home',
-      label: 'Overview',
+      label: t('navigation.dashboard'),
       href: '/home',
       icon: <LayoutDashboard className="size-5" />,
       match: (path) => path === '/home' || path === '/',
     },
     {
       key: 'documents',
-      label: 'Published Documents',
+      label: t('navigation.publishedDocuments'),
       href: '/documents',
       icon: <FileText className="size-5" />,
       match: (path) => path.startsWith('/documents'),
     },
     {
       key: 'university-hubs',
-      label: 'University Hubs',
+      label: t('navigation.universityHubs'),
       href: '/dashboard/hubs',
       icon: <Network className="size-5" />,
       match: (path) => path.startsWith('/dashboard/hubs'),
     },
     {
       key: 'my-hubs',
-      label: 'My Hubs',
+      label: t('navigation.myHubs'),
       href: '/dashboard/my-hubs',
       icon: <FolderGit2 className="size-5" />,
       match: (path) => path.startsWith('/dashboard/my-hubs'),
@@ -396,7 +410,7 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
     ...(isAdmin ? [...documentInputAgentHistoryRoutes, adminRoute, ...agentSettingsRoutes] : []),
     {
       key: 'settings',
-      label: 'Settings',
+      label: t('navigation.settings'),
       href: '/settings',
       icon: <Settings className="size-5" />,
       match: (path) => path.startsWith('/settings'),
@@ -419,23 +433,24 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
             onClick={() => navigate({ to: '/home' as any })}
             className="flex cursor-pointer items-center gap-2 select-none hover:opacity-80 transition-opacity"
           >
-            {/* Landmark icon */}
-            <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-blue-800 text-white shadow-[0_4px_12px_rgba(30,64,175,0.4)]">
-              <Landmark className="size-5" />
-            </div>
+            <img
+              src="/gdu/logo/logo-icon.png"
+              alt="GDU Logo"
+              className="size-9 shrink-0 object-contain"
+            />
             <div className="flex flex-col leading-tight">
               <span className="text-[14px] font-bold text-slate-800 whitespace-nowrap">Document Control</span>
-              <span className="text-[9px] font-bold tracking-widest text-blue-800 uppercase">ADMIN</span>
+              <span className="text-[9px] font-bold tracking-widest text-blue-800 uppercase">{getDisplayRole(roleLabel, isAdmin)}</span>
             </div>
           </div>
         )}
         {isCollapsed && (
-          <div
+          <img
             onClick={() => navigate({ to: '/home' as any })}
-            className="mx-auto flex size-9 cursor-pointer items-center justify-center rounded-full bg-blue-800 text-white shadow-[0_4px_12px_rgba(30,64,175,0.4)] hover:opacity-80 transition-opacity"
-          >
-            <Landmark className="size-5" />
-          </div>
+            src="/gdu/logo/logo-icon.png"
+            alt="GDU Logo"
+            className="mx-auto size-9 cursor-pointer object-contain hover:opacity-80 transition-opacity"
+          />
         )}
         {!isCollapsed && (
           <button
@@ -479,7 +494,7 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
           <div className="pt-4">
             {!isCollapsed && (
               <div className="mb-2 px-3 text-[10px] font-bold tracking-widest text-slate-400 uppercase">
-                MANAGEMENT
+                {locale === 'vi' ? 'QUẢN LÝ' : 'MANAGEMENT'}
               </div>
             )}
             <nav className="flex flex-col gap-0.5">
@@ -499,14 +514,14 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
                 <div className="flex items-center gap-3 text-slate-500">
                   <Globe className="size-5 shrink-0" />
                   <span className="font-bold text-[12.5px]">
-                    Language
+                    {locale === 'vi' ? 'Ngôn ngữ' : 'Language'}
                   </span>
                 </div>
                 <button
                   type="button"
                   onClick={toggleLocale}
                   className="h-8 w-[68px] shrink-0 cursor-pointer items-center rounded-full bg-slate-100 p-1 transition-colors hover:bg-slate-200 flex"
-                  title="Switch language"
+                  title={locale === 'vi' ? 'Đổi ngôn ngữ' : 'Switch language'}
                 >
                   <div
                     className={`flex h-full w-1/2 items-center justify-center rounded-full transition-all ${locale === 'vi' ? 'bg-white shadow-sm' : ''}`}
@@ -542,13 +557,13 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
               />
               <div className="flex min-w-0 flex-col">
                 <span className="truncate text-sm font-bold text-slate-900">{displayName || 'Dr. Sarah Jenkins'}</span>
-                <span className="truncate text-xs text-slate-500">{roleLabel || 'Dean of Information'}</span>
+                <span className="truncate text-xs text-slate-500">{getDisplayRole(roleLabel, isAdmin)}</span>
               </div>
             </div>
 
             <div className="rounded-xl bg-[#2E2063] p-3 text-white">
               <div className="mb-1.5 text-[10px] font-bold uppercase tracking-wider text-white/70">
-                Storage Usage
+                {locale === 'vi' ? 'Dung lượng sử dụng' : 'Storage Usage'}
               </div>
               <div className="text-sm font-bold">
                 {formatBytes(storageData.used_bytes)} / {formatBytes(storageData.limit_bytes)}
@@ -566,7 +581,7 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
               className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-white py-2 text-sm font-semibold text-red-500 transition-colors hover:bg-red-50 hover:border-red-300"
             >
               <LogOut className="size-4" />
-              Sign Out
+              {locale === 'vi' ? 'Đăng xuất' : 'Sign Out'}
             </button>
           </div>
         ) : (
@@ -580,7 +595,7 @@ export const Sidebar = ({ routes, isCollapsed, onCollapsedChange }: ISidebarProp
             <button
               onClick={logout}
               className="rounded-xl bg-red-50 p-2 text-red-500 hover:bg-red-100 transition-colors"
-              title="Sign Out"
+              title={locale === 'vi' ? 'Đăng xuất' : 'Sign Out'}
             >
               <LogOut className="size-4" />
             </button>

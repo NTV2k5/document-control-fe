@@ -12,3 +12,8 @@ export { type ICategoryStat } from './hubs';
 export * from './tickets';
 export * from './dashboard';
 export * from './profile';
+export * from './recycle-bin';
+export * from './shared';
+export * from './sharing';
+export * from './search';
+
