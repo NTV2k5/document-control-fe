@@ -407,6 +407,27 @@ export const HomeSection = (_props: IHomeSectionProps) => {
         fileName={previewFile?.fileName || ''}
         mimeType={previewFile?.mimeType}
         fileUrl={previewFile?.fileUrl}
+        items={documentsLatest.map((doc) => ({
+          entityName: doc.name,
+          fileName: doc.file_name,
+          mimeType: doc.file_type === 'pdf' ? 'application/pdf' : doc.file_type === 'docx' ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' : null,
+          fileUrl: doc.file_url,
+        }))}
+        currentIndex={Math.max(
+          0,
+          documentsLatest.findIndex((doc) => doc.file_name === previewFile?.fileName || doc.name === previewFile?.entityName)
+        )}
+        onNavigate={(newIdx) => {
+          const target = documentsLatest[newIdx];
+          if (target) {
+            setPreviewFile({
+              entityName: target.name,
+              fileName: target.file_name,
+              mimeType: target.file_type === 'pdf' ? 'application/pdf' : target.file_type === 'docx' ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' : null,
+              fileUrl: target.file_url,
+            });
+          }
+        }}
       />
     </div>
   );

@@ -1026,6 +1026,27 @@ export const MyHubsSection = ({
         fileName={previewFile?.fileName || ''}
         mimeType={previewFile?.mimeType}
         fileUrl={previewFile?.fileUrl}
+        items={files.map((f) => ({
+          entityName: f.id || f.name,
+          fileName: f.name,
+          mimeType: f.mimeType,
+          fileUrl: f.fileUrl,
+        }))}
+        currentIndex={Math.max(
+          0,
+          files.findIndex((f) => f.name === previewFile?.fileName || f.id === previewFile?.entityName)
+        )}
+        onNavigate={(newIdx) => {
+          const target = files[newIdx];
+          if (target) {
+            setPreviewFile({
+              entityName: target.id || target.name,
+              fileName: target.name,
+              mimeType: target.mimeType,
+              fileUrl: target.fileUrl,
+            });
+          }
+        }}
       />
 
     </div>
