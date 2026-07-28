@@ -6,7 +6,7 @@ import eslint from 'vite-plugin-eslint2';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
-  const targetUrl = env.VITE_API_URL || env.VITE_API_ENDPOINT || 'https://chapter-excusably-delirious.ngrok-free.dev';
+  const targetUrl = env.VITE_API_URL || env.VITE_API_ENDPOINT || 'https://strudel-buckskin-stubbed.ngrok-free.dev';
 
   return {
     envPrefix: ['VITE_', 'TECH_'],
