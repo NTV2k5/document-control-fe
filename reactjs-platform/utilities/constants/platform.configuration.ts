@@ -15,7 +15,7 @@ const getApiEndpoint = () => {
     return configuredEndpoint;
   }
 
-  return 'https://chapter-excusably-delirious.ngrok-free.dev';
+  return 'https://strudel-buckskin-stubbed.ngrok-free.dev';
 };
 
 const API_ENDPOINT = getApiEndpoint();
