@@ -352,7 +352,8 @@ export const FilePreviewModal = ({
     return () => {
       controller.abort();
     };
-  }, [open, entityName, fileName, mimeType, mimeCategory, cleanup]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, entityName, fileName, mimeType, mimeCategory]);
 
   // Clean up blob on unmount
   useEffect(() => {
