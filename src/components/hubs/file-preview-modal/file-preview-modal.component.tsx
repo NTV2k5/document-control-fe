@@ -4,12 +4,12 @@ import mammoth from 'mammoth';
 import * as XLSX from 'xlsx';
 import { getFileContentAPI } from 'api';
 import type { IFilePreviewModalProps, TMimeCategory, TFSMState } from './file-preview-modal.type';
-import { PreviewHeader } from './components/preview-header';
-import { PreviewToolbar } from './components/preview-toolbar';
-import { DocumentCanvas } from './components/document-canvas';
-import { FallbackCard } from './components/fallback-card';
-import { PreviewNavButtons } from './components/preview-nav-buttons';
-import { PreviewMenuDropdown, type TMenuCategory } from './components/preview-menu-dropdown';
+import { PreviewHeader } from './preview-header';
+import { PreviewToolbar } from './preview-toolbar';
+import { DocumentCanvas } from './document-canvas';
+import { FallbackCard } from './fallback-card';
+import { PreviewNavButtons } from './preview-nav-buttons';
+import { PreviewMenuDropdown, type TMenuCategory } from './preview-menu-dropdown';
 
 const resolveMimeCategory = (fileName: string, mimeType?: string | null): TMimeCategory => {
   const mime = (mimeType || '').toLowerCase();
