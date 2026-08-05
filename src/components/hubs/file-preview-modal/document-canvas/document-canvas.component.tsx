@@ -35,7 +35,7 @@ export const DocumentCanvas = ({
     );
   }
 
-  const directUrl = fileUrl || null;
+  const directUrl = fileUrl ? fileUrl.replace(/^https?:\/\/localhost:9100/, '') : null;
   const zoomStyle: React.CSSProperties = {
     zoom: `${zoomLevel}%`,
     transform: `scale(${zoomLevel / 100})`,

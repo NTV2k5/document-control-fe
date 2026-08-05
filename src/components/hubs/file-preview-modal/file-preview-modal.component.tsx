@@ -109,6 +109,7 @@ export const FilePreviewModal = ({
   currentIndex = 0,
   onNavigate,
 }: IFilePreviewModalProps) => {
+  const formattedFileUrl = fileUrl ? fileUrl.replace(/^https?:\/\/localhost:9100/, '') : null;
   const [fsmState, setFsmState] = useState<TFSMState>('IDLE');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -330,6 +331,13 @@ export const FilePreviewModal = ({
           return;
         }
 
+        // Optimize performance: render media and images directly using formattedFileUrl if available
+        if ((mimeCategory === 'media' || mimeCategory === 'image') && formattedFileUrl) {
+          setFsmState('RENDER_SUCCESS');
+          setLoading(false);
+          return;
+        }
+
         const blob = await getFileContentAPI(entityName);
         if (controller.signal.aborted) return;
 
@@ -529,9 +537,9 @@ export const FilePreviewModal = ({
       return;
     }
 
-    if (fileUrl) {
+    if (formattedFileUrl) {
       const a = document.createElement('a');
-      a.href = fileUrl;
+      a.href = formattedFileUrl;
       a.download = currentFileName;
       a.click();
       return;
@@ -675,7 +683,7 @@ export const FilePreviewModal = ({
       <PreviewHeader
         fileName={currentFileName}
         mimeCategory={mimeCategory}
-        fileUrl={fileUrl}
+        fileUrl={formattedFileUrl}
         activeMenu={activeMenu}
         onMenuToggle={handleMenuToggle}
         onClose={onClose}
@@ -716,7 +724,7 @@ export const FilePreviewModal = ({
             loading={loading}
             error={error}
             blobUrl={blobUrl}
-            fileUrl={fileUrl || null}
+            fileUrl={formattedFileUrl || null}
             textContent={textContent}
             docxHtml={docxHtml}
             excelSheets={excelSheets}
