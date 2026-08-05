@@ -312,7 +312,7 @@ export const FilePreviewModal = ({
           setBlobUrl('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3');
         } else {
           // Play a sample MP4 video
-          setBlobUrl('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4');
+          setBlobUrl('https://www.w3schools.com/html/mov_bbb.mp4');
         }
       } else if (category === 'code_text') {
         setTextContent('--- HỒ SƠ TÀI LIỆU XEM TRƯỚC ---\nTên tệp: ' + name + '\nTrạng thái: Đã xem trước thành công.\nNội dung tệp tin văn bản hiển thị trực tiếp tại đây.');
