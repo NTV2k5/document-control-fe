@@ -60,6 +60,7 @@ export const DocumentCanvas = ({
       return imgSrc ? (
         <div className="flex flex-1 items-center justify-center overflow-auto p-6">
           <img
+            key={imgSrc}
             src={imgSrc}
             alt={fileName}
             style={{
@@ -105,12 +106,13 @@ export const DocumentCanvas = ({
           <div className="flex flex-1 items-center justify-center p-6 select-none">
             <div className="w-full max-w-4xl aspect-video rounded-2xl overflow-hidden bg-black shadow-2xl border border-white/10 flex items-center justify-center">
               <video
+                key={videoSrc}
                 src={videoSrc}
                 controls
                 autoPlay={false}
                 className="w-full h-full object-contain"
                 onError={() => {
-                  const defaultVideoMock = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+                  const defaultVideoMock = 'https://www.w3schools.com/html/mov_bbb.mp4';
                   if (videoSrc !== defaultVideoMock) {
                     setVideoSrc(blobUrl || defaultVideoMock);
                   }
@@ -129,6 +131,7 @@ export const DocumentCanvas = ({
           </div>
           <span className="text-lg font-medium text-white/90">{fileName}</span>
           <audio
+            key={audioSrc}
             src={audioSrc}
             controls
             className="w-full max-w-md"
