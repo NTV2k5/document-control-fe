@@ -756,13 +756,7 @@ export const DocumentsSection: React.FC<IDocumentsSectionProps> = () => {
     <div className="space-y-6" onClick={() => setSelectedDocument(null)}>
       {/* ── Title & Export ── */}
       <div className="flex items-center justify-between" onClick={(e) => e.stopPropagation()}>
-        <h2 className="text-3xl font-bold text-slate-900">Published Documents</h2>
-        <Button
-          size="sm"
-          className="h-10 rounded-xl bg-[#2563eb] px-6 font-bold hover:bg-blue-700 shadow-md shadow-blue-600/10">
-          <Download className="mr-2 size-4" />
-          Export Excel
-        </Button>
+        <h2 className="text-3xl font-bold text-slate-900">{t('navigation.publishedDocuments')}</h2>
       </div>
 
       {/* ── Tabs & View Toggle ── */}
@@ -775,7 +769,7 @@ export const DocumentsSection: React.FC<IDocumentsSectionProps> = () => {
                 ? 'border-blue-600 text-[#2563eb]'
                 : 'border-transparent text-[#A3AED0] hover:text-slate-600'
             }`}>
-            ALL ({tabCounts.all})
+            {t('documentsPage.tabs.all')} ({tabCounts.all})
           </button>
           <button
             onClick={() => handleTabClick('ACADEMIC')}
@@ -784,7 +778,7 @@ export const DocumentsSection: React.FC<IDocumentsSectionProps> = () => {
                 ? 'border-blue-600 text-[#2563eb]'
                 : 'border-transparent text-[#A3AED0] hover:text-slate-600'
             }`}>
-            ACADEMIC DOCS ({tabCounts.academic})
+            {t('documentsPage.tabs.academic')} ({tabCounts.academic})
           </button>
           <button
             onClick={() => handleTabClick('FINANCIAL')}
@@ -793,7 +787,7 @@ export const DocumentsSection: React.FC<IDocumentsSectionProps> = () => {
                 ? 'border-blue-600 text-[#2563eb]'
                 : 'border-transparent text-[#A3AED0] hover:text-slate-600'
             }`}>
-            FINANCIAL ({tabCounts.financial})
+            {t('documentsPage.tabs.financial')} ({tabCounts.financial})
           </button>
         </div>
 
@@ -856,12 +850,15 @@ export const DocumentsSection: React.FC<IDocumentsSectionProps> = () => {
             {/* Custom Figma-style Pagination Bar */}
             <div className="flex flex-wrap items-center justify-between gap-4 border-t border-slate-50 pt-5 mt-6" onClick={(e) => e.stopPropagation()}>
               <div className="text-xs font-semibold text-slate-400">
-                Displaying {totalEntries > 0 ? (pagination.page - 1) * pageSize + 1 : 0} -{' '}
-                {Math.min(pagination.page * pageSize, totalEntries)} of {totalEntries} entries
+                {t('documentsPage.pagination.displaying', {
+                  from: String(totalEntries > 0 ? (pagination.page - 1) * pageSize + 1 : 0),
+                  to: String(Math.min(pagination.page * pageSize, totalEntries)),
+                  total: String(totalEntries),
+                })}
               </div>
 
               <div className="flex items-center gap-2 text-xs font-semibold text-slate-400">
-                <span>Results per page:</span>
+                <span>{t('documentsPage.pagination.resultsPerPage')}</span>
                 <select
                   value={pageSize}
                   onChange={(e) => {

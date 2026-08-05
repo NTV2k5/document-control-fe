@@ -1,13 +1,16 @@
 import { Image as ImageIcon, Clapperboard, FileText, Archive } from 'lucide-react';
 import type { IHubStatsProps } from './hub-stats.type';
+import { useTranslation } from '../../../i18n';
 
 export const HubStats = ({ stats }: IHubStatsProps) => {
+  const { locale } = useTranslation();
+
   const defaultStats = [
     {
       id: 'images',
       label: 'IMAGES',
       itemsCount: 543,
-      usedSpace: '2.89 GB used',
+      usedSpace: locale === 'vi' ? '2.89 GB đã dùng' : '2.89 GB used',
       percentage: 28.9,
       icon: <ImageIcon className="size-5" />,
       iconBgColor: 'bg-red-50',
@@ -18,7 +21,7 @@ export const HubStats = ({ stats }: IHubStatsProps) => {
       id: 'videos',
       label: 'VIDEOS',
       itemsCount: 2,
-      usedSpace: '333.79 MB used',
+      usedSpace: locale === 'vi' ? '333.79 MB đã dùng' : '333.79 MB used',
       percentage: 5.5,
       icon: <Clapperboard className="size-5" />,
       iconBgColor: 'bg-blue-50',
@@ -29,7 +32,7 @@ export const HubStats = ({ stats }: IHubStatsProps) => {
       id: 'documents',
       label: 'DOCUMENTS',
       itemsCount: 1235,
-      usedSpace: '8.85 GB used',
+      usedSpace: locale === 'vi' ? '8.85 GB đã dùng' : '8.85 GB used',
       percentage: 65.4,
       icon: <FileText className="size-5" />,
       iconBgColor: 'bg-emerald-50',
@@ -40,7 +43,7 @@ export const HubStats = ({ stats }: IHubStatsProps) => {
       id: 'other',
       label: 'OTHER',
       itemsCount: 226,
-      usedSpace: '30.77 GB used',
+      usedSpace: locale === 'vi' ? '30.77 GB đã dùng' : '30.77 GB used',
       percentage: 75.2,
       icon: <Archive className="size-5" />,
       iconBgColor: 'bg-amber-50',
@@ -64,14 +67,16 @@ export const HubStats = ({ stats }: IHubStatsProps) => {
               {stat.icon}
             </div>
             <span className="text-[10px] font-bold tracking-wider text-slate-400 uppercase">
-              {stat.label}
+              {locale === 'vi'
+                ? stat.label === 'IMAGES' ? 'HÌNH ẢNH' : stat.label === 'VIDEOS' ? 'VIDEO' : stat.label === 'DOCUMENTS' ? 'TÀI LIỆU' : 'KHÁC'
+                : stat.label}
             </span>
           </div>
 
           {/* Middle Row: Items Count */}
           <div className="mt-4 flex flex-col gap-1">
             <span className="text-xl font-extrabold text-slate-800">
-              {stat.itemsCount} Items
+              {stat.itemsCount} {locale === 'vi' ? 'Mục' : 'Items'}
             </span>
           </div>
 

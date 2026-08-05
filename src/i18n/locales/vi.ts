@@ -1337,6 +1337,16 @@ export const vi = {
       unpublished: '✓ Đã gỡ ban hành tài liệu',
       unpublishFailed: '✕ Không thể gỡ ban hành tài liệu: {{error}}',
     },
+    exportExcel: 'Xuất Excel',
+    tabs: {
+      all: 'TẤT CẢ',
+      academic: 'TÀI LIỆU HỌC THUẬT',
+      financial: 'TÀI CHÍNH',
+    },
+    pagination: {
+      displaying: 'Hiển thị {{from}} - {{to}} trong tổng số {{total}} mục',
+      resultsPerPage: 'Kết quả mỗi trang:',
+    },
   },
   templateDetail: {
     defaults: {

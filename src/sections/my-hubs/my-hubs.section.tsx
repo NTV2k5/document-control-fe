@@ -101,7 +101,7 @@ export const MyHubsSection = ({
           id: 'images',
           label: 'IMAGES',
           itemsCount: statsData.Images.count,
-          usedSpace: `${formatBytes(statsData.Images.size)} used`,
+          usedSpace: `${formatBytes(statsData.Images.size)} ${locale === 'vi' ? 'đã dùng' : 'used'}`,
           percentage: totalSize > 0 ? (statsData.Images.size / totalSize) * 100 : 0,
           icon: <ImageIcon className="size-5" />,
           iconBgColor: 'bg-red-50',
@@ -112,7 +112,7 @@ export const MyHubsSection = ({
           id: 'videos',
           label: 'VIDEOS',
           itemsCount: statsData.Videos.count,
-          usedSpace: `${formatBytes(statsData.Videos.size)} used`,
+          usedSpace: `${formatBytes(statsData.Videos.size)} ${locale === 'vi' ? 'đã dùng' : 'used'}`,
           percentage: totalSize > 0 ? (statsData.Videos.size / totalSize) * 100 : 0,
           icon: <Clapperboard className="size-5" />,
           iconBgColor: 'bg-blue-50',
@@ -123,7 +123,7 @@ export const MyHubsSection = ({
           id: 'documents',
           label: 'DOCUMENTS',
           itemsCount: statsData.Documents.count,
-          usedSpace: `${formatBytes(statsData.Documents.size)} used`,
+          usedSpace: `${formatBytes(statsData.Documents.size)} ${locale === 'vi' ? 'đã dùng' : 'used'}`,
           percentage: totalSize > 0 ? (statsData.Documents.size / totalSize) * 100 : 0,
           icon: <FileText className="size-5" />,
           iconBgColor: 'bg-emerald-50',
@@ -134,7 +134,7 @@ export const MyHubsSection = ({
           id: 'other',
           label: 'OTHER',
           itemsCount: statsData.Other.count,
-          usedSpace: `${formatBytes(statsData.Other.size)} used`,
+          usedSpace: `${formatBytes(statsData.Other.size)} ${locale === 'vi' ? 'đã dùng' : 'used'}`,
           percentage: totalSize > 0 ? (statsData.Other.size / totalSize) * 100 : 0,
           icon: <Archive className="size-5" />,
           iconBgColor: 'bg-amber-50',
@@ -185,7 +185,7 @@ export const MyHubsSection = ({
           id: 'images',
           label: 'IMAGES',
           itemsCount: 1,
-          usedSpace: '450 KB used',
+          usedSpace: locale === 'vi' ? '450 KB đã dùng' : '450 KB used',
           percentage: 5,
           icon: <ImageIcon className="size-5" />,
           iconBgColor: 'bg-red-50',
@@ -196,7 +196,7 @@ export const MyHubsSection = ({
           id: 'videos',
           label: 'VIDEOS',
           itemsCount: 1,
-          usedSpace: '12.8 MB used',
+          usedSpace: locale === 'vi' ? '12.8 MB đã dùng' : '12.8 MB used',
           percentage: 65,
           icon: <Clapperboard className="size-5" />,
           iconBgColor: 'bg-blue-50',
@@ -207,7 +207,7 @@ export const MyHubsSection = ({
           id: 'documents',
           label: 'DOCUMENTS',
           itemsCount: 5,
-          usedSpace: '6.9 MB used',
+          usedSpace: locale === 'vi' ? '6.9 MB đã dùng' : '6.9 MB used',
           percentage: 28,
           icon: <FileText className="size-5" />,
           iconBgColor: 'bg-emerald-50',
@@ -218,7 +218,7 @@ export const MyHubsSection = ({
           id: 'other',
           label: 'OTHER',
           itemsCount: 1,
-          usedSpace: '12 KB used',
+          usedSpace: locale === 'vi' ? '12 KB đã dùng' : '12 KB used',
           percentage: 2,
           icon: <Archive className="size-5" />,
           iconBgColor: 'bg-amber-50',
@@ -604,32 +604,32 @@ export const MyHubsSection = ({
                       onClick={() => handleRename(folder.id, folder.name, true)}
                     >
                       <Pencil className="mr-2 size-4 text-slate-500" />
-                      Rename
+                      {locale === 'vi' ? 'Đổi tên' : 'Rename'}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => toast.success(`Downloading folder ${folder.name}`)}
                     >
                       <Download className="mr-2 size-4 text-slate-500" />
-                      Download
+                      {locale === 'vi' ? 'Tải xuống' : 'Download'}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handleMove(folder.id, folder.name, true)}
                     >
                       <FolderInput className="mr-2 size-4 text-slate-500" />
-                      Move
+                      {locale === 'vi' ? 'Di chuyển' : 'Move'}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handleShare(folder.id, folder.name)}
                     >
                       <Share2 className="mr-2 size-4 text-slate-500" />
-                      Share
+                      {locale === 'vi' ? 'Chia sẻ' : 'Share'}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       className="text-red-600 focus:text-red-600 focus:bg-red-50"
                       onClick={() => handleDeleteFolder(folder.id, folder.name)}
                     >
                       <Trash2 className="mr-2 size-4 text-red-500" />
-                      Delete
+                      {locale === 'vi' ? 'Xóa' : 'Delete'}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -640,7 +640,7 @@ export const MyHubsSection = ({
                   {folder.name}
                 </span>
                 <span className="text-[11px] font-bold text-slate-400">
-                  {folder.size} • {folder.filesCount} files
+                  {folder.size} • {folder.filesCount} {locale === 'vi' ? 'tệp' : 'files'}
                 </span>
               </div>
             </div>
@@ -650,7 +650,7 @@ export const MyHubsSection = ({
 
       {/* Files Section */}
       <div className="flex flex-col gap-4">
-        <h2 className="text-lg font-bold text-slate-800">Files</h2>
+        <h2 className="text-lg font-bold text-slate-800">{locale === 'vi' ? 'Tệp tin' : 'Files'}</h2>
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {files.map((file) => (
@@ -688,7 +688,7 @@ export const MyHubsSection = ({
                     onClick={() => handleRename(file.id, file.name, false)}
                   >
                     <Pencil className="mr-2 size-4 text-slate-500" />
-                    Rename
+                    {locale === 'vi' ? 'Đổi tên' : 'Rename'}
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => {
@@ -696,26 +696,26 @@ export const MyHubsSection = ({
                     }}
                   >
                     <Download className="mr-2 size-4 text-slate-500" />
-                    Download
+                    {locale === 'vi' ? 'Tải xuống' : 'Download'}
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => handleMove(file.id, file.name, false)}
                   >
                     <FolderInput className="mr-2 size-4 text-slate-500" />
-                    Move
+                    {locale === 'vi' ? 'Di chuyển' : 'Move'}
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => handleShare(file.id, file.name)}
                   >
                     <Share2 className="mr-2 size-4 text-slate-500" />
-                    Share
+                    {locale === 'vi' ? 'Chia sẻ' : 'Share'}
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     className="text-red-600 focus:text-red-600 focus:bg-red-50"
                     onClick={() => handleDeleteFile(file.id, file.name)}
                   >
                     <Trash2 className="mr-2 size-4 text-red-500" />
-                    Delete
+                    {locale === 'vi' ? 'Xóa' : 'Delete'}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -733,18 +733,18 @@ export const MyHubsSection = ({
           <form onSubmit={handleCreateFolderSubmit}>
             <DialogHeader>
               <DialogTitle className="text-[17px] font-bold text-slate-800">
-                Create New Folder
+                {locale === 'vi' ? 'Tạo thư mục mới' : 'Create New Folder'}
               </DialogTitle>
             </DialogHeader>
             <div className="py-6 flex flex-col gap-2">
               <Label htmlFor="folder-name" className="text-xs font-bold text-slate-500">
-                Folder Name
+                {locale === 'vi' ? 'Tên thư mục' : 'Folder Name'}
               </Label>
               <Input
                 id="folder-name"
                 value={newFolderName}
                 onChange={(e) => setNewFolderName(e.target.value)}
-                placeholder="Enter folder name..."
+                placeholder={locale === 'vi' ? 'Nhập tên thư mục...' : 'Enter folder name...'}
                 className="h-11 rounded-xl border-slate-200 text-sm focus-visible:ring-blue-600"
               />
             </div>
@@ -755,13 +755,13 @@ export const MyHubsSection = ({
                 className="h-10 rounded-xl px-4 text-xs font-bold text-slate-500"
                 onClick={() => setIsOpenFolderDialog(false)}
               >
-                Cancel
+                {locale === 'vi' ? 'Hủy' : 'Cancel'}
               </Button>
               <Button
                 type="submit"
                 className="h-10 rounded-xl bg-blue-600 px-4 text-xs font-bold text-white shadow-md hover:bg-blue-700"
               >
-                Create
+                {locale === 'vi' ? 'Tạo' : 'Create'}
               </Button>
             </DialogFooter>
           </form>
@@ -773,18 +773,18 @@ export const MyHubsSection = ({
         <DialogContent className="max-w-lg bg-white rounded-3xl p-6">
           <DialogHeader>
             <DialogTitle className="text-lg font-bold text-slate-800">
-              Folder Contents: {selectedFolder?.name}
+              {locale === 'vi' ? 'Nội dung thư mục' : 'Folder Contents'}: {selectedFolder?.name}
             </DialogTitle>
           </DialogHeader>
           
           <div className="my-4 max-h-[300px] overflow-y-auto space-y-3">
             {loadingFolderFiles ? (
               <div className="text-center py-6 text-sm text-slate-400 font-medium">
-                Loading files...
+                {locale === 'vi' ? 'Đang tải tệp...' : 'Loading files...'}
               </div>
             ) : folderFiles.length === 0 ? (
               <div className="text-center py-6 text-sm text-slate-400 font-medium">
-                This folder is empty.
+                {locale === 'vi' ? 'Thư mục này trống.' : 'This folder is empty.'}
               </div>
             ) : (
               folderFiles.map((file) => (
@@ -814,7 +814,7 @@ export const MyHubsSection = ({
               onClick={() => setSelectedFolder(null)}
               className="rounded-xl bg-blue-600 hover:bg-blue-700 font-bold px-5 text-xs text-white"
             >
-              Close
+              {locale === 'vi' ? 'Đóng' : 'Close'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -826,18 +826,18 @@ export const MyHubsSection = ({
           <form onSubmit={handleRenameSubmit}>
             <DialogHeader>
               <DialogTitle className="text-[17px] font-bold text-slate-800">
-                Rename {activeModal?.isFolder ? 'Folder' : 'File'}
+                {locale === 'vi' ? 'Đổi tên' : 'Rename'} {activeModal?.isFolder ? (locale === 'vi' ? 'thư mục' : 'Folder') : (locale === 'vi' ? 'tệp tin' : 'File')}
               </DialogTitle>
             </DialogHeader>
             <div className="py-6 flex flex-col gap-2">
               <Label htmlFor="rename-input" className="text-xs font-bold text-slate-500">
-                New Name
+                {locale === 'vi' ? 'Tên mới' : 'New Name'}
               </Label>
               <Input
                 id="rename-input"
                 value={renameValue}
                 onChange={(e) => setRenameValue(e.target.value)}
-                placeholder="Enter new name..."
+                placeholder={locale === 'vi' ? 'Nhập tên mới...' : 'Enter new name...'}
                 className="h-11 rounded-xl border-slate-200 text-sm focus-visible:ring-blue-600"
                 autoFocus
               />
@@ -849,13 +849,13 @@ export const MyHubsSection = ({
                 className="h-10 rounded-xl px-4 text-xs font-bold text-slate-500"
                 onClick={() => setActiveModal(null)}
               >
-                Cancel
+                {locale === 'vi' ? 'Hủy' : 'Cancel'}
               </Button>
               <Button
                 type="submit"
                 className="h-10 rounded-xl bg-blue-600 px-4 text-xs font-bold text-white shadow-md hover:bg-blue-700"
               >
-                Save
+                {locale === 'vi' ? 'Lưu' : 'Save'}
               </Button>
             </DialogFooter>
           </form>
@@ -868,12 +868,12 @@ export const MyHubsSection = ({
           <form onSubmit={handleMoveSubmit}>
             <DialogHeader>
               <DialogTitle className="text-[17px] font-bold text-slate-800">
-                Move {activeModal?.name}
+                {locale === 'vi' ? 'Di chuyển' : 'Move'} {activeModal?.name}
               </DialogTitle>
             </DialogHeader>
             <div className="py-6 flex flex-col gap-2">
               <Label htmlFor="move-select" className="text-xs font-bold text-slate-500">
-                Select Destination Folder
+                {locale === 'vi' ? 'Chọn thư mục đích' : 'Select Destination Folder'}
               </Label>
               <select
                 id="move-select"
@@ -881,7 +881,7 @@ export const MyHubsSection = ({
                 onChange={(e) => setMoveValue(e.target.value)}
                 className="w-full h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-700 focus:border-blue-600 focus:outline-none"
               >
-                <option value="root">Root Folder</option>
+                <option value="root">{locale === 'vi' ? 'Thư mục gốc' : 'Root Folder'}</option>
                 {folders
                   .filter((f) => f.id !== activeModal?.id)
                   .map((f) => (
@@ -898,13 +898,13 @@ export const MyHubsSection = ({
                 className="h-10 rounded-xl px-4 text-xs font-bold text-slate-500"
                 onClick={() => setActiveModal(null)}
               >
-                Cancel
+                {locale === 'vi' ? 'Hủy' : 'Cancel'}
               </Button>
               <Button
                 type="submit"
                 className="h-10 rounded-xl bg-blue-600 px-4 text-xs font-bold text-white shadow-md hover:bg-blue-700"
               >
-                Move
+                {locale === 'vi' ? 'Di chuyển' : 'Move'}
               </Button>
             </DialogFooter>
           </form>
@@ -917,19 +917,19 @@ export const MyHubsSection = ({
           <form onSubmit={handleShareSubmit}>
             <DialogHeader>
               <DialogTitle className="text-[17px] font-bold text-slate-800">
-                Share Access
+                {locale === 'vi' ? 'Chia sẻ quyền truy cập' : 'Share Access'}
               </DialogTitle>
             </DialogHeader>
             <div className="py-6 flex flex-col gap-2">
               <Label htmlFor="share-email" className="text-xs font-bold text-slate-500">
-                User Email
+                {locale === 'vi' ? 'Email người dùng' : 'User Email'}
               </Label>
               <Input
                 id="share-email"
                 type="email"
                 value={shareEmail}
                 onChange={(e) => setShareEmail(e.target.value)}
-                placeholder="Enter user email..."
+                placeholder={locale === 'vi' ? 'Nhập email người dùng...' : 'Enter user email...'}
                 className="h-11 rounded-xl border-slate-200 text-sm focus-visible:ring-blue-600"
                 required
                 autoFocus
@@ -942,13 +942,13 @@ export const MyHubsSection = ({
                 className="h-10 rounded-xl px-4 text-xs font-bold text-slate-500"
                 onClick={() => setActiveModal(null)}
               >
-                Cancel
+                {locale === 'vi' ? 'Hủy' : 'Cancel'}
               </Button>
               <Button
                 type="submit"
                 className="h-10 rounded-xl bg-blue-600 px-4 text-xs font-bold text-white shadow-md hover:bg-blue-700"
               >
-                Share
+                {locale === 'vi' ? 'Chia sẻ' : 'Share'}
               </Button>
             </DialogFooter>
           </form>
@@ -960,11 +960,13 @@ export const MyHubsSection = ({
         <DialogContent className="max-w-md bg-white rounded-3xl p-6">
           <DialogHeader>
             <DialogTitle className="text-[17px] font-bold text-slate-800">
-              Confirm Delete
+              {locale === 'vi' ? 'Xác nhận xóa' : 'Confirm Delete'}
             </DialogTitle>
           </DialogHeader>
           <div className="py-6 text-sm text-slate-600">
-            Are you sure you want to delete {activeModal?.isFolder ? 'folder' : 'file'}: <strong>{activeModal?.name}</strong>?
+            {locale === 'vi'
+              ? <>{locale === 'vi' ? 'Bạn có chắc chắn muốn xóa' : 'Are you sure you want to delete'} {activeModal?.isFolder ? (locale === 'vi' ? 'thư mục' : 'folder') : (locale === 'vi' ? 'tệp tin' : 'file')}: <strong>{activeModal?.name}</strong>?</>
+              : <>Are you sure you want to delete {activeModal?.isFolder ? 'folder' : 'file'}: <strong>{activeModal?.name}</strong>?</>}
           </div>
           <DialogFooter className="flex items-center justify-end gap-3">
             <Button
@@ -973,14 +975,14 @@ export const MyHubsSection = ({
               className="h-10 rounded-xl px-4 text-xs font-bold text-slate-500"
               onClick={() => setActiveModal(null)}
             >
-              Cancel
+              {locale === 'vi' ? 'Hủy' : 'Cancel'}
             </Button>
             <Button
               type="button"
               onClick={handleConfirmDelete}
               className="h-10 rounded-xl bg-red-600 px-4 text-xs font-bold text-white shadow-md hover:bg-red-700"
             >
-              Delete
+              {locale === 'vi' ? 'Xóa' : 'Delete'}
             </Button>
           </DialogFooter>
         </DialogContent>

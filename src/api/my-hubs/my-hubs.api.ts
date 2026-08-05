@@ -55,7 +55,7 @@ export const listFoldersAPI = async (): Promise<IFolderItem[]> => {
 };
 
 export const createFolderAPI = async (name: string): Promise<IFolderItem> => {
-  return API.post<{ message: any }>('/api/method/drive.api.files.create_folder', {
+  return API.post<{ message?: any; data?: any }>('/api/method/drive.api.files.create_folder', {
     file_name: name,
   }).then((response) => {
     const item = response.data?.message || response.data?.data || response.data;
@@ -98,7 +98,7 @@ export const createFileAPI = async (file: File): Promise<IFileItem> => {
   const formData = new FormData();
   formData.append('file', file);
 
-  return API.post<{ message: any }>('/api/method/drive.api.files.upload_file', formData, {
+  return API.post<{ message?: any; data?: any }>('/api/method/drive.api.files.upload_file', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },

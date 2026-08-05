@@ -1341,6 +1341,16 @@ export const en = {
       unpublished: '✓ Document unpublished',
       unpublishFailed: '✕ Could not unpublish document: {{error}}',
     },
+    exportExcel: 'Export Excel',
+    tabs: {
+      all: 'ALL',
+      academic: 'ACADEMIC DOCS',
+      financial: 'FINANCIAL',
+    },
+    pagination: {
+      displaying: 'Displaying {{from}} - {{to}} of {{total}} entries',
+      resultsPerPage: 'Results per page:',
+    },
   },
   templateDetail: {
     defaults: {
