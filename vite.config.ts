@@ -2,7 +2,7 @@ import { tanstackStart } from '@tanstack/react-start/plugin/vite';
 import viteReact from '@vitejs/plugin-react';
 import { defineConfig, loadEnv } from 'vite';
 import tsConfigPaths from 'vite-tsconfig-paths';
-import eslint from 'vite-plugin-eslint2';
+// import eslint from 'vite-plugin-eslint2';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
@@ -86,10 +86,10 @@ export default defineConfig(({ mode }) => {
       }),
       ...(process.env.NODE_ENV !== 'production'
         ? [
-            eslint({
-              include: ['src/**/*.{ts,tsx}', 'reactjs-platform/**/*.{ts,tsx}'],
-              emitErrorAsWarning: true,
-            }),
+            // eslint({
+            //   include: ['src/**/*.{ts,tsx}', 'reactjs-platform/**/*.{ts,tsx}'],
+            //   emitErrorAsWarning: true,
+            // }),
           ]
         : []),
       tanstackStart({

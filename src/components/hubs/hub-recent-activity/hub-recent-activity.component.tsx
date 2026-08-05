@@ -10,14 +10,16 @@ import {
   AvatarImage,
   AvatarFallback,
 } from 'reactjs-platform/ui';
+import { useTranslation } from '../../../i18n';
 
 export const HubRecentActivity = ({ activities, onActionClick }: IHubRecentActivityProps) => {
+  const { locale } = useTranslation();
   const defaultActivities: IHubActivityItem[] = [
     {
       id: '1',
       name: 'Thesis_Proposal_Final.pdf',
       fileType: 'pdf',
-      lastModified: '2 hours ago',
+      lastModified: locale === 'vi' ? '2 giờ trước' : '2 hours ago',
       directory: 'Computer Science',
       owners: [
         {
@@ -34,7 +36,7 @@ export const HubRecentActivity = ({ activities, onActionClick }: IHubRecentActiv
       id: '2',
       name: 'Lab_Notes_Week_12.docx',
       fileType: 'docx',
-      lastModified: 'Yesterday, 14:30',
+      lastModified: locale === 'vi' ? 'Hôm qua, 14:30' : 'Yesterday, 14:30',
       directory: 'AI Research Lab',
       owners: [
         {
@@ -79,12 +81,12 @@ export const HubRecentActivity = ({ activities, onActionClick }: IHubRecentActiv
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-[17px] font-bold text-slate-800">Recent Activity</h3>
+        <h3 className="text-[17px] font-bold text-slate-800">{locale === 'vi' ? 'Hoạt động gần đây' : 'Recent Activity'}</h3>
         <button
           type="button"
           className="text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors"
         >
-          View Full Audit Trail
+          {locale === 'vi' ? 'Xem nhật ký kiểm tra đầy đủ' : 'View Full Audit Trail'}
         </button>
       </div>
 
@@ -93,10 +95,10 @@ export const HubRecentActivity = ({ activities, onActionClick }: IHubRecentActiv
           <table className="w-full min-w-[700px] table-auto text-left text-sm">
             <thead>
               <tr className="border-b border-slate-100 bg-slate-50/50 text-[11px] font-bold tracking-wider text-slate-400 uppercase">
-                <th className="px-6 py-4">Name</th>
-                <th className="px-6 py-4">Last Modified</th>
-                <th className="px-6 py-4">Directory</th>
-                <th className="px-6 py-4">Owners</th>
+                <th className="px-6 py-4">{locale === 'vi' ? 'Tên' : 'Name'}</th>
+                <th className="px-6 py-4">{locale === 'vi' ? 'Cập nhật cuối' : 'Last Modified'}</th>
+                <th className="px-6 py-4">{locale === 'vi' ? 'Thư mục' : 'Directory'}</th>
+                <th className="px-6 py-4">{locale === 'vi' ? 'Người sở hữu' : 'Owners'}</th>
                 <th className="w-16 px-6 py-4 text-center" aria-label="Actions" />
               </tr>
             </thead>
@@ -152,18 +154,18 @@ export const HubRecentActivity = ({ activities, onActionClick }: IHubRecentActiv
                         <DropdownMenuItem
                           onClick={() => onActionClick?.('view', activity)}
                         >
-                          View Details
+                          {locale === 'vi' ? 'Xem chi tiết' : 'View Details'}
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => onActionClick?.('download', activity)}
                         >
-                          Download
+                          {locale === 'vi' ? 'Tải xuống' : 'Download'}
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => onActionClick?.('delete', activity)}
                           className="text-red-600 focus:text-red-600 focus:bg-red-50"
                         >
-                          Delete
+                          {locale === 'vi' ? 'Xóa' : 'Delete'}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

@@ -1,9 +1,12 @@
 import { useNavigate } from '@tanstack/react-router';
-import { Bell, Mic, Search, Menu, FileText } from 'lucide-react';
+import { Mic, MicOff, Search, Menu, FileText } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { toast } from 'react-toastify';
 import { useTranslation } from '../../../i18n/use-translation';
 import { searchFilesAPI, type ISearchFileResult } from 'api';
 import { FilePreviewModal } from '../../hubs';
+import { NotificationDropdown, type INotificationItem } from '../notification-dropdown';
+import type { IHeaderProps, ISpeechRecognitionInstance } from './header.type';
 
 const TRENDING_TAGS = [
   '#AIEthics',
@@ -14,17 +17,11 @@ const TRENDING_TAGS = [
   '#DigitalHumanities',
 ];
 
-interface IHeaderProps {
-  isSidebarCollapsed?: boolean;
-  onSidebarCollapsedChange?: (collapsed: boolean) => void;
-}
-
 export const Header = ({ isSidebarCollapsed, onSidebarCollapsedChange }: IHeaderProps) => {
   const { t, locale, toggleLocale } = useTranslation();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
-  const [notificationCount] = useState(3); // TODO: replace with real notification count from API
-  const activeLang = locale === 'vi' ? 'VN' : 'EN';
+  const activeLang = locale === 'vi' ? 'VI' : 'EN';
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Suggestions search states
@@ -37,6 +34,10 @@ export const Header = ({ isSidebarCollapsed, onSidebarCollapsedChange }: IHeader
     mimeType?: string | null;
     fileUrl?: string | null;
   } | null>(null);
+
+  // Speech Recognition states
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef<ISpeechRecognitionInstance | null>(null);
 
   // Debounced search for suggestions
   useEffect(() => {
@@ -68,12 +69,95 @@ export const Header = ({ isSidebarCollapsed, onSidebarCollapsedChange }: IHeader
     const q = searchQuery.trim();
     if (!q) return;
     setShowSuggestions(false);
-    navigate({ to: '/documents', search: { search: q } as never });
+    void navigate({ to: '/documents', search: { search: q } as never });
   };
 
+  // Speech recognition handler
   const handleMicClick = () => {
-    // TODO: implement voice search
-    inputRef.current?.focus();
+    if (isListening) {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+      setIsListening(false);
+      return;
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      toast.warning(
+        locale === 'vi'
+          ? 'Trình duyệt của bạn không hỗ trợ tìm kiếm bằng giọng nói.'
+          : 'Voice search is not supported in your browser.',
+      );
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRecognition();
+      recognitionRef.current = recognition;
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.lang = locale === 'vi' ? 'vi-VN' : 'en-US';
+
+      recognition.onstart = () => {
+        setIsListening(true);
+        inputRef.current?.focus();
+      };
+
+      recognition.onresult = (event) => {
+        let transcript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          transcript += event.results[i][0].transcript;
+        }
+        setSearchQuery(transcript);
+        setShowSuggestions(true);
+      };
+
+      recognition.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
+        setIsListening(false);
+        if (event.error === 'not-allowed') {
+          toast.error(
+            locale === 'vi'
+              ? 'Quyền truy cập micro đã bị từ chối. Vui lòng cho phép quyền micro.'
+              : 'Microphone access denied. Please allow microphone permission.',
+          );
+        } else if (event.error !== 'no-speech') {
+          toast.error(
+            locale === 'vi'
+              ? 'Có lỗi xảy ra khi nhận diện giọng nói.'
+              : 'An error occurred during speech recognition.',
+          );
+        }
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognition.start();
+    } catch (err) {
+      console.error('Failed to initialize speech recognition:', err);
+      setIsListening(false);
+      toast.error(
+        locale === 'vi'
+          ? 'Không thể khởi chạy tìm kiếm giọng nói.'
+          : 'Could not launch voice search.',
+      );
+    }
+  };
+
+  const handleSelectNotification = (item: INotificationItem) => {
+    const fileUrl = item.file_url
+      ? item.file_url
+      : `/api/method/drive.api.s3.fetch?path=${encodeURIComponent(item.user_name || item.shared_by_email)}/${encodeURIComponent(item.file_name)}`;
+
+    setPreviewFile({
+      entityName: item.id,
+      fileName: item.file_name,
+      mimeType: item.file_type === 'Video' ? 'video/mp4' : null,
+      fileUrl,
+    });
   };
 
   return (
@@ -92,7 +176,12 @@ export const Header = ({ isSidebarCollapsed, onSidebarCollapsedChange }: IHeader
         {/* Search bar pill */}
         <form
           onSubmit={handleSearch}
-          className="relative flex h-11 flex-1 items-center gap-2 rounded-full border border-slate-200 bg-white pl-4 pr-1.5 transition-colors focus-within:border-blue-400 focus-within:shadow-sm">
+          className={`relative flex h-11 flex-1 items-center gap-2 rounded-full border bg-white pl-4 pr-1.5 transition-all ${
+            isListening
+              ? 'border-red-400 ring-2 ring-red-100 shadow-md'
+              : 'border-slate-200 focus-within:border-blue-400 focus-within:shadow-sm'
+          }`}
+        >
           <Search className="size-4 text-slate-400 shrink-0" aria-hidden="true" />
           <input
             ref={inputRef}
@@ -101,7 +190,13 @@ export const Header = ({ isSidebarCollapsed, onSidebarCollapsedChange }: IHeader
             onChange={(e) => setSearchQuery(e.target.value)}
             onFocus={() => setShowSuggestions(true)}
             onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-            placeholder={t('header.searchPlaceholder')}
+            placeholder={
+              isListening
+                ? locale === 'vi'
+                  ? 'Đang nghe... Nói từ khóa tìm kiếm của bạn'
+                  : 'Listening... Speak your search query'
+                : t('header.searchPlaceholder')
+            }
             className="min-w-0 flex-1 bg-transparent text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none"
           />
 
@@ -109,15 +204,27 @@ export const Header = ({ isSidebarCollapsed, onSidebarCollapsedChange }: IHeader
           <div className="flex items-center gap-1 border-l border-slate-200 pl-2">
             <button
               type="button"
-              title={t('header.voiceSearch')}
+              title={
+                isListening
+                  ? locale === 'vi'
+                    ? 'Dừng nghe'
+                    : 'Stop listening'
+                  : t('header.voiceSearch')
+              }
               onClick={handleMicClick}
-              className="flex items-center justify-center rounded-full p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600">
-              <Mic className="size-3.5" />
+              className={`flex items-center justify-center rounded-full p-1.5 transition-all ${
+                isListening
+                  ? 'bg-red-50 text-red-600 animate-pulse ring-2 ring-red-400'
+                  : 'text-slate-400 hover:bg-slate-100 hover:text-slate-600'
+              }`}
+            >
+              {isListening ? <MicOff className="size-3.5" /> : <Mic className="size-3.5" />}
             </button>
             <button
               type="submit"
-              className="rounded-full bg-blue-600 px-5 py-1.5 text-xs font-bold text-white shadow-sm transition-colors hover:bg-blue-700">
-              Search
+              className="rounded-full bg-blue-600 px-5 py-1.5 text-xs font-bold text-white shadow-sm transition-colors hover:bg-blue-700"
+            >
+              {t('header.search')}
             </button>
           </div>
 
@@ -176,9 +283,9 @@ export const Header = ({ isSidebarCollapsed, onSidebarCollapsedChange }: IHeader
             title="Switch language"
           >
             <div
-              className={`flex h-full w-1/2 items-center justify-center rounded-full transition-all ${activeLang === 'VN' ? 'bg-white shadow-sm' : ''}`}
+              className={`flex h-full w-1/2 items-center justify-center rounded-full transition-all ${activeLang === 'VI' ? 'bg-white shadow-sm' : ''}`}
             >
-              <span className={`text-[11px] font-bold ${activeLang === 'VN' ? 'text-slate-900' : 'text-slate-500'}`}>VN</span>
+              <span className={`text-[11px] font-bold ${activeLang === 'VI' ? 'text-slate-900' : 'text-slate-500'}`}>VN</span>
             </div>
             <div
               className={`flex h-full w-1/2 items-center justify-center rounded-full transition-all ${activeLang === 'EN' ? 'bg-white shadow-sm' : ''}`}
@@ -187,16 +294,8 @@ export const Header = ({ isSidebarCollapsed, onSidebarCollapsedChange }: IHeader
             </div>
           </button>
 
-          {/* Notification bell */}
-          <button
-            type="button"
-            title={t('header.notifications')}
-            className="relative flex size-9 items-center justify-center rounded-full bg-white text-slate-600 border border-slate-200 transition-colors hover:bg-slate-50">
-            <Bell className="size-4" />
-            {notificationCount > 0 && (
-              <span className="absolute right-0.5 top-0.5 flex size-2 items-center justify-center rounded-full bg-red-500 ring-2 ring-white" />
-            )}
-          </button>
+          {/* Notification dropdown component */}
+          <NotificationDropdown onSelectNotification={handleSelectNotification} />
         </div>
       </div>
 
