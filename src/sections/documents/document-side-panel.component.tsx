@@ -1,5 +1,5 @@
 import { X, FileText, Download, Edit3, UserPlus, Folder } from 'lucide-react';
-import { type IDocument, exportOfficeArtifactAPI, getFileVersionsAPI, type IFileVersion, updateDocumentAPI } from 'api';
+import { type IDocument, exportOfficeArtifactAPI, getFileVersionsAPI, type IFileVersion, updateDocumentAPI, downloadDriveFile } from 'api';
 import { formatDate } from '../../lib';
 import { useState, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
@@ -201,6 +201,16 @@ export const DocumentSidePanel = ({
     if (!document) return;
     try {
       setDownloading(true);
+
+      // 1. If the document is a Drive file (has entity_name), use the authenticated API proxy.
+      //    This avoids direct MinIO connections that may be blocked on the client's network.
+      const entityName = (document as any).entity_name as string | undefined;
+      if (entityName) {
+        await downloadDriveFile(entityName, document.title || 'download');
+        return;
+      }
+
+      // 2. Direct file_url fallback (e.g. publicly hosted assets)
       if (document.file_url) {
         const fullUrl = document.file_url.startsWith('http') ? document.file_url : `${import.meta.env.VITE_API_ENDPOINT || ''}${document.file_url}`;
         const a = window.document.createElement('a');
@@ -210,13 +220,14 @@ export const DocumentSidePanel = ({
         a.click();
         return;
       }
-      
+
+      // 3. Generate and export office artifact (PDF / xlsx / pptx)
       const isSpreadsheet = document.artifact_type === 'spreadsheet';
       const isPresentation = document.artifact_type === 'presentation';
       const format = isSpreadsheet ? 'xlsx' : isPresentation ? 'pptx' : 'pdf';
-      
+
       const blob = await exportOfficeArtifactAPI('document', document.id, format);
-      
+
       const suggestedName = `${document.title || 'document'}.${format}`;
       const url = window.URL.createObjectURL(blob);
       const a = window.document.createElement('a');

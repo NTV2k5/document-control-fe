@@ -333,12 +333,9 @@ export const FilePreviewModal = ({
           return;
         }
 
-        // Optimize performance: render media and images directly using formattedFileUrl if available
-        if ((mimeCategory === 'media' || mimeCategory === 'image') && formattedFileUrl) {
-          setFsmState('RENDER_SUCCESS');
-          setLoading(false);
-          return;
-        }
+        // For mock files, images/media already handled by loadMockData above.
+        // For real files, always fetch through the API proxy (getFileContentAPI) so video/audio/images
+        // do NOT hit the MinIO origin directly (which may be blocked on the client's network).
 
         const blob = await getFileContentAPI(entityName);
         if (controller.signal.aborted) return;
@@ -395,7 +392,7 @@ export const FilePreviewModal = ({
       } catch (err: any) {
         if (!controller.signal.aborted) {
           setError(err?.message || 'Không thể tải nội dung tệp tin từ API');
-          setFsmState('ERROR');
+          setFsmState('ERROR_STATE');
         }
       } finally {
         if (!controller.signal.aborted) {
