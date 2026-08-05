@@ -325,8 +325,10 @@ export const FilePreviewModal = ({
       setError(null);
       setFsmState('RESOLVING_MODULE');
 
+      const isMockFile = !entityName || entityName.startsWith('mock-');
+
       try {
-        if (!entityName) {
+        if (isMockFile) {
           loadMockData(fileName, mimeCategory);
           return;
         }
@@ -353,8 +355,9 @@ export const FilePreviewModal = ({
               setDocxHtml(result.value);
               setTotalPages(Math.max(1, Math.ceil(result.value.length / 1500)));
             }
-          } catch {
-            loadMockData(fileName, mimeCategory);
+          } catch (e: any) {
+            console.error(e);
+            throw new Error(e?.message || 'Không thể hiển thị tài liệu Word từ API');
           }
         } else if (ext === 'xlsx' || ext === 'xls') {
           try {
@@ -368,8 +371,9 @@ export const FilePreviewModal = ({
               setExcelSheets(sheets);
               setTotalPages(sheets.length);
             }
-          } catch {
-            loadMockData(fileName, mimeCategory);
+          } catch (e: any) {
+            console.error(e);
+            throw new Error(e?.message || 'Không thể hiển thị tài liệu Excel từ API');
           }
         } else if (mimeCategory === 'code_text') {
           const reader = new FileReader();
@@ -388,9 +392,10 @@ export const FilePreviewModal = ({
           }
         }
         setFsmState('RENDER_SUCCESS');
-      } catch {
+      } catch (err: any) {
         if (!controller.signal.aborted) {
-          loadMockData(fileName, mimeCategory);
+          setError(err?.message || 'Không thể tải nội dung tệp tin từ API');
+          setFsmState('ERROR');
         }
       } finally {
         if (!controller.signal.aborted) {
@@ -720,6 +725,7 @@ export const FilePreviewModal = ({
         ) : (
           <DocumentCanvas
             fileName={currentFileName}
+            entityName={entityName}
             mimeCategory={mimeCategory}
             loading={loading}
             error={error}

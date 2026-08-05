@@ -2,6 +2,7 @@ import type { TMimeCategory } from '../file-preview-modal.type';
 
 export interface IDocumentCanvasProps {
   fileName: string;
+  entityName?: string | null;
   mimeCategory: TMimeCategory;
   loading: boolean;
   error: string | null;

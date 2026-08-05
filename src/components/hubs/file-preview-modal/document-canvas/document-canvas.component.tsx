@@ -4,6 +4,7 @@ import type { IDocumentCanvasProps } from './document-canvas.type';
 
 export const DocumentCanvas = ({
   fileName,
+  entityName,
   mimeCategory,
   loading,
   error,
@@ -37,6 +38,7 @@ export const DocumentCanvas = ({
   }
 
   const directUrl = fileUrl || null;
+  const isMockFile = !entityName || entityName.startsWith('mock-');
 
   // Local state to handle source fallbacks on error (e.g. connection refused, 404/403)
   const [imgSrc, setImgSrc] = useState<string>('');
@@ -71,7 +73,7 @@ export const DocumentCanvas = ({
             className="max-h-[85vh] max-w-full object-contain rounded shadow-2xl"
             onError={() => {
               const defaultImageMock = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&auto=format&fit=crop&q=80';
-              if (imgSrc !== defaultImageMock) {
+              if (isMockFile && imgSrc !== defaultImageMock) {
                 setImgSrc(blobUrl || defaultImageMock);
               }
             }}
@@ -113,7 +115,7 @@ export const DocumentCanvas = ({
                 className="w-full h-full object-contain"
                 onError={() => {
                   const defaultVideoMock = 'https://www.w3schools.com/html/mov_bbb.mp4';
-                  if (videoSrc !== defaultVideoMock) {
+                  if (isMockFile && videoSrc !== defaultVideoMock) {
                     setVideoSrc(blobUrl || defaultVideoMock);
                   }
                 }}
@@ -137,7 +139,7 @@ export const DocumentCanvas = ({
             className="w-full max-w-md"
             onError={() => {
               const defaultAudioMock = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
-              if (audioSrc !== defaultAudioMock) {
+              if (isMockFile && audioSrc !== defaultAudioMock) {
                 setAudioSrc(blobUrl || defaultAudioMock);
               }
             }}
