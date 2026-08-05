@@ -109,7 +109,7 @@ export const FilePreviewModal = ({
   currentIndex = 0,
   onNavigate,
 }: IFilePreviewModalProps) => {
-  const formattedFileUrl = fileUrl ? fileUrl.replace(/^https?:\/\/localhost:9100/, '') : null;
+  const formattedFileUrl = fileUrl || null;
   const [fsmState, setFsmState] = useState<TFSMState>('IDLE');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
