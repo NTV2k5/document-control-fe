@@ -39,23 +39,6 @@ export default defineConfig(({ mode }) => {
               proxyReq.removeHeader('expect');
               proxyReq.setHeader('ngrok-skip-browser-warning', 'true');
             });
-            proxy.on('proxyRes', (proxyRes) => {
-              if (proxyRes.headers.location && proxyRes.headers.location.includes('localhost:9100')) {
-                proxyRes.headers.location = proxyRes.headers.location.replace(/^https?:\/\/localhost:9100/, '');
-              }
-            });
-          },
-        },
-        '/drive': {
-          target: targetUrl,
-          changeOrigin: true,
-          secure: false,
-          configure: (proxy) => {
-            proxy.on('proxyReq', (proxyReq) => {
-              proxyReq.removeHeader('Expect');
-              proxyReq.removeHeader('expect');
-              proxyReq.setHeader('ngrok-skip-browser-warning', 'true');
-            });
           },
         },
         '/files': {

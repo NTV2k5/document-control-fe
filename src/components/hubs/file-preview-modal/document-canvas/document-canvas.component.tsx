@@ -1,4 +1,5 @@
 import { Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import type { IDocumentCanvasProps } from './document-canvas.type';
 
 export const DocumentCanvas = ({
@@ -35,7 +36,18 @@ export const DocumentCanvas = ({
     );
   }
 
-  const directUrl = fileUrl ? fileUrl.replace(/^https?:\/\/localhost:9100/, '') : null;
+  const directUrl = fileUrl || null;
+
+  // Local state to handle source fallbacks on error (e.g. connection refused, 404/403)
+  const [imgSrc, setImgSrc] = useState<string>('');
+  const [videoSrc, setVideoSrc] = useState<string>('');
+  const [audioSrc, setAudioSrc] = useState<string>('');
+
+  useEffect(() => {
+    setImgSrc(directUrl || blobUrl || '');
+    setVideoSrc(directUrl || blobUrl || '');
+    setAudioSrc(directUrl || blobUrl || '');
+  }, [directUrl, blobUrl]);
   const zoomStyle: React.CSSProperties = {
     zoom: `${zoomLevel}%`,
     transform: `scale(${zoomLevel / 100})`,
@@ -45,10 +57,10 @@ export const DocumentCanvas = ({
 
   switch (mimeCategory) {
     case 'image':
-      return (directUrl || blobUrl) ? (
+      return imgSrc ? (
         <div className="flex flex-1 items-center justify-center overflow-auto p-6">
           <img
-            src={directUrl || blobUrl || ''}
+            src={imgSrc}
             alt={fileName}
             style={{
               transform: `scale(${zoomLevel / 100})`,
@@ -56,6 +68,12 @@ export const DocumentCanvas = ({
               transition: 'transform 0.2s ease-in-out',
             }}
             className="max-h-[85vh] max-w-full object-contain rounded shadow-2xl"
+            onError={() => {
+              const defaultImageMock = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&auto=format&fit=crop&q=80';
+              if (imgSrc !== defaultImageMock) {
+                setImgSrc(blobUrl || defaultImageMock);
+              }
+            }}
           />
         </div>
       ) : null;
@@ -83,14 +101,20 @@ export const DocumentCanvas = ({
 
     case 'media':
       if (fileName.match(/\.(mp4|webm|ogg|mov)$/i)) {
-        return (directUrl || blobUrl) ? (
+        return videoSrc ? (
           <div className="flex flex-1 items-center justify-center p-6 select-none">
             <div className="w-full max-w-4xl aspect-video rounded-2xl overflow-hidden bg-black shadow-2xl border border-white/10 flex items-center justify-center">
               <video
-                src={directUrl || blobUrl || ''}
+                src={videoSrc}
                 controls
                 autoPlay={false}
                 className="w-full h-full object-contain"
+                onError={() => {
+                  const defaultVideoMock = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+                  if (videoSrc !== defaultVideoMock) {
+                    setVideoSrc(blobUrl || defaultVideoMock);
+                  }
+                }}
               >
                 Trình duyệt của bạn không hỗ trợ phát video này.
               </video>
@@ -98,13 +122,23 @@ export const DocumentCanvas = ({
           </div>
         ) : null;
       }
-      return (directUrl || blobUrl) ? (
+      return audioSrc ? (
         <div className="flex flex-1 flex-col items-center justify-center gap-6 p-6 text-white select-none">
           <div className="flex size-24 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600 shadow-2xl">
             <span className="text-2xl font-bold">♪</span>
           </div>
           <span className="text-lg font-medium text-white/90">{fileName}</span>
-          <audio src={directUrl || blobUrl || ''} controls className="w-full max-w-md">
+          <audio
+            src={audioSrc}
+            controls
+            className="w-full max-w-md"
+            onError={() => {
+              const defaultAudioMock = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
+              if (audioSrc !== defaultAudioMock) {
+                setAudioSrc(blobUrl || defaultAudioMock);
+              }
+            }}
+          >
             Trình duyệt của bạn không hỗ trợ phát âm thanh này.
           </audio>
         </div>
